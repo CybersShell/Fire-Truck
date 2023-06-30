@@ -1,0 +1,6 @@
+{
+    "board": "arduino:avr:uno",
+    "programmer": "avrisp",
+    "port": "COM6",
+    "sketch": "Fire-Truck.ino"
+}

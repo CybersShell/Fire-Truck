@@ -1,22 +1,21 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                           //
 // This program is what will be used to communicate to the Arduino board which will operate and control the other parts of   //
 // the firetruck including the motor controller, water pump, speakers, bluetooth module (HM-10), and micro SD card adapter.  //
 // NOTE: To see if the circuit board and bluetooth module are communicating, use the serial monitor to check for input.      //
 // Also note that the serial monitor does not send line endings to the HM-10. Programmed by Colby McClure at SMAP.           //
+//                                                                                                                           //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+// TODO: Change all Serial calls/objects to BTserial after testing??
+
 // Links the header file
-#include "firetruck_v1.6.h"
+#include "firetruck.h"
 
 void setup() {
   // Sets up the baud rate of the Arduino at 9600
   Serial.begin(baud);
-
-  // Debug message in case the serial connection could not be established
-  if (!Serial.available()) {
-    Serial.println("Connection with serial not established");
-    Serial.println("");
-  }
 
   // Debug message
   Serial.println("Serial started at 9600");
@@ -33,22 +32,23 @@ void setup() {
   BTsetup(baud);
 
   // Attaches the servo object to the correct servo pin and prints debug message in case it does not connect (Commented out until servo gets used)
-  /*Servo1.attach(servoPin);
+    Servo1.attach(servoPin);
     if(!Servo1.attach(servoPin)) {
       Serial.println("Servo connection not established"); 
       Serial.println("");
-    }*/
+    }
 
   // Initialize the SPI bus ports and begin connection
   initSPI();
 
   // Sets up the speaker pin
-  //audio.speakerPin = speakerPin;
-  //pinMode(speakerPin, OUTPUT);
+  audio.speakerPin = speakerPin;
+  pinMode(speakerPin, OUTPUT);
 
   // Debug message in case the card does not get read
   if (!SD.begin(SDpin)) {
     Serial.println("Card cannot be read");
+    Serial.println("");
     return;
   } else {
     Serial.println("Card has been read");
@@ -57,6 +57,10 @@ void setup() {
 
   // Function that will initialize the DC motors
   initDC();
+
+  // Initialize the water pump port
+  pinMode(water, OUTPUT);
+  digitalWrite(water, HIGH); 
 
   // The following code is to make sure that the speaker works, so it will play a clown horn to test
   audio.setVolume(7);
@@ -92,6 +96,9 @@ void loop() {
     }
   }
 
+  // Function to check the distance from the sensor and prints it
+  dist = checkDist();
+
   // If else statements that'll call the specific function if the condition gets met
   if (inData == "P") {
     stop();
@@ -109,21 +116,36 @@ void loop() {
     backward();
   } else if (inData == "S") {
     brake();
+  } else if (inData == "W") {
+    waterPump(); 
   }
 
-  // Turn the servo right (Commented out until servo is used)
-  /*if (inData == "R") {
+  // Small conditional statement to check the sensor
+  if(dist <= 20) {
+    brake(); 
+    inData = "S"; 
+    while(dist <= 20) {
+      backward(); 
+    }
+  } else if(inData == "F") {
+    forward();
+  } else if(inData == "B") {
+    backward(); 
+  }
+
+  // Turn the servo right
+  if (inData == "R") {
       digitalWrite(servoPin, HIGH);
       Servo1.write(180); 
       delay(500);
       inData == "null";
-    }*/
+    }
 
-  // Turn the servo left (Commented out until servo is used)
-  /*if (inData == "L") {
+  // Turn the servo left
+  if (inData == "L") {
         digitalWrite(servoPin, HIGH);
         Servo1.write(0);
         delay(500);
         inData == "null";
-    }*/
+    }
 }
