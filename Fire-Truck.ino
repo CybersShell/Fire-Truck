@@ -85,69 +85,101 @@ void loop() {
 
   // Read from the Bluetooth module and send to the Arduino serial monitor
   BTSerial.listen();
-  if (BTSerial.available() > 0) {
-    Serial.print("Character received: ");
-    appData = (char) BTSerial.read();
-    inData = String(appData);
-    Serial.write(appData);
-    Serial.println();
-  }
+  while(BTSerial.available()>0)
+  {
+    appData = BTSerial.read();
+    Serial.print(appData);
+    data += appData;
+    // if (BTSerial.available() == 0)
+    // {
+    //   Serial.println();
+    // }
 
-  // // Read from the Serial Monitor and send to the Bluetooth module
-  if (Serial.available() > 0) {
-    appData = Serial.read();
-    BTSerial.write(appData);
-  }
+  // BTSerial.println(data);
+  // if (appData == '\n')
+  // {
+    // Serial.print("Received: ");
+    // Serial.println(data);
 
-  // If else statements that'll call the specific function if the condition gets met
-  if (inData == "P") {
-    stop();
-  } else if (inData == "A") {
-    soundbyte1();
-  } else if (inData == "C") {
-    soundbyte2();
-  } else if (inData == "M") {
-    motorTest();
-  } else if (inData == "T") {
-    motorTest2();
-  } else if (inData == "F") {
-    forward();
-    motorsMoving = true;
-    timeMotorsEngaged = currentTime;
-    BTSerial.print("Time motors engaged: ");
-    BTSerial.println(timeMotorsEngaged);
-    inData = "null";
-  } else if (inData == "B") {
-    backward();
-    motorsMoving = true;
-    timeMotorsEngaged = currentTime;
-    BTSerial.print("Time motors engaged: ");
-    BTSerial.println(timeMotorsEngaged);
-    inData = "null";
-  } else if (inData == "S") {
-    brake();
-    motorsMoving = false;
-    inData = "null";
-  } else if (inData == "W") {
-    waterPump();
-  } else if (inData == "V") {
-    printVoltage();
-  }
 
-  // Turn the servo right
-  if (inData == "R") {
-    digitalWrite(servoPin, HIGH);
-    Servo1.write(180); 
-    delay(500);
-    inData = "null";
-  }
+  // if (BTSerial.available() > 0) {
+  //   Serial.print("Character received: ");
+  //   appData = (char) BTSerial.read();
+  //   inData = String(appData);
+  //   Serial.write(appData);
+  //   Serial.println();
+  // }
 
-  // // Turn the servo left
-  if (inData == "L") {
-    digitalWrite(servoPin, HIGH);
-    Servo1.write(0);
-    delay(500);
-    inData = "null";
+    // // Read from the Serial Monitor and send to the Bluetooth module
+    // if (Serial.available() > 0) {
+    //   appData = Serial.read();
+    //   BTSerial.write(appData);
+    // }
+
+    // If else statements that'll call the specific function if the condition gets met
+    if (data == "P") {
+      stop();
+      data = "";
+    } else if (data == "A") {
+      soundbyte1();
+      data = "";
+    } else if (data == "C") {
+      soundbyte2();
+      data = "";
+    } else if (data == "M") {
+      motorTest();
+      data = "";
+    } else if (data == "T") {
+      motorTest2();
+      data = "";
+    } else if (data == "F") {
+      forward();
+      motorsMoving = true;
+      timeMotorsEngaged = currentTime;
+      BTSerial.print("Time motors engaged: ");
+      BTSerial.println(timeMotorsEngaged);
+      data = "";
+    } else if (data == "B") {
+      backward();
+      motorsMoving = true;
+      timeMotorsEngaged = currentTime;
+      BTSerial.print("Time motors engaged: ");
+      BTSerial.println(timeMotorsEngaged);
+      data = "";
+    } else if (data == "S") {
+      brake();
+      motorsMoving = false;
+      data = "";
+    } else if (data == "W") {
+      waterPump();
+    } else if (data == "Volts") {
+      printVoltage();
+      data = "";
+    }
+
+    // Turn the servo right
+    if (data == "R") {
+      digitalWrite(servoPin, HIGH);
+      Servo1.write(180); 
+      delay(500);
+      data = "";
+    }
+
+    // // Turn the servo left
+    if (data == "L") {
+      digitalWrite(servoPin, HIGH);
+      Servo1.write(0);
+      delay(500);
+      data = "";
+    }
+
+    // if (appData == 13) {  
+        // Serial.print("Received: ");
+        // Serial.println(data);
+        // data = "";
+    // } 
+      // data = "";
+  
   }
 
   if (motorsMoving)
@@ -327,5 +359,5 @@ void printVoltage()
 
   BTSerial.print("Voltage: ");
   BTSerial.println(volts);
-  inData = "null";
+  data = "";
 }

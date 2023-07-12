@@ -66,6 +66,7 @@ const int SDpin = 10;
 // Variables used for recieving and transmitting data
 String inData = "";
 char appData;
+String data;
 boolean NL = true;
 
 // Constant used for baud rate
