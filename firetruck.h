@@ -79,7 +79,7 @@ const int water = A5;
 double volts;
 
 // Variables for events
-const unsigned long timeToStopMotor = 1000 * 30; // 60 seconds
+const unsigned long timeToStopMotor = 1000 * 30; // 30 seconds
 unsigned long currentTime;
 unsigned long timeMotorsEngaged;
 boolean motorsMoving;
