@@ -17,10 +17,11 @@
 // Library for reading internal voltage
 #include <CPUVolt.h>
 
+#include <Battery.h>
 
 // Creates the bluetooth object with the reciever and transmitter pins as the arguments
-const int btRxPin = A4;
-const int btTxPin = A3;
+const int btRxPin = A3;
+const int btTxPin = A4;
 SoftwareSerial BTSerial(btRxPin, btTxPin);
 
 
@@ -63,11 +64,9 @@ TMRpcm audio;
 const int speakerPin = 9;
 const int SDpin = 10;
 
-// Variables used for recieving and transmitting data
-String inData = "";
-char appData;
-String data;
-boolean NL = true;
+// Variable used for recieving and transmitting data
+char data;
+
 
 // Constant used for baud rate
 const int baud = 9600;
@@ -82,4 +81,12 @@ double volts;
 const unsigned long timeToStopMotor = 1000 * 30; // 30 seconds
 unsigned long currentTime;
 unsigned long timeMotorsEngaged;
-boolean motorsMoving;
+boolean motorsMoving = false;
+
+// Battery sensing setup and constants
+#define SENSE_PIN A0
+#define ACTIVATION_PIN A1
+#define MAX_VOLTAGE 12000
+#define MIN_VOLTAGE 10000
+
+Battery batt = Battery(10000, 12000, SENSE_PIN);

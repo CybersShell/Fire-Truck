@@ -1,14 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                           //
-// This program is what will be used to communicate to the Arduino board which will operate and control the other parts of   //
-// the firetruck including the motor controller, water pump, speakers, bluetooth module (HM-10), and micro SD card adapter.  //
-// NOTE: To see if the circuit board and bluetooth module are communicating, use the serial monitor to check for input.      //
-// Also note that the serial monitor does not send line endings to the HM-10. Programmed by Colby McClure at SMAP.           //
-//                                                                                                                           //
+//                                                                                                                           
+// This program is what will be used to communicate to the Arduino board which will operate and control the other parts of   
+// the firetruck including the motor controller, water pump, speakers, bluetooth module (HM-10), and micro SD card adapter.  
+// NOTE: To see if the circuit board and bluetooth module are communicating, use the serial monitor to check for input.      
+// Also note that the serial monitor does not send line endings to the HM-10. Programmed by Colby McClure and Andrew Woodlee at SMAP.
+//                                                                                                                           
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-// TODO: Change all Serial calls/objects to BTserial after testing??
 
 // Links the header file
 #include "firetruck.h"
@@ -31,17 +29,17 @@ void setup() {
   // Sets up the baud rate of the HM-10 bluetooth module and prints a debug message
   BTsetup(baud);
 
-  /*
   // Uncomment when servo is used
   
   // Attaches the servo object to the correct servo pin and prints debug message in case it does not connect (Commented out until servo gets used)
     Servo1.attach(servoPin);
-    if(!Servo1.attach(servoPin)) {
+    delay(500);
+    if(!Servo1.attached()) {
       Serial.println("Servo connection not established"); 
       Serial.println("");
     }
     
-  */
+
 
   // Initialize the SPI bus ports and begin connection
   initSPI();
@@ -65,7 +63,11 @@ void setup() {
 
   // Initialize the water pump port
   pinMode(water, OUTPUT);
-  digitalWrite(water, HIGH); 
+  digitalWrite(water, HIGH);
+
+  // Start battery sensing
+  batt.begin(5000, 3.2, &sigmoidal);
+  batt.onDemand(ACTIVATION_PIN, LOW);
 
   // The following code is to make sure that the speaker works, so it will play a clown horn to test
   audio.setVolume(7);
@@ -83,117 +85,105 @@ void loop() {
 
   currentTime = millis();
 
+  if (motorsMoving && (currentTime - timeMotorsEngaged >= timeToStopMotor))
+  {
+    brake();
+    motorsMoving = false;
+  }
+
   // Read from the Bluetooth module and send to the Arduino serial monitor
   BTSerial.listen();
-  while(BTSerial.available()>0)
+  if(BTSerial.available())
   {
-    appData = BTSerial.read();
-    Serial.print(appData);
-    data += appData;
-    // if (BTSerial.available() == 0)
-    // {
-    //   Serial.println();
-    // }
-
-  // BTSerial.println(data);
-  // if (appData == '\n')
-  // {
-    // Serial.print("Received: ");
-    // Serial.println(data);
-
-
-  // if (BTSerial.available() > 0) {
-  //   Serial.print("Character received: ");
-  //   appData = (char) BTSerial.read();
-  //   inData = String(appData);
-  //   Serial.write(appData);
-  //   Serial.println();
-  // }
-
-    // // Read from the Serial Monitor and send to the Bluetooth module
-    // if (Serial.available() > 0) {
-    //   appData = Serial.read();
-    //   BTSerial.write(appData);
-    // }
-
-    // If else statements that'll call the specific function if the condition gets met
-    if (data == "P") {
-      stop();
-      data = "";
-    } else if (data == "A") {
-      soundbyte1();
-      data = "";
-    } else if (data == "C") {
-      soundbyte2();
-      data = "";
-    } else if (data == "M") {
-      motorTest();
-      data = "";
-    } else if (data == "T") {
-      motorTest2();
-      data = "";
-    } else if (data == "F") {
-      forward();
-      motorsMoving = true;
-      timeMotorsEngaged = currentTime;
-      BTSerial.print("Time motors engaged: ");
-      BTSerial.println(timeMotorsEngaged);
-      data = "";
-    } else if (data == "B") {
-      backward();
-      motorsMoving = true;
-      timeMotorsEngaged = currentTime;
-      BTSerial.print("Time motors engaged: ");
-      BTSerial.println(timeMotorsEngaged);
-      data = "";
-    } else if (data == "S") {
-      brake();
-      motorsMoving = false;
-      data = "";
-    } else if (data == "W") {
-      waterPump();
-    } else if (data == "Volts") {
-      printVoltage();
-      data = "";
-    }
-
-    // Turn the servo right
-    if (data == "R") {
-      digitalWrite(servoPin, HIGH);
-      Servo1.write(180); 
-      delay(500);
-      data = "";
-    }
-
-    // // Turn the servo left
-    if (data == "L") {
-      digitalWrite(servoPin, HIGH);
-      Servo1.write(0);
-      delay(500);
-      data = "";
-    }
-
-    // if (appData == 13) {  
-        // Serial.print("Received: ");
-        // Serial.println(data);
-        // data = "";
-    // } 
-      // data = "";
+    data = BTSerial.read();
+    Serial.print(data);
+  }
   
+  // If-else statements that'll call the specific function if the condition gets met
+  if (data == 'P') {
+    stopPlayback();
+    data = NULL;
+  } else if (data == 'A') {
+    soundbyte1();
+    data = NULL;
+  } else if (data == 'C') {
+    soundbyte2();
+    data = NULL;
+  } else if (data == 'C') {
+    motorTest();
+    data = NULL;
+  } else if (data == 'T') {
+    motorTest2();
+    data = NULL;
+  } else if (data == 'F') {
+    engageMotors(255, "forward");
+  } else if (data == 'B') {
+    engageMotors(255, "backward");
+  } else if (data == 'S') {
+    brake();
+    motorsMoving = false;
+    data = NULL;
+  } else if (data == 'W') {
+    waterPump();
+  } else if (data == 'V') {
+    printVoltage();
+    data = NULL;
   }
-
-  if (motorsMoving)
+  // Turn the servo right
+  if (data == 'R') {
+    digitalWrite(servoPin, HIGH);
+    Servo1.write(180); 
+    delay(500);
+    data = NULL;
+  }
+  // // Turn the servo left
+  if (data == 'L') {
+    digitalWrite(servoPin, HIGH);
+    Servo1.write(0);
+    delay(500);
+    data = NULL;
+  }
+  // TODO: decide on how to implement backwards and forwards
+  if (data == '1')
   {
-    if (currentTime - timeMotorsEngaged >= timeToStopMotor)
-    {
-      BTSerial.println("Motors stopped");
-      BTSerial.print("Time motors stopped: ");
-      BTSerial.println(currentTime);
-      brake();
-      motorsMoving = false;
-    }
+    engageMotors(26, "forward");
   }
+  else if (data == '2')
+  {
+    engageMotors(51, "forward");
+  }
+  else if (data == '3')
+  {
+    engageMotors(77, "forward");
+  }
+  else if (data == '4')
+  {
+    engageMotors(102, "forward");
+  }
+  else if (data == '5')
+  {
+    engageMotors(128, "forward");
+  }
+  else if (data == '6')
+  {
+    engageMotors(153, "forward");
+  }
+  else if (data == '7')
+  {
+    engageMotors(179, "forward");
+  }
+  else if (data == '8')
+  {
+    engageMotors(205, "forward");
+  }
+  else if (data == '9')
+  {
+    engageMotors(255, "forward");
+  }
+  
 }
+
+
 
 // Function that sets up bluetooth
 void BTsetup(int baud) {
@@ -244,7 +234,7 @@ void soundbyte1() {
     Serial.println("");
     Serial.println("Audio file not found");
   }
-  inData = "null";
+  data = NULL;
 }
 
 // Function used to play the second soundbyte
@@ -257,13 +247,13 @@ void soundbyte2() {
     Serial.println("");
     Serial.println("Audio file not found");
   }
-  inData = "null";
+  data = NULL;
 }
 
 // Function used for pausing playback
-void stop() {
+void stopPlayback() {
   audio.stopPlayback();
-  inData = "null";
+  data = NULL;
 }
 
 // Function for turning the water pump on and off
@@ -321,9 +311,9 @@ void motorTest2() {
 }
 
 // Function that moves the DC motors clockwise/forward
-void forward() {
-  analogWrite(enA, 255); 
-  analogWrite(enB, 255);
+void forward(int speed) {
+  analogWrite(enA, speed); 
+  analogWrite(enB, speed);
   digitalWrite(in1, HIGH); 
   digitalWrite(in2, LOW);
   digitalWrite(in3, HIGH);
@@ -331,13 +321,28 @@ void forward() {
 }
 
 // Function that moves the DC motors counter-clockwise/backward
-void backward() {
-  analogWrite(enA, 255); 
-  analogWrite(enB, 255);
+void backward(int speed) {
+  analogWrite(enA, speed); 
+  analogWrite(enB, speed);
   digitalWrite(in1, LOW); 
   digitalWrite(in2, HIGH);
   digitalWrite(in3, LOW);
   digitalWrite(in4, HIGH);
+}
+
+// engageMotors changes the motors' speed to speed and directon to dir
+void engageMotors(int speed, String dir) {
+  if (dir == "backward" || dir == "b") {
+    forward(speed);
+  } else if (dir == "forward" || dir == "f") {
+    backward(speed);
+  }
+
+  motorsMoving = true;
+  timeMotorsEngaged = currentTime;
+  BTSerial.print("Time motors engaged: ");
+  BTSerial.println(timeMotorsEngaged);
+  data = NULL;
 }
 
 void brake() {
@@ -347,17 +352,14 @@ void brake() {
   digitalWrite(in4, LOW);
 }
 
-// printVoltage sends the voltage to Bluetooth and Serial connections 
-void printVoltage() 
-{
-  volts = readVcc();
-  char fstr[8];
-  dtostrf(volts, 5, 2, fstr);
-  Serial.print("Voltage: ");
-  Serial.println(fstr);
-  Serial.println();
+// printVoltage calculates and sends the battery level over the Bluetooth connection 
+void printVoltage() {
+  // activate relay to sense battery
+  digitalWrite(ACTIVATION_PIN, HIGH);
+  delay(500);
+  uint8_t batteryLvl = batt.level();
+  digitalWrite(ACTIVATION_PIN, LOW);
 
-  BTSerial.print("Voltage: ");
-  BTSerial.println(volts);
-  data = "";
+  Serial.print("batteryLvl: ");
+  Serial.println(batteryLvl);
 }
