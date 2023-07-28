@@ -190,10 +190,6 @@ void BTsetup(int baud) {
   BTSerial.begin(baud);
   Serial.println("BTserial started at 9600");
   Serial.println("");
-  // if (BTSerial.available() < 0) {
-  //   Serial.println("Bluetooth connection not established");
-  //   Serial.println("");
-  // }
 }
 
 // Function used to initialize SPI bus ports
@@ -346,7 +342,7 @@ void engageMotors(int speed, String dir) {
 }
 
 void brake() {
-  digitalWrite(in1, LOW); 
+  digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
@@ -355,10 +351,9 @@ void brake() {
 // printVoltage calculates and sends the battery level over the Bluetooth connection 
 void printVoltage() {
   // activate relay to sense battery
-  digitalWrite(ACTIVATION_PIN, HIGH);
-  delay(500);
+  // digitalWrite(ACTIVATION_PIN, HIGH);
   uint8_t batteryLvl = batt.level();
-  digitalWrite(ACTIVATION_PIN, LOW);
+  // digitalWrite(ACTIVATION_PIN, LOW); 
 
   Serial.print("batteryLvl: ");
   Serial.println(batteryLvl);

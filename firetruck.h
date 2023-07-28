@@ -14,10 +14,8 @@
 #include <TMRpcm.h>
 #include <SD.h>
 
-// Library for reading internal voltage
-#include <CPUVolt.h>
-
-#include <Battery.h>
+// Library for reading battery level
+#include "Battery.h"
 
 // Creates the bluetooth object with the reciever and transmitter pins as the arguments
 const int btRxPin = A3;
