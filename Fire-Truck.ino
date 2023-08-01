@@ -28,21 +28,13 @@ void setup() {
 
   // Sets up the baud rate of the HM-10 bluetooth module and prints a debug message
   BTsetup(baud);
-
-  // Uncomment when servo is used
   
   // Attaches the servo object to the correct servo pin and prints debug message in case it does not connect (Commented out until servo gets used)
-    Servo1.attach(servoPin);
-    delay(500);
-    if(!Servo1.attached()) {
-      Serial.println("Servo connection not established"); 
-      Serial.println("");
-    }
-    
-
-
+  Servo1.attach(servoPin);
+  delay(500);
+  
   // Initialize the SPI bus ports and begin connection
-  initSPI();
+  // initSPI();
 
   // Sets up the speaker pin
   audio.speakerPin = speakerPin;
@@ -52,7 +44,6 @@ void setup() {
   if (!SD.begin(SDpin)) {
     Serial.println("Card cannot be read");
     Serial.println("");
-    return;
   } else {
     Serial.println("Card has been read");
     Serial.println("");
@@ -65,9 +56,6 @@ void setup() {
   pinMode(water, OUTPUT);
   digitalWrite(water, HIGH);
 
-  // Start battery sensing
-  batt.begin(5000, 3.2, &sigmoidal);
-  batt.onDemand(ACTIVATION_PIN, LOW);
 
   // The following code is to make sure that the speaker works, so it will play a clown horn to test
   audio.setVolume(7);
@@ -79,6 +67,11 @@ void setup() {
     Serial.println("Audio is playing");
     Serial.println("");
   }
+  
+  // Start battery sensing
+  batt.begin(BOARD_REF_VOLTAGE, 3.2, &sigmoidal);
+  batt.onDemand(ACTIVATION_PIN, HIGH);
+  delay(500);
 }
 
 void loop() {
@@ -183,8 +176,6 @@ void loop() {
   
 }
 
-
-
 // Function that sets up bluetooth
 void BTsetup(int baud) {
   BTSerial.begin(baud);
@@ -286,7 +277,7 @@ void motorTest() {
 
 // Function to test the DC motors by slowly raising their speed over time
 void motorTest2() {
-  digitalWrite(in1, HIGH); 
+  digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
   digitalWrite(in3, HIGH);
   digitalWrite(in4, LOW);
@@ -350,11 +341,9 @@ void brake() {
 
 // printVoltage calculates and sends the battery level over the Bluetooth connection 
 void printVoltage() {
-  // activate relay to sense battery
-  // digitalWrite(ACTIVATION_PIN, HIGH);
   uint8_t batteryLvl = batt.level();
-  // digitalWrite(ACTIVATION_PIN, LOW); 
 
+  Serial.println();
   Serial.print("batteryLvl: ");
-  Serial.println(batteryLvl);
+  Serial.println(batt.level());
 }

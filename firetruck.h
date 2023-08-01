@@ -14,7 +14,7 @@
 #include <TMRpcm.h>
 #include <SD.h>
 
-// Library for reading battery level
+// Library that Andrew Woodlee modified for reading battery level using the relay
 #include "Battery.h"
 
 // Creates the bluetooth object with the reciever and transmitter pins as the arguments
@@ -86,5 +86,6 @@ boolean motorsMoving = false;
 #define ACTIVATION_PIN A1
 #define MAX_VOLTAGE 12000
 #define MIN_VOLTAGE 10000
-
-Battery batt = Battery(10000, 12000, SENSE_PIN);
+// This board's reference voltage - CHANGE FOR EVERY BOARD
+#define BOARD_REF_VOLTAGE 5140
+Battery batt = Battery(MIN_VOLTAGE, MAX_VOLTAGE, SENSE_PIN);

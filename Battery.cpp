@@ -62,6 +62,7 @@ uint8_t Battery::level(uint16_t voltage) {
 uint16_t Battery::voltage() {
 	if (activationPin != 0xFF) {
 		digitalWrite(activationPin, activationMode);
+  		// activate relay to sense battery
 		delay(500);
 	}
 	analogRead(sensePin);
