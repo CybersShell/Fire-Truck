@@ -21,7 +21,7 @@
 const int btRxPin = A3;
 const int btTxPin = A4;
 SoftwareSerial BTSerial(btRxPin, btTxPin);
-
+#define CHAR_AVAILABLE BTSerial.available()
 
 /*
   Motor configuration
@@ -41,9 +41,11 @@ const int enB = 5;
   Servo configuration
 */
 
-// The constant used for what pin the Servo will be on
+// The constants used for what pin and angle the Servo will be on
 const int servoPin = 8;
-
+int servoAngle;
+// The constant for the delay when writing an angle to the servo
+const int servoDelay = 7;
 // Creates the "Servo1" object
 Servo Servo1;
 
@@ -65,15 +67,11 @@ const int SDpin = 10;
 // Variable used for recieving and transmitting data
 char data;
 
-
 // Constant used for baud rate
 const int baud = 9600;
 
 // Constant used for the water pump port
 const int water = A5;
-
-// For reading voltage
-double volts;
 
 // Variables for events
 const unsigned long timeToStopMotor = 1000 * 30; // 30 seconds
@@ -86,6 +84,6 @@ boolean motorsMoving = false;
 #define ACTIVATION_PIN A1
 #define MAX_VOLTAGE 12000
 #define MIN_VOLTAGE 10000
-// This board's reference voltage - CHANGE FOR EVERY BOARD
+// This board's reference voltage in milivolts - CHANGE FOR EVERY BOARD
 #define BOARD_REF_VOLTAGE 5140
 Battery batt = Battery(MIN_VOLTAGE, MAX_VOLTAGE, SENSE_PIN);

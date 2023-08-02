@@ -34,11 +34,21 @@ void setup() {
   delay(500);
   
   // Initialize the SPI bus ports and begin connection
-  // initSPI();
+  initSPI();
 
   // Sets up the speaker pin
   audio.speakerPin = speakerPin;
   pinMode(speakerPin, OUTPUT);
+
+
+  // Function that will initialize the DC motors
+  initDC();
+
+  // Initialize the water pump port
+  pinMode(water, OUTPUT);
+  digitalWrite(water, HIGH);
+
+  // Comment the following two blocks to make servo work
 
   // Debug message in case the card does not get read
   if (!SD.begin(SDpin)) {
@@ -48,14 +58,6 @@ void setup() {
     Serial.println("Card has been read");
     Serial.println("");
   }
-
-  // Function that will initialize the DC motors
-  initDC();
-
-  // Initialize the water pump port
-  pinMode(water, OUTPUT);
-  digitalWrite(water, HIGH);
-
 
   // The following code is to make sure that the speaker works, so it will play a clown horn to test
   audio.setVolume(7);
@@ -72,6 +74,9 @@ void setup() {
   batt.begin(BOARD_REF_VOLTAGE, 3.2, &sigmoidal);
   batt.onDemand(ACTIVATION_PIN, HIGH);
   delay(500);
+
+  servoAngle = Servo1.read();
+  Serial.println("Program started!");
 }
 
 void loop() {
@@ -122,20 +127,59 @@ void loop() {
     printVoltage();
     data = NULL;
   }
-  // Turn the servo right
+  // Turn the servo to 0 degrees
   if (data == 'R') {
-    digitalWrite(servoPin, HIGH);
-    Servo1.write(180); 
-    delay(500);
+    
+    servoAngle = Servo1.read();
+
+    for (servoAngle; servoAngle >= 0; servoAngle--)
+    {
+      Servo1.write(servoAngle);
+      delay(servoDelay);
+      if (CHAR_AVAILABLE) break;
+    }
     data = NULL;
   }
-  // // Turn the servo left
+  // Turn the servo perpendicular (90 degrees)
+  if (data == 't') {
+    
+    servoAngle = Servo1.read();
+    
+    if (servoAngle >= 0 && servoAngle < 89)
+    {
+      for (servoAngle; servoAngle < 90; servoAngle++)
+      {
+        Servo1.write(servoAngle);
+        delay(servoDelay);
+        if(CHAR_AVAILABLE) break;
+      }
+    } else if (servoAngle > 89)
+    {
+      for (servoAngle; servoAngle > 90; servoAngle--)
+      {
+        Servo1.write(servoAngle);
+        delay(servoDelay);
+        if(CHAR_AVAILABLE) break;
+      }
+    } else {
+      Servo1.write(90);
+    }
+    data = NULL;
+  }
+  // Turn the servo to 180 degrees
   if (data == 'L') {
-    digitalWrite(servoPin, HIGH);
-    Servo1.write(0);
-    delay(500);
+    
+    servoAngle = Servo1.read();
+    
+    for (servoAngle; servoAngle <= 180; servoAngle++)
+    {
+      Servo1.write(servoAngle);
+      delay(servoDelay);
+      if(BTSerial.available()) break;
+    }
     data = NULL;
   }
+
   // TODO: decide on how to implement backwards and forwards
   if (data == '1')
   {
