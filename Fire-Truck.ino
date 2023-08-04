@@ -48,27 +48,29 @@ void setup() {
   pinMode(water, OUTPUT);
   digitalWrite(water, HIGH);
 
+  SD.begin(SDpin);
+  
   // Comment the following two blocks to make servo work
 
   // Debug message in case the card does not get read
-  if (!SD.begin(SDpin)) {
-    Serial.println("Card cannot be read");
-    Serial.println("");
-  } else {
-    Serial.println("Card has been read");
-    Serial.println("");
-  }
+  // if (!SD.begin(SDpin)) {
+  //   Serial.println("Card cannot be read");
+  //   Serial.println("");
+  // } else {
+  //   Serial.println("Card has been read");
+  //   Serial.println("");
+  // }
 
-  // The following code is to make sure that the speaker works, so it will play a clown horn to test
-  audio.setVolume(7);
-  audio.play("6.wav");
-  if (!audio.isPlaying()) {
-    Serial.println("Audio is not playing");
-    Serial.println("");
-  } else {
-    Serial.println("Audio is playing");
-    Serial.println("");
-  }
+  // // The following code is to make sure that the speaker works, so it will play a clown horn to test
+  // audio.setVolume(7);
+  // audio.play("6.wav");
+  // if (!audio.isPlaying()) {
+  //   Serial.println("Audio is not playing");
+  //   Serial.println("");
+  // } else {
+  //   Serial.println("Audio is playing");
+  //   Serial.println("");
+  // }
   
   // Start battery sensing
   batt.begin(BOARD_REF_VOLTAGE, 3.2, &sigmoidal);
@@ -136,7 +138,7 @@ void loop() {
     {
       Servo1.write(servoAngle);
       delay(servoDelay);
-      if (CHAR_AVAILABLE) break;
+      CHAR_AVAILABLE_BREAK;
     }
     data = NULL;
   }
@@ -151,7 +153,7 @@ void loop() {
       {
         Servo1.write(servoAngle);
         delay(servoDelay);
-        if(CHAR_AVAILABLE) break;
+        CHAR_AVAILABLE_BREAK;
       }
     } else if (servoAngle > 89)
     {
@@ -159,7 +161,7 @@ void loop() {
       {
         Servo1.write(servoAngle);
         delay(servoDelay);
-        if(CHAR_AVAILABLE) break;
+        CHAR_AVAILABLE_BREAK;
       }
     } else {
       Servo1.write(90);
@@ -175,7 +177,7 @@ void loop() {
     {
       Servo1.write(servoAngle);
       delay(servoDelay);
-      if(BTSerial.available()) break;
+      CHAR_AVAILABLE_BREAK;
     }
     data = NULL;
   }
@@ -387,7 +389,7 @@ void brake() {
 void printVoltage() {
   uint8_t batteryLvl = batt.level();
 
-  Serial.println();
-  Serial.print("batteryLvl: ");
-  Serial.println(batt.level());
+  BTSerial.println();
+  BTSerial.print("batteryLvl: ");
+  BTSerial.println(batt.level());
 }

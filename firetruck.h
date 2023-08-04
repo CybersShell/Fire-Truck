@@ -21,7 +21,10 @@
 const int btRxPin = A3;
 const int btTxPin = A4;
 SoftwareSerial BTSerial(btRxPin, btTxPin);
+
+// Macro to determine if character is avaliable to be read over Bluetooth
 #define CHAR_AVAILABLE BTSerial.available()
+#define CHAR_AVAILABLE_BREAK if (BTSerial.available()) break
 
 /*
   Motor configuration
@@ -86,4 +89,5 @@ boolean motorsMoving = false;
 #define MIN_VOLTAGE 10000
 // This board's reference voltage in milivolts - CHANGE FOR EVERY BOARD
 #define BOARD_REF_VOLTAGE 5140
+// Battery class initialized with values for sensing battery level
 Battery batt = Battery(MIN_VOLTAGE, MAX_VOLTAGE, SENSE_PIN);
