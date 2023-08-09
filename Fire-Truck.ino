@@ -3,7 +3,8 @@
 // This program is what will be used to communicate to the Arduino board which will operate and control the other parts of   
 // the firetruck including the motor controller, water pump, speakers, bluetooth module (HM-10), and micro SD card adapter.  
 // NOTE: To see if the circuit board and bluetooth module are communicating, use the serial monitor to check for input.      
-// Also note that the serial monitor does not send line endings to the HM-10. Programmed by Colby McClure and Andrew Woodlee at SMAP.
+// Also note that the serial monitor does not send line endings to the HM-10. 
+// Programmed by Colby McClure and Andrew Woodlee at SMAP.
 //                                                                                                                           
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -33,22 +34,21 @@ void setup() {
   Servo1.attach(servoPin);
   delay(500);
   
-  // Initialize the SPI bus ports and begin connection
-  initSPI();
-
   // Sets up the speaker pin
-  audio.speakerPin = speakerPin;
-  pinMode(speakerPin, OUTPUT);
+  // audio.speakerPin = speakerPin;
+  // pinMode(speakerPin, OUTPUT);
 
 
   // Function that will initialize the DC motors
   initDC();
 
+  // Initalize SD card
+  initSDCard();
+
   // Initialize the water pump port
   pinMode(water, OUTPUT);
   digitalWrite(water, HIGH);
 
-  SD.begin(SDpin);
   
   // Comment the following two blocks to make servo work
 
@@ -183,42 +183,7 @@ void loop() {
   }
 
   // TODO: decide on how to implement backwards and forwards
-  if (data == '1')
-  {
-    engageMotors(26, "forward");
-  }
-  else if (data == '2')
-  {
-    engageMotors(51, "forward");
-  }
-  else if (data == '3')
-  {
-    engageMotors(77, "forward");
-  }
-  else if (data == '4')
-  {
-    engageMotors(102, "forward");
-  }
-  else if (data == '5')
-  {
-    engageMotors(128, "forward");
-  }
-  else if (data == '6')
-  {
-    engageMotors(153, "forward");
-  }
-  else if (data == '7')
-  {
-    engageMotors(179, "forward");
-  }
-  else if (data == '8')
-  {
-    engageMotors(205, "forward");
-  }
-  else if (data == '9')
-  {
-    engageMotors(255, "forward");
-  }
+
   
 }
 
@@ -227,15 +192,6 @@ void BTsetup(int baud) {
   BTSerial.begin(baud);
   Serial.println("BTserial started at 9600");
   Serial.println("");
-}
-
-// Function used to initialize SPI bus ports
-void initSPI() {
-  pinMode(CSpin, INPUT);
-  pinMode(MOSIpin, INPUT);
-  pinMode(MISOpin, INPUT);
-  pinMode(SCKpin, INPUT);
-  SPI.begin();
 }
 
 // Function to initialize DC motors and start them in the "OFF" state
@@ -259,33 +215,19 @@ void initDC() {
 
 // Function used to play the first soundbyte
 void soundbyte1() {
-  audio.play("3.wav", 39);
-  if (audio.isPlaying() == 1) {
-    Serial.println("");
-    Serial.println("Audio played successfully");
-  } else {
-    Serial.println("");
-    Serial.println("Audio file not found");
-  }
+  playSound("3.wav");
   data = NULL;
 }
 
 // Function used to play the second soundbyte
 void soundbyte2() {
-  audio.play("4.wav");
-  if (audio.isPlaying() == 1) {
-    Serial.println("");
-    Serial.println("Audio played successfully");
-  } else {
-    Serial.println("");
-    Serial.println("Audio file not found");
-  }
+  playSound("4.wav");
   data = NULL;
 }
 
 // Function used for pausing playback
 void stopPlayback() {
-  audio.stopPlayback();
+  wave.stop();
   data = NULL;
 }
 
@@ -392,4 +334,71 @@ void printVoltage() {
   BTSerial.println();
   BTSerial.print("batteryLvl: ");
   BTSerial.println(batt.level());
+}
+
+// initalize and check SD card
+void initSDCard() {
+
+  // Set the output pins for the DAC control.
+  pinMode(CSpin, OUTPUT);
+  pinMode(MOSIpin, OUTPUT);
+  pinMode(MISOpin, OUTPUT);
+  pinMode(SCKpin, OUTPUT);
+  
+  if (!card.init()) {         //play with 8 MHz spi (default faster!)  
+    Serial.println("Card init. failed!");  // Something went wrong, lets print out why
+    // sdErrorCheck();
+    // while(1);                            // then 'halt' - do nothing!
+  }
+
+  // Now we will look for a FAT partition!
+  uint8_t part;
+  for (part = 0; part < 5; part++) {     // we have up to 5 slots to look in
+    if (vol.init(card, part)) 
+      break;                             // we found one, lets bail
+  }
+  if (part == 5) {                       // if we ended up not finding one  :(
+    Serial.println("No valid FAT partition!");
+    // sdErrorCheck();      // Something went wrong, lets print out why
+    // while(1);                            // then 'halt' - do nothing!
+  }
+  
+  // Let's tell the user about what we found
+  Serial.println("Using partition ");
+  Serial.print(part, DEC);
+  Serial.println(", type is FAT");
+  Serial.println(vol.fatType(),DEC);     // FAT16 or FAT32?
+
+  // Open the root of the SD Card
+  if (!root.openRoot(vol)) {
+    Serial.println("Couldn't open root");
+  }
+}
+
+// playSound reads a file in the root directory and plays it over the speaker
+void playSound(char soundFile[12]) {
+  FatReader file;
+
+  if (!file.open(root, soundFile)) {       // open the file in the directory
+      Serial.println("file.open failed");  // something went wrong :(
+      while(1);                            // halt
+  }
+
+  // create wave object for the file and play if no error
+  if (wave.create(file))
+  {
+    wave.play();
+  } else {
+    BTSerial.println("Failed to read file ");
+    BTSerial.print(soundFile);
+  }
+
+  if (wave.isplaying)
+  {
+    BTSerial.println("Audio playing.");
+  } else {
+    BTSerial.println("Audio not playing.");
+  }
+  // Go back to the begining of the filesystem
+  root.rewind();
 }

@@ -1,18 +1,15 @@
-// Library that may be used later (Color Sensor)
-#include <Wire.h>
-
 // Library used for serial communication on other digital pins of the Arduino
 #include <SoftwareSerial.h>
 
+// Libraries necessary for Audio playback
+#include <WaveUtil.h>
+#include <WaveHC.h>
+
 // Library used to control the servo
-#include <Servo.h>
+#include <PWMServo.h>
 
 // Library for connecting to the SD card adapter
 #include <SPI.h>
-
-// Libraries necessary for Audio playback
-#include <TMRpcm.h>
-#include <SD.h>
 
 // Library that Andrew Woodlee modified for reading battery level using the relay
 #include "Battery.h"
@@ -50,19 +47,16 @@ int servoAngle;
 // The constant for the delay when writing an angle to the servo
 const int servoDelay = 7;
 // Creates the "Servo1" object
-Servo Servo1;
+PWMServo Servo1;
 
 /*
   Constants used for SPI Bus Ports
 */
 
-const int CSpin = 10;
-const int SCKpin = 13;
-const int MOSIpin = 11;
-const int MISOpin = 12;
-
-// Create the SD card object that will play the sounds
-TMRpcm audio;
+const int CSpin = SS;
+const int SCKpin = SCK;
+const int MOSIpin = MOSI;
+const int MISOpin = MISO;
 
 const int speakerPin = 9;
 const int SDpin = 10;
@@ -87,7 +81,14 @@ boolean motorsMoving = false;
 #define ACTIVATION_PIN A1
 #define MAX_VOLTAGE 12000
 #define MIN_VOLTAGE 10000
-// This board's reference voltage in milivolts - CHANGE FOR EVERY BOARD
+// This board's reference voltage in milivolts - CHANGE FOR EVERY BOARD, details in project manual
 #define BOARD_REF_VOLTAGE 5140
 // Battery class initialized with values for sensing battery level
 Battery batt = Battery(MIN_VOLTAGE, MAX_VOLTAGE, SENSE_PIN);
+
+// SD card and sound objects
+
+SdReader card;    // This object holds the information for the card
+FatVolume vol;    // This holds the information for the partition on the card
+FatReader root;   // This holds the information for the filesystem on the card
+WaveHC wave;      // This is the only wave (audio) object, since we will only play one at a time
