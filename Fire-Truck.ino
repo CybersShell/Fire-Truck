@@ -197,20 +197,15 @@ void BTsetup(int baud) {
 // Function to initialize DC motors and start them in the "OFF" state
 void initDC() {
   // Setup for both of the DC motors
-  pinMode(in1, OUTPUT);
-  pinMode(in2, OUTPUT);
-  pinMode(in3, OUTPUT);
-  pinMode(in4, OUTPUT);
+  pinMode(in1_3, OUTPUT);
+  pinMode(in2_4, OUTPUT);
 
-  // Setup for enable pins
-  pinMode(enA, OUTPUT); 
-  pinMode(enB, OUTPUT);
+  // Setup for enable pins 
+  pinMode(enA_B, OUTPUT);
 
   // Turn off the motors as their initial state
-  digitalWrite(in1, LOW); 
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, LOW);
+  digitalWrite(in1_3, LOW);
+  digitalWrite(in2_4, LOW);
 }
 
 // Function used to play the first soundbyte
@@ -242,67 +237,48 @@ void waterPump() {
 void motorTest() {
 
   // Set the speed for the motors
-  analogWrite(enA, 100); 
-  analogWrite(enB, 100);
+  analogWrite(enA_B, 100);
 
   //Test the DC motors
-  digitalWrite(in1, HIGH); 
-  digitalWrite(in2, LOW);
+  digitalWrite(in1_3, HIGH); 
+  digitalWrite(in2_4, LOW);
   delay(5000);
 
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
-  delay(5000);
-
-  digitalWrite(in1, LOW); 
-  digitalWrite(in2, HIGH);
-  delay(5000);
-
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+  digitalWrite(in1_3, LOW); 
+  digitalWrite(in2_4, HIGH);
   delay(5000);
 }
 
 // Function to test the DC motors by slowly raising their speed over time
 void motorTest2() {
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
+  digitalWrite(in1_3, HIGH);
+  digitalWrite(in2_4, LOW);
 
   // Accelerate from zero to maximum speed
   for (int i = 0; i < 256; i++) {
-    analogWrite(enA, i); 
-    analogWrite(enB, i);
+    analogWrite(enA_B, i);
     delay(20);
   }
 
   // Decelerate from maximum speed to zero
   for (int i = 255; i > 0; --i) {
-    analogWrite(enA, i); 
-    analogWrite(enB, i);
+    analogWrite(enA_B, i);
     delay(20);
   }
 }
 
 // Function that moves the DC motors clockwise/forward
 void forward(int speed) {
-  analogWrite(enA, speed); 
-  analogWrite(enB, speed);
-  digitalWrite(in1, HIGH); 
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
+  analogWrite(enA_B, speed);
+  digitalWrite(in1_3, HIGH);
+  digitalWrite(in2_4, LOW);
 }
 
 // Function that moves the DC motors counter-clockwise/backward
 void backward(int speed) {
-  analogWrite(enA, speed); 
-  analogWrite(enB, speed);
-  digitalWrite(in1, LOW); 
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+  analogWrite(enA_B, speed);
+  digitalWrite(in1_3, LOW); 
+  digitalWrite(in2_4, HIGH);
 }
 
 // engageMotors changes the motors' speed to speed and directon to dir
@@ -321,10 +297,8 @@ void engageMotors(int speed, String dir) {
 }
 
 void brake() {
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, LOW);
+  digitalWrite(in1_3, LOW);
+  digitalWrite(in2_4, LOW);
 }
 
 // printVoltage calculates and sends the battery level over the Bluetooth connection 
