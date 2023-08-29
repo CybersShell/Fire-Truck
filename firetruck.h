@@ -29,11 +29,11 @@ SoftwareSerial BTSerial(btRxPin, btTxPin);
 
 // The constants that will be used with both DC motors
 const int in1_3 = 7;
-const int in2_4 = 8;
+const int in2_4 = 6;
 
 
 // The constants used for controlling the enabling pins
-const int enA_B = 6; 
+const int enA_B = 5; 
 
 
 /*
