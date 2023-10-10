@@ -29,6 +29,7 @@ framework = arduino
 board = uno
 lib_deps = 
     [any libraries you need]
+# filter everything else except the files needed for the test
 build_src_filter = 
     -<*> 
     -<.git/> 
