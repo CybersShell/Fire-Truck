@@ -7,23 +7,29 @@ PWMServo myservo;  // create servo object to control a servo
 
 int speedControllerPin = 9;
 void setup() {
-  myservo.attach(speedControllerPin, 700, 3000);  // attaches the servo on pin 9 to the servo object
-  myservo.write(2000);
-  delay(3000);
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  
+  digitalWrite(LED_BUILTIN, HIGH);  // turn the LED on (HIGH is the voltage level)
+  // myservo.write(1500);
+  myservo.write(360);
+  myservo.attach(speedControllerPin);  // attaches the servo on pin 9 to the servo object
+ 
+  Serial.begin(9600);
+  delay(5000);
+  
+  digitalWrite(LED_BUILTIN, LOW);   // turn the LED off by making the voltage LOW
 }
 
 void loop() {
-  
-  myservo.write(850);
-  delay(3000);
 
-  myservo.write(1500);
-  delay(3000);
+  for (int i = 0; i < 200; i++)
+  {
+    Serial.print("number = ");
+    Serial.println(i);
+    myservo.write(i);
+    delay(1000);
+  }
 
-  myservo.write(2000);
-  delay(3000);
-
-  myservo.write(1500);
-  delay(3000);
   
 }

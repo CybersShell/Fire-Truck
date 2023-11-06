@@ -82,13 +82,24 @@ void loop() {
     file.close();
     root.rewind();
   }
-  
+
 
   // Read from the Bluetooth module and send to the Arduino serial monitor
   BTSerial.listen();
   if(BTSerial.available())
   {
     data = BTSerial.read();
+
+
+      // TODO: evaluate every possible combination of movement and values
+    if (data == 's') {
+      Serial.readBytesUntil('X', dirX, 2);
+      dirXNum = strtod(dirX, nullptr);
+      Serial.println(dirXNum);
+      Serial.readBytesUntil('Y', dirY, 2);
+      dirYNum = strtod(dirY, nullptr);
+      Serial.println(dirYNum);
+    }
     newData = true;
   }
   
@@ -109,8 +120,8 @@ void loop() {
     } else if (data == 'B') {
       engageMotors(255, "b");
     } else if (data == 'S') {
-      // brake();
-      // motorsMoving = false;
+      brake();
+      motorsMoving = false;
       data = NULL;
     } else if (data == 'W') {
       waterPump();
@@ -177,17 +188,20 @@ void loop() {
   
 }
 
-// Function that sets up bluetooth
+// BTsetup sets up bluetooth
 void BTsetup(int baud) {
   BTSerial.begin(baud);
   // Serial.println("BTserial started at 9600");
   // Serial.println("");
 }
 
-// Function to initialize DC motors and start them in the "OFF" state
+// initSC initializes the speed controller
+// For the QuicRun 1060, the minimum reverse is ~17 and the neutral is ~65. 
+// The max forward throttle is ~160-170
 void initSC() {
-  SpeedCon.attach(speedControllerPin, 700, 3000);  // attaches the servo on pin 9 to the servo object
-  SpeedCon.write(1500);
+  SpeedCon.write(65);
+  SpeedCon.attach(speedControllerPin);  // attaches the servo on pin 9 to the servo object
+  SpeedCon.write(65);
 }
 
 
@@ -207,32 +221,27 @@ void waterPump() {
 
 
 // Function that moves the DC motors clockwise/forward
-void forward(int speed) {
-  // analogWrite(enA_B, speed);
-  // digitalWrite(in1_3, HIGH);
-  // digitalWrite(in2_4, LOW);
+void forward() {
 }
 
 // Function that moves the DC motors counter-clockwise/backward
-void backward(int speed) {
-  // analogWrite(enA_B, speed);
-  // digitalWrite(in1_3, LOW); 
-  // digitalWrite(in2_4, HIGH);
+void backward() {
+  SpeedCon.write(17);
 }
 
 // engageMotors changes the motors' speed to speed and directon to dir
 void engageMotors(int speed, const char* dir) {
   if (strcmp(dir, "b")) {
-    backward(speed);
+    SpeedCon.write(17);
   } else if (dir == "forward" || dir == "f") {
-    forward(speed);
+    SpeedCon.write(160);
   }
 
-  // motorsMoving = true;
-  // timeMotorsEngaged = currentTime;
-  // BTSerial.print("Time motors engaged: ");
-  // BTSerial.println(timeMotorsEngaged);
-  // data = NULL;
+  motorsMoving = true;
+  timeMotorsEngaged = currentTime;
+  BTSerial.print("Time motors engaged: ");
+  BTSerial.println(timeMotorsEngaged);
+  data = NULL;
 }
 
 void brake() {

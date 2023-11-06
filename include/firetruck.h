@@ -52,6 +52,12 @@ const int speakerPin = 9;
 // Variable used for receiving and transmitting data
 char data;
 
+// char arrays for data
+char dirX[3];
+char dirY[3];
+double dirXNum;
+double dirYNum;
+
 // Constant used for baud rate
 const int baud = 9600;
 
