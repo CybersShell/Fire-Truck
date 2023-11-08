@@ -39,15 +39,9 @@ const int servoPin = 8;
 int servoAngle;
 // The constant for the delay when writing an angle to the servo
 const int servoDelay = 7;
-// Creates the "Servo1" object
-PWMServo Servo1;
+// Creates the "SteeringServo" object
+PWMServo SteeringServo;
 
-
-/*
-  Constants used for SPI Bus Ports
-*/
-
-const int speakerPin = 9;
 
 // Variable used for receiving and transmitting data
 char data;
@@ -57,6 +51,7 @@ char dirX[3];
 char dirY[3];
 double dirXNum;
 double dirYNum;
+bool movement = false;
 
 // Constant used for baud rate
 const int baud = 9600;

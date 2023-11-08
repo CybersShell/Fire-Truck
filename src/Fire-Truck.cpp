@@ -39,7 +39,7 @@ void setup() {
   BTsetup(baud);
   
   // Attaches the servo object to the correct servo pin and prints debug message in case it does not connect (Commented out until servo gets used)
-  Servo1.attach(servoPin);
+  SteeringServo.attach(servoPin);
   delay(500);
   
   // Function that will initialize the speed controller
@@ -57,7 +57,7 @@ void setup() {
   batt.onDemand(ACTIVATION_PIN, HIGH);
   delay(500);
 
-  // Initalize Wave Shield
+  // Initialize Wave Shield
   initShield();
 
   // Serial.println("Program started!");
@@ -84,7 +84,6 @@ void loop() {
   }
 
 
-  // Read from the Bluetooth module and send to the Arduino serial monitor
   BTSerial.listen();
   if(BTSerial.available())
   {
@@ -132,11 +131,11 @@ void loop() {
     // Turn the servo to 0 degrees
     if (data == 'R') {
       
-      servoAngle = Servo1.read();
+      servoAngle = SteeringServo.read();
 
       for (servoAngle; servoAngle >= 0; servoAngle--)
       {
-        Servo1.write(servoAngle);
+        SteeringServo.write(servoAngle);
         delay(servoDelay);
         if (BTSerial.available()) break;
       }
@@ -145,13 +144,13 @@ void loop() {
     // Turn the servo perpendicular (90 degrees)
     if (data == 't') {
       
-      servoAngle = Servo1.read();
+      servoAngle = SteeringServo.read();
       
       if (servoAngle >= 0 && servoAngle < 89)
       {
         for (servoAngle; servoAngle < 90; servoAngle++)
         {
-          Servo1.write(servoAngle);
+          SteeringServo.write(servoAngle);
           delay(servoDelay);
           if (BTSerial.available()) break;
         }
@@ -159,23 +158,23 @@ void loop() {
       {
         for (servoAngle; servoAngle > 90; servoAngle--)
         {
-          Servo1.write(servoAngle);
+          SteeringServo.write(servoAngle);
           delay(servoDelay);
           if (BTSerial.available()) break;
         }
       } else {
-        Servo1.write(90);
+        SteeringServo.write(90);
       }
       data = NULL;
     }
     // Turn the servo to 180 degrees
     if (data == 'L') {
       
-      servoAngle = Servo1.read();
+      servoAngle = SteeringServo.read();
       
       for (servoAngle; servoAngle <= 180; servoAngle++)
       {
-        Servo1.write(servoAngle);
+        SteeringServo.write(servoAngle);
         delay(servoDelay);
         if (BTSerial.available()) break;
       }
@@ -260,8 +259,10 @@ void printVoltage() {
 // initalize and check Wave Shield and SD card
 void initShield() {
 
+  pinMode(10, OUTPUT);
+  
   // Set the output pins for the DAC control.
-  pinMode(SS, OUTPUT);
+  pinMode(6, OUTPUT);
   pinMode(SCK, OUTPUT);
   pinMode(MOSI, OUTPUT);
   pinMode(MISO, OUTPUT);
