@@ -27,6 +27,8 @@ void setup() {
   
   Serial.println("Wave test!");
 
+  pinMode(10, OUTPUT);
+  
   // try card.init(true) if errors occur on V1.0 Wave Shield
   if (!card.init()) {
     Serial.println("Card init. failed!");

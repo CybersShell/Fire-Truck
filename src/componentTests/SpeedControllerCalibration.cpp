@@ -1,57 +1,103 @@
-/*
-
-Coded by Marjan Olesch
-
-Sketch from Insctructables.com
-
-*/
-#include <Arduino.h>
+/**
+ * Usage, according to documentation(https://www.firediy.fr/files/drone/HW-01-V4.pdf) : 
+ *     1. Plug your Arduino to your computer with USB cable, open terminal, then type 1 to send max throttle to every ESC to enter programming mode
+ *     2. Power up your ESCs. You must hear "beep1 beep2 beep3" tones meaning the power supply is OK
+ *     3. After 2sec, "beep beep" tone emits, meaning the throttle highest point has been correctly confirmed
+ *     4. Type 0 to send min throttle
+ *     5. Several "beep" tones emits, which means the quantity of the lithium battery cells (3 beeps for a 3 cells LiPo)
+ *     6. A long beep tone emits meaning the throttle lowest point has been correctly confirmed
+ *     7. Type 2 to launch test function. This will send min to max throttle to ESCs to test them
+ *
+ * @author lobodol <grobodol@gmail.com>
+ */
+// ---------------------------------------------------------------------------
 #include <PWMServo.h>
+#include <Arduino.h>
+// ---------------------------------------------------------------------------
+// Customize here pulse lengths as needed
+#define MIN_PULSE_LENGTH 15 // Minimum pulse length in µs
+#define MAX_PULSE_LENGTH 2600 // Maximum pulse length in µs
+// ---------------------------------------------------------------------------
+PWMServo motA, motB, motC, motD;
+char data;
+// ---------------------------------------------------------------------------
+
+// Function defs
+
+void test();
+
+void displayInstructions();
 
 
-
-
-
-int value = 0; // initialize the variables you need
-
-
-
-PWMServo firstESC; // you can control 2 or more servos simultaneously
-
-
-
+/**
+ * Initialisation routine
+ */
 void setup() {
+    Serial.begin(9600);
+    
+    motA.attach(10, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
 
+    
+    displayInstructions();
+}
 
+/**
+ * Main function
+ */
+void loop() {
+    if (Serial.available()) {
+        data = Serial.read();
 
- firstESC.attach(9);   // attached to pin 9
+        switch (data) {
+            // 0
+            case 48 : Serial.println("Sending minimum throttle");
+                      motA.write(MIN_PULSE_LENGTH);
+            break;
 
- Serial.begin(9600);   // start serial at 9600 baud
+            // 1
+            case 49 : Serial.println("Sending maximum throttle");
+                      motA.write(MAX_PULSE_LENGTH);
+            break;
 
-
+            // 2
+            case 50 : Serial.print("Running test in 3");
+                      delay(1000);
+                      Serial.print(" 2");
+                      delay(1000);
+                      Serial.println(" 1...");
+                      delay(1000);
+                      test();
+            break;
+        }
+    }
+    
 
 }
 
+/**
+ * Test function: send min throttle to max throttle to each ESC.
+ */
+void test()
+{
+    for (int i = MIN_PULSE_LENGTH; i <= MAX_PULSE_LENGTH; i += 5) {
+        Serial.print("Pulse length = ");
+        Serial.println(i);
+        
+        motA.write(i);
+        delay(1000);
+    }
 
+    Serial.println("STOP");
+    motA.write(MIN_PULSE_LENGTH);
+}
 
-void loop() {
-
-
-
-//First connect your ESC WITHOUT arming. Then open the serial and follow the instructions.
-
-
-
- firstESC.write(value);
-
-
-
- if(Serial.available()) {
-   value = Serial.parseInt();   // parse an integer from serial
-   Serial.write(value);
- }
-
-
-
-
+/**
+ * Displays instructions to user
+ */
+void displayInstructions()
+{  
+    Serial.println("READY - PLEASE SEND INSTRUCTIONS AS FOLLOWING :");
+    Serial.println("\t0 : Send min throttle");
+    Serial.println("\t1 : Send max throttle");
+    Serial.println("\t2 : Run test function\n");
 }

@@ -12,8 +12,8 @@
 #include <Battery.h>
 
 // Creates the bluetooth object with the receiver and transmitter pins as the arguments
-const int btRxPin = A4;
-const int btTxPin = A3;
+const int btRxPin = A1;
+const int btTxPin = A2;
 SoftwareSerial BTSerial(btRxPin, btTxPin);
 
 // Macro to determine if character is available to be read over Bluetooth
@@ -52,7 +52,7 @@ char dirY[3];
 double dirXNum;
 double dirYNum;
 bool movement = false;
-
+bool engageMotor = false;
 // Constant used for baud rate
 const int baud = 9600;
 

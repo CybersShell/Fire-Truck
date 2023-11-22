@@ -5,15 +5,15 @@
 PWMServo myservo;  // create servo object to control a servo
 // twelve servo objects can be created on most boards
 
-int speedControllerPin = 9;
+int speedControllerPin = 10;
 void setup() {
 
   pinMode(LED_BUILTIN, OUTPUT);
   
   digitalWrite(LED_BUILTIN, HIGH);  // turn the LED on (HIGH is the voltage level)
   // myservo.write(1500);
-  myservo.write(360);
   myservo.attach(speedControllerPin);  // attaches the servo on pin 9 to the servo object
+  myservo.write(2600);
  
   Serial.begin(9600);
   delay(5000);
