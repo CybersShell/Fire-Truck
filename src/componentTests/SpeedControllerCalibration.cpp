@@ -15,7 +15,7 @@
 #include <Arduino.h>
 // ---------------------------------------------------------------------------
 // Customize here pulse lengths as needed
-#define MIN_PULSE_LENGTH 15 // Minimum pulse length in µs
+#define MIN_PULSE_LENGTH 17 // Minimum pulse length in µs
 #define MAX_PULSE_LENGTH 2600 // Maximum pulse length in µs
 // ---------------------------------------------------------------------------
 PWMServo motA, motB, motC, motD;

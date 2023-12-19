@@ -24,7 +24,7 @@ SoftwareSerial BTSerial(btRxPin, btTxPin);
 */
 
 // Speed controller pin
-const int speedControllerPin = 9;
+const int speedControllerPin = 10;
 
 // The Speed Controller PWMServo object that controls the Speed Controller
 PWMServo SpeedCon;
@@ -35,7 +35,7 @@ PWMServo SpeedCon;
 */
 
 // The constants used for what pin and angle the Servo will be on
-const int servoPin = 8;
+const int servoPin = 9;
 int servoAngle;
 // The constant for the delay when writing an angle to the servo
 const int servoDelay = 7;
