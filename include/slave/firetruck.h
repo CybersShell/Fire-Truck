@@ -8,8 +8,9 @@
 // Library used to control the servo
 #include <PWMServo.h>
 
-// Library that Andrew Woodlee modified for reading battery level using the relay
-#include <Battery.h>
+// Library for I2C interface
+#include <Wire.h>
+
 
 // Creates the bluetooth object with the receiver and transmitter pins as the arguments
 const int btRxPin = A1;
@@ -43,8 +44,6 @@ const int servoDelay = 7;
 PWMServo SteeringServo;
 
 
-// Variable used for receiving and transmitting data
-char data;
 
 // char arrays for data
 char dirX[3];
@@ -56,8 +55,9 @@ bool engageMotor = false;
 // Constant used for baud rate
 const int baud = 9600;
 
-// Constant used for the water pump port
-// const int water = A5;
+// Constant used for the water pump pin
+const int waterPumpPin = A3;
+bool waterPumpState = false;
 
 // // Variables for events
 unsigned long currentTime;
@@ -67,15 +67,6 @@ boolean motorsMoving = false;
 unsigned long timeSoundStarted;
 unsigned long timeToStopPlayingSound;
 
-// Battery sensing setup and constants
-#define SENSE_PIN A0
-#define ACTIVATION_PIN A1
-
-// This board's reference voltage in millivolts - CHANGE FOR EVERY BOARD, details in project manual
-#define BOARD_REF_VOLTAGE 5140
-// Battery class initialized with values for sensing battery level
-// Parameters: min voltage, max voltage, sense pin
-Battery batt = Battery(10000, 12000, SENSE_PIN);
 
 // SD card and sound objects
 
@@ -84,3 +75,26 @@ FatVolume vol;    // This holds the information for the partition on the card
 FatReader root;   // This holds the information for the filesystem on the card
 WaveHC wave;      // This is the only wave (audio) object, since we will only play one at a time
 FatReader file;
+
+// data variables used for receiving and transmitting data
+char data;
+bool newData = false;
+
+
+char const * firstSound = "3.wav";
+char const * secondSound = "4.wav";
+
+
+// Function definitions
+
+void I2C_RxHandler(int numBytes);
+
+void playSound(char soundFile[12]);
+
+void engageMotors(const char *dir);
+
+void waterPump();
+
+void initSC();
+
+void initShield();

@@ -9,29 +9,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Links the header file
-#include <firetruck.h>
+#include <slave/firetruck.h>
 #include <Arduino.h>
-
-void playSound(char soundFile[12]);
-
-void printVoltage();
-
-void engageMotors(const char *dir);
-
-void waterPump();
-
-void initSC();
-
-void initShield();
 
 void setup()
 {
-  // Sets up the baud rate of the Arduino at 9600
-  // Serial.begin(baud);
 
-  // Sets up the baud rate of the HM-10 bluetooth module and prints a debug message
-  BTSerial.begin(baud);
-
+  Wire.begin(8);                // join the I2C bus with address 8
+  Wire.onReceive(I2C_RxHandler); // call receiveEvent when data is received
 
   // Attaches the servo object to the correct servo pin and prints debug message in case it does not connect (Commented out until servo gets used)
   SteeringServo.attach(servoPin);
@@ -40,24 +25,21 @@ void setup()
   // Function that will initialize the speed controller
   initSC();
 
-  // Initialize the water pump port
-  pinMode(A5, OUTPUT);
-  digitalWrite(A5, HIGH);
+  // Initialize the water pump pin
+  pinMode(waterPumpPin, OUTPUT);
+  digitalWrite(waterPumpPin, HIGH);
 
-  // Start battery sensing
-  batt.begin(BOARD_REF_VOLTAGE, 3.2, &sigmoidal);
-  batt.onDemand(ACTIVATION_PIN, HIGH);
+
   delay(500);
 
   // Initialize Wave Shield
   initShield();
 
-  // Serial.println("Program started!");
 }
 
 void loop()
 {
-  bool newData = false;
+
 
   currentTime = millis();
 
@@ -76,41 +58,44 @@ void loop()
     root.rewind();
   }
 
-  BTSerial.listen();
-  if (BTSerial.available())
-  {
-    data = BTSerial.read();
+  // TODO: change logic for turning from slave to master 
 
-    // get data for speed
-    if (data == 's')
-    {
-      engageMotor = true;
-      Serial.readBytesUntil('Y', dirY, 2);
-      dirYNum = strtod(dirY, nullptr);
-      Serial.println(dirYNum);
-    }
-    // get data for direction
-    if (data == 'd')
-    {
-      movement = true;
+  // if (newData)
+  // {
+  //   // data = BTSerial.read();
 
-      Serial.readBytesUntil('X', dirX, 2);
-      dirXNum = strtod(dirX, nullptr);
-      Serial.println(dirXNum);
-      data = Serial.read();
-    }
+  //   // get data for speed
+  //   if (data == 's')
+  //   {
+  //     engageMotor = true;
+  //     Serial.readBytesUntil('Y', dirY, 2);
+  //     dirYNum = strtod(dirY, nullptr);
+  //     Serial.println(dirYNum);
+  //   }
+  //   // get data for direction
+  //   if (data == 'd')
+  //   {
+  //     movement = true;
 
-    for (int i = 0; i < 3; i++)
-    {
-      dirY[i] = 0;
-      dirX[i] = 0;
-    }
+  //     Serial.readBytesUntil('X', dirX, 2);
+  //     dirXNum = strtod(dirX, nullptr);
+  //     Serial.println(dirXNum);
+  //     data = Serial.read();
+  //   }
 
-    newData = true;
-  }
+  //   for (int i = 0; i < 3; i++)
+  //   {
+  //     dirY[i] = 0;
+  //     dirX[i] = 0;
+  //   }
+
+  //   newData = true;
+  // }
 
   if (newData)
   {
+    newData = false;
+    
     // If-else statements that'll call the specific function if the condition gets met
     if (data == 'P')
     {
@@ -119,22 +104,17 @@ void loop()
     }
     else if (data == 'A')
     {
-      playSound("3.wav");
+      playSound(firstSound);
       data = ' ';
     }
     else if (data == 'C')
     {
-      playSound("4.wav");
+      playSound(secondSound);
       data = ' ';
     }
     else if (data == 'W')
     {
       waterPump();
-    }
-    else if (data == 'V')
-    {
-      printVoltage();
-      data = ' ';
     }
     // Turn the servo to 0 degrees
     if (Serial.available())
@@ -146,65 +126,65 @@ void loop()
     {
       movement = false;
       // Turn the servo to 0 degrees
-      if (dirXNum < 0)
-      {
+      // if (dirXNum < 0)
+      // {
 
-        for (servoAngle = SteeringServo.read(); servoAngle >= 0; servoAngle--)
-        {
-          SteeringServo.write(servoAngle);
-          delay(servoDelay);
-          if (BTSerial.available())
-            break;
-        }
-        data = ' ';
-      }
-      // Turn the servo perpendicular (90 degrees)
-      else if (dirXNum == 0)
-      {
+      //   for (servoAngle = SteeringServo.read(); servoAngle >= 0; servoAngle--)
+      //   {
+      //     SteeringServo.write(servoAngle);
+      //     delay(servoDelay);
+      //     if (BTSerial.available())
+      //       break;
+      //   }
+      //   data = ' ';
+      // }
+      // // Turn the servo perpendicular (90 degrees)
+      // else if (dirXNum == 0)
+      // {
 
-        servoAngle = SteeringServo.read();
+      //   servoAngle = SteeringServo.read();
 
-        if (servoAngle >= 0 && servoAngle < 89)
-        {
-          for (servoAngle = SteeringServo.read(); servoAngle < 90; servoAngle++)
-          {
-            SteeringServo.write(servoAngle);
-            delay(servoDelay);
-            if (BTSerial.available())
-              break;
-          }
-        }
-        else if (servoAngle > 89)
-        {
-          for (servoAngle = SteeringServo.read(); servoAngle > 90; servoAngle--)
-          {
-            SteeringServo.write(servoAngle);
-            delay(servoDelay);
-            if (BTSerial.available())
-              break;
-          }
-        }
-        else
-        {
-          SteeringServo.write(90);
-        }
-        data = ' ';
-      }
-      // Turn the servo to 180 degrees
-      else if (dirXNum > 0)
-      {
+      //   if (servoAngle >= 0 && servoAngle < 89)
+      //   {
+      //     for (servoAngle = SteeringServo.read(); servoAngle < 90; servoAngle++)
+      //     {
+      //       SteeringServo.write(servoAngle);
+      //       delay(servoDelay);
+      //       if (BTSerial.available())
+      //         break;
+      //     }
+      //   }
+      //   else if (servoAngle > 89)
+      //   {
+      //     for (servoAngle = SteeringServo.read(); servoAngle > 90; servoAngle--)
+      //     {
+      //       SteeringServo.write(servoAngle);
+      //       delay(servoDelay);
+      //       if (BTSerial.available())
+      //         break;
+      //     }
+      //   }
+      //   else
+      //   {
+      //     SteeringServo.write(90);
+      //   }
+      //   data = ' ';
+      // }
+      // // Turn the servo to 180 degrees
+      // else if (dirXNum > 0)
+      // {
 
-        servoAngle = SteeringServo.read();
+      //   servoAngle = SteeringServo.read();
 
-        for (servoAngle = SteeringServo.read(); servoAngle <= 180; servoAngle++)
-        {
-          SteeringServo.write(servoAngle);
-          delay(servoDelay);
-          if (BTSerial.available())
-            break;
-        }
-        data = ' ';
-      }
+      //   for (servoAngle = SteeringServo.read(); servoAngle <= 180; servoAngle++)
+      //   {
+      //     SteeringServo.write(servoAngle);
+      //     delay(servoDelay);
+      //     if (BTSerial.available())
+      //       break;
+      //   }
+      //   data = ' ';
+      // }
     }
     if (engageMotor)
     {
@@ -225,7 +205,15 @@ void loop()
   }
 }
 
+// I2C_RxHandler handles bytes coming over the I2C protocol from the Arduino Master 
+void I2C_RxHandler(int numBytes)
+{
+  while(Wire.available()) {  // Read Any Received Data
+    data = Wire.read();
+  }
 
+  newData = true;
+}
 
 // initSC initializes the speed controller
 // For the QuicRun 1060, the minimum reverse is ~17 and the neutral is ~100.
@@ -248,9 +236,17 @@ void stopPlayback()
 // Function for turning the water pump on and off
 void waterPump()
 {
-  digitalWrite(A5, LOW);
-  delay(1000);
-  digitalWrite(A5, HIGH);
+  // check if water pump state is off
+  if (!waterPumpState)
+  {
+    waterPumpState = true;
+    digitalWrite(waterPumpPin, LOW);
+    delay(1000);
+  } else {
+
+    waterPumpState = false;
+    digitalWrite(waterPumpPin, HIGH);
+  }
 }
 
 
@@ -273,16 +269,8 @@ void engageMotors(const char *dir)
   data = ' ';
 }
 
-// printVoltage calculates and sends the battery level over the Bluetooth connection
-void printVoltage()
-{
 
-  BTSerial.println();
-  BTSerial.print("batteryLvl: ");
-  BTSerial.println(batt.level());
-}
-
-// initalize and check Wave Shield and SD card
+// initialize and check Wave Shield and SD card
 void initShield()
 {
 
