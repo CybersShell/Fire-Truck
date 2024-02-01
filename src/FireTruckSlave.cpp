@@ -1,22 +1,17 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // This program is what will be used to communicate to the Arduino board which will operate and control the other parts of
-// the firetruck including the motor controller, water pump, speakers, bluetooth module (HM-10), and micro SD card adapter.
-// NOTE: To see if the circuit board and bluetooth module are communicating, use the serial monitor to check for input.
-// Also note that the serial monitor does not send line endings to the HM-10.
+// the firetruck including the speed controller, water pump, and AdaFruit Wave Shield.
+// Connect the Arduino over I2C as shown here: https://archive.is/iZrCx#selection-1403.0-1412.8. 
 // Programmed by Colby McClure and Andrew Woodlee at SMAP.
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Links the header file
 #include <slave/firetruck.h>
-#include <Arduino.h>
 
 void setup()
 {
-
-  Wire.begin(8);                // join the I2C bus with address 8
-  Wire.onReceive(I2C_RxHandler); // call receiveEvent when data is received
 
   // Attaches the servo object to the correct servo pin and prints debug message in case it does not connect (Commented out until servo gets used)
   SteeringServo.attach(servoPin);
@@ -26,20 +21,22 @@ void setup()
   initSC();
 
   // Initialize the water pump pin
+  // Pump is enabled if LOW, disabled if HIGH
   pinMode(waterPumpPin, OUTPUT);
   digitalWrite(waterPumpPin, HIGH);
-
 
   delay(500);
 
   // Initialize Wave Shield
   initShield();
 
+  Wire.begin(8);                // join the I2C bus with address 8
+  Wire.onReceive(I2C_RxHandler); // call receiveEvent when data is received
+
 }
 
 void loop()
 {
-
 
   currentTime = millis();
 
@@ -52,13 +49,15 @@ void loop()
   // stop sound after specified time
   if (wave.isplaying && (currentTime - timeSoundStarted >= timeToStopPlayingSound))
   {
-    // Stop playing and close the sound file and go back to the beginning of the filesystem
+    // Stop playing, close the sound file, and go back to the beginning of the filesystem
     wave.stop();
     file.close();
     root.rewind();
   }
 
-  // TODO: change logic for turning from slave to master 
+
+
+  // TODO: move logic for turning and motion from slave to master 
 
   // if (newData)
   // {
@@ -97,30 +96,25 @@ void loop()
     newData = false;
     
     // If-else statements that'll call the specific function if the condition gets met
-    if (data == 'P')
+    if (data == TruckControlData.SoundStop)
     {
       wave.stop();
       data = ' ';
     }
-    else if (data == 'A')
+    else if (data == TruckControlData.SoundOne)
     {
       playSound(firstSound);
       data = ' ';
     }
-    else if (data == 'C')
+    else if (data == TruckControlData.SoundTwo)
     {
       playSound(secondSound);
       data = ' ';
     }
-    else if (data == 'W')
+    else if (data == TruckControlData.ToggleWaterPump)
     {
       waterPump();
     }
-    // Turn the servo to 0 degrees
-    if (Serial.available())
-    {
-      data = Serial.read();
-    };
 
     if (movement)
     {
@@ -189,15 +183,15 @@ void loop()
     if (engageMotor)
     {
       engageMotor = false;
-      if (dirYNum < 0)
+      if (data == TruckControlData.MotorBackward)
       {
         SpeedCon.write(17);
       }
-      else if (dirYNum == 0)
+      else if (data == TruckControlData.MotorStop)
       {
         SpeedCon.write(90);
       }
-      else if (dirYNum > 0)
+      else if (data == TruckControlData.MotorForward)
       {
         SpeedCon.write(165);
       }
@@ -211,7 +205,15 @@ void I2C_RxHandler(int numBytes)
   while(Wire.available()) {  // Read Any Received Data
     data = Wire.read();
   }
-
+  if (
+    data == TruckControlData.MotorForward || 
+    data == TruckControlData.MotorBackward || 
+    data == TruckControlData.MotorStop
+    )
+  {
+    engageMotor = true;
+  }
+  
   newData = true;
 }
 
@@ -237,20 +239,19 @@ void stopPlayback()
 void waterPump()
 {
   // check if water pump state is off
-  if (!waterPumpState)
+  if (!waterPumpEnabled)
   {
-    waterPumpState = true;
+    waterPumpEnabled = true;
     digitalWrite(waterPumpPin, LOW);
     delay(1000);
   } else {
-
-    waterPumpState = false;
+    waterPumpEnabled = false;
     digitalWrite(waterPumpPin, HIGH);
   }
 }
 
 
-// engageMotors changes the motors' speed to speed and directon to dir
+// engageMotors changes the motors' speed to speed and direction to dir
 void engageMotors(const char *dir)
 {
   if (strcmp(dir, "b"))
@@ -264,8 +265,6 @@ void engageMotors(const char *dir)
 
   motorsMoving = true;
   timeMotorsEngaged = currentTime;
-  BTSerial.print("Time motors engaged: ");
-  BTSerial.println(timeMotorsEngaged);
   data = ' ';
 }
 
@@ -282,8 +281,6 @@ void initShield()
   pinMode(MOSI, OUTPUT);
   pinMode(MISO, OUTPUT);
 
-  // Serial.print("Freeram: ");
-  // Serial.println(FreeRam());
 
   if (!card.init())
   { // play with 8 MHz spi (default faster!)
@@ -325,15 +322,19 @@ void playSound(char soundFile[12])
 
   // create wave object for the file and play if no error
   if (wave.create(file)) {
-    BTSerial.print("Freeram: ");
-    BTSerial.println(FreeRam());
+    // play the file
     wave.play();
+    // get the current time
     timeSoundStarted = millis();
+    // time = 10 * 1000 = 10 s
     timeToStopPlayingSound = 10 * 1000;
   }
-  else {
-    BTSerial.println("Failed to read file ");
-    BTSerial.print(soundFile);
-  }
+
+}
+
+void sendToMaster() {
+
+  messageToMaster[0] = 'D';
+  Wire.write(messageToMaster, 1);
 
 }

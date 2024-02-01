@@ -36,3 +36,9 @@ build_src_filter =
     -<.svn/> 
     +<componentTests/[NameOfTest].cpp>
 ```
+
+## Setup of circuit
+
+Go over the guide in `docs/manual.pdf` to get the parts for this project and learn how to set them up.
+
+To get setup, go to the PlatformIO tab, run the platformIO environment `FireTruckMaster` and `FireTruckSlave`.

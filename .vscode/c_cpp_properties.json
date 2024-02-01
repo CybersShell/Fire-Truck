@@ -10,18 +10,16 @@
             "includePath": [
                 "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/include",
                 "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/src",
-                "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
                 "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/lib/USB_Host_Shield_2.0",
                 "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                 "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/cores/arduino",
                 "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/variants/standard",
-                "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/lib/Battery_Sense",
                 "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/lib/PWMServo",
                 "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/lib/WaveHC",
-                "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/.pio/libdeps/FireTruckMaster/USB-Host-Shield-20",
                 "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
                 "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/libraries/HID/src",
                 "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
                 ""
             ],
             "browse": {
@@ -29,23 +27,21 @@
                 "path": [
                     "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/include",
                     "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/src",
-                    "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
                     "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/lib/USB_Host_Shield_2.0",
                     "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                     "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/cores/arduino",
                     "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/variants/standard",
-                    "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/lib/Battery_Sense",
                     "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/lib/PWMServo",
                     "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/lib/WaveHC",
-                    "c:/Users/woodlee-an/Documents/PlatformIO/Projects/Fire-Truck/.pio/libdeps/FireTruckMaster/USB-Host-Shield-20",
                     "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
                     "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/libraries/HID/src",
                     "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                    "C:/Users/woodlee-an/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
                     ""
                 ]
             },
             "defines": [
-                "PLATFORMIO=60111",
+                "PLATFORMIO=60113",
                 "ARDUINO_AVR_UNO",
                 "F_CPU=16000000L",
                 "ARDUINO_ARCH_AVR",

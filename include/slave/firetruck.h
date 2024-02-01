@@ -11,14 +11,9 @@
 // Library for I2C interface
 #include <Wire.h>
 
+// common headers shared between master and slave
+#include <common.h>
 
-// Creates the bluetooth object with the receiver and transmitter pins as the arguments
-const int btRxPin = A1;
-const int btTxPin = A2;
-SoftwareSerial BTSerial(btRxPin, btTxPin);
-
-// Macro to determine if character is available to be read over Bluetooth
-#define CHAR_AVAILABLE BTSerial.available()
 
 /*
   Motor configuration
@@ -57,7 +52,7 @@ const int baud = 9600;
 
 // Constant used for the water pump pin
 const int waterPumpPin = A3;
-bool waterPumpState = false;
+bool waterPumpEnabled = false;
 
 // // Variables for events
 unsigned long currentTime;
@@ -81,9 +76,15 @@ char data;
 bool newData = false;
 
 
-char const * firstSound = "3.wav";
-char const * secondSound = "4.wav";
+char *firstSound = "3.wav";
+char *secondSound = "4.wav";
 
+#define TO_MASTER_SIZE 3
+#define TO_SLAVE_SIZE 4
+#define NODE_READ_DELAY 100
+
+byte messageToMaster[TO_MASTER_SIZE];
+byte nodeReceive[TO_SLAVE_SIZE];
 
 // Function definitions
 
@@ -98,3 +99,5 @@ void waterPump();
 void initSC();
 
 void initShield();
+
+void sendToMaster();
