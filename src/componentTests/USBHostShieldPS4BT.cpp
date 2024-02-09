@@ -27,11 +27,11 @@ char data;
 void setup()
 {
 
-    // Serial.begin(9600); // start serial for output
-    // // block while waiting for serial connection
-    // while (!Serial)
-    // {
-    // }
+    Serial.begin(9600); // start serial for output
+    // block while waiting for serial connection
+    while (!Serial)
+    {
+    }
     Serial.print("Starting USB Host Shield Test");
 
 #if !defined(__MIPSEL__)

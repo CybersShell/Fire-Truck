@@ -3,26 +3,26 @@
 void setup()
 {
     Wire.begin();       // join i2c bus
-    Serial.begin(9600); // start serial for output
-    // block while waiting for character over serial
-    while (!Serial)
-    {
+    // Serial.begin(9600); // start serial for output
+    // // block while waiting for character over serial
+    // while (!Serial)
+    // {
 
-    }
+    // }
 
     Serial.println("Starting Fire Truck Master Test");
 
-    // #if !defined(__MIPSEL__)
-    //     while (!Serial)
-    //         ; // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
-    // #endif
-    //     if (Usb.Init() == -1)
-    //     {
-    //         Serial.print(F("\r\nOSC did not start"));
-    //         while (1)
-    //             ; // Halt
-    //     }
-    //     Serial.print(F("\r\nGameController Bluetooth Library Started"));
+    #if !defined(__MIPSEL__)
+        while (!Serial)
+            ; // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
+    #endif
+        if (Usb.Init() == -1)
+        {
+            Serial.print(F("\r\nOSC did not start"));
+            while (1)
+                ; // Halt
+        }
+        Serial.print(F("\r\nGameController Bluetooth Library Started"));
 }
 
 
@@ -31,7 +31,7 @@ void loop()
     // sendData(TruckControlData.SoundOne);
     // sendData(TruckControlData.SoundTwo);
     // sendData(TruckControlData.SoundStop);
-#if defined(CONTROLLER_TEST)
+// #if defined(CONTROLLER_TEST)
 
     Usb.Task();
     if (GameController.connected())
@@ -75,16 +75,19 @@ void loop()
         {
             if (GameController.getButtonClick(TRIANGLE))
             {
+                sendData(TruckControlData.SoundOne);
                 Serial.print(F("\r\nTriangle"));
                 GameController.setRumbleOn(RumbleLow);
             }
             if (GameController.getButtonClick(CIRCLE))
             {
+                sendData(TruckControlData.SoundTwo);
                 Serial.print(F("\r\nCircle"));
                 GameController.setRumbleOn(RumbleHigh);
             }
             if (GameController.getButtonClick(CROSS))
             {
+                sendData(TruckControlData.SoundStop);
                 Serial.print(F("\r\nCross"));
                 GameController.setLedFlash(10, 10); // Set it to blink rapidly
             }
@@ -146,10 +149,8 @@ void loop()
                 Serial.print(GameController.getAngle(Roll));
             }
         }
-    } else {
-        GameController.pair();
     }
-#endif
+// #endif
 }
 
 void readFromSlave() {
@@ -171,14 +172,16 @@ void readFromSlave() {
 // send data over I2C interface to slave
 void sendData(char data)
 {
+// #if !defined(CONTROLLER_TEST)
+//     while (!Serial.available())
+//     {
+//         Serial.println("Waiting for input");
+//         delay(500);
+//     }
+//     data = Serial.read();
 
-    while (!Serial.available())
-    {
-        Serial.println("Waiting for input");
-        delay(500);
-    }
-    data = Serial.read();
-    char data2 = Serial.read();
+// #endif // CONTROLLER_TEST
+
     Serial.print("Sending: ");
     Serial.println(data);
 
@@ -187,7 +190,5 @@ void sendData(char data)
     Wire.write(data);                   // Send serial data
     // Wire.write(data2);                   // Send serial data
     Wire.endTransmission();             // Stop transmitting
-    delay(2500);
-    readFromSlave();
-    delay(2500);
+
 }

@@ -4,23 +4,8 @@
 #include <SPI.h>
 #include <common.h>
 #include <PS4Parser.h> // Added this header to the file
+#include <PS4BT.h>
 
-// Defined controller test to be used 
-#define CONTROLLER_TEST
-
-// Defined the ps4 controller to be used - ctm 
-#define PS4_CONTROLLER
-
-#if defined(CONTROLLER_TEST)
-
-// check if we are using the PS3 or PS4 controller
-#if defined(PS4_CONTROLLER)
-    #include <PS4BT.h>
-#elif defined(PS3_CONTROLLER)
-    #include <PS3BT.h>
-#else
-    #error "No game controller macros defined. Use the PS4 or PS3 environments: FireTruckMasterPS4 or FireTruckMasterPS3"
-#endif
 
 USB Usb;
 BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
@@ -30,12 +15,8 @@ BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 // You will need to hold down the PS and Share button at the same time, the PS4 controller will then start to blink rapidly indicating that it is in pairing mode
 
 // create PS4 controller Bluetooth class, enter pairing mode
-PS4BT GameController(&Btd);
+PS4BT GameController(&Btd, PAIR);
 
-#endif
-
-// After that you can simply create the instance like so and then press the PS button on the device
-// PS4BT GameController(&Btd);
 #define TO_MASTER_SIZE 2
 #define TO_SLAVE_SIZE 4
 #define NODE_READ_DELAY 100

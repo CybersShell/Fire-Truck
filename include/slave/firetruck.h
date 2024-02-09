@@ -54,7 +54,7 @@ bool waterPumpEnabled = false;
 unsigned long currentTime;
 unsigned long timeMotorsEngaged;
 boolean motorsMoving = false;
-bool canReceive = false;
+volatile bool canReceive = false;
 
 unsigned long timeSoundStarted;
 unsigned long timeToStopPlayingSound;

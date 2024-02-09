@@ -13,12 +13,11 @@
 // #include <app_api.h> // only needed with flash breakpoints
 void setup()
 {
-  Serial.begin(9600);
-  while (!Serial)
-  {
-    delay(100);
-  }
-  
+  // Serial.begin(9600);
+  // while (!Serial)
+  // {
+  //   delay(100);
+  // }
   // Attaches the servo object to the correct servo pin and prints debug message in case it does not connect (Commented out until servo gets used)
   SteeringServo.attach(servoPin);
   delay(500);
@@ -44,6 +43,7 @@ void setup()
 void loop()
 {
 
+  // Serial.println("help");
   currentTime = millis();
 
   // motors will stop after 30 * 1000 ms = 30000 ms = 30 s
@@ -58,7 +58,6 @@ void loop()
     timeSoundStarted = 0;
     timeToStopPlayingSound = 0;
     // Stop playing, close the sound file, and go back to the beginning of the filesystem
-    // Serial.println("data");
     wave.stop();
     file.close();
     
@@ -66,41 +65,6 @@ void loop()
     delay(5000);
   }
 
-
-
-  // TODO: move logic for turning and motion from slave to master 
-
-  // if (newData)
-  // {
-  //   // data = BTSerial.read();
-
-  //   // get data for speed
-  //   if (data == 's')
-  //   {
-  //     engageMotor = true;
-  //     Serial.readBytesUntil('Y', dirY, 2);
-  //     dirYNum = strtod(dirY, nullptr);
-  //     Serial.println(dirYNum);
-  //   }
-  //   // get data for direction
-  //   if (data == 'd')
-  //   {
-  //     movement = true;
-
-  //     Serial.readBytesUntil('X', dirX, 2);
-  //     dirXNum = strtod(dirX, nullptr);
-  //     Serial.println(dirXNum);
-  //     data = Serial.read();
-  //   }
-
-  //   for (int i = 0; i < 3; i++)
-  //   {
-  //     dirY[i] = 0;
-  //     dirX[i] = 0;
-  //   }
-
-  //   newData = true;
-  // }
 
   if (newData)
   {
@@ -130,65 +94,57 @@ void loop()
     {
       movement = false;
       // Turn the servo to 0 degrees
-      // if (dirXNum < 0)
-      // {
+      if (data == TruckControlData.ServoLeft)
+      {
 
-      //   for (servoAngle = SteeringServo.read(); servoAngle >= 0; servoAngle--)
-      //   {
-      //     SteeringServo.write(servoAngle);
-      //     delay(servoDelay);
-      //     if (BTSerial.available())
-      //       break;
-      //   }
-      //   data = ' ';
-      // }
-      // // Turn the servo perpendicular (90 degrees)
-      // else if (dirXNum == 0)
-      // {
+        for (servoAngle = SteeringServo.read(); servoAngle >= 0; servoAngle--)
+        {
+          SteeringServo.write(servoAngle);
+          delay(servoDelay);
+        }
+        data = ' ';
+      }
+      // Turn the servo perpendicular (90 degrees)
+      else if (data == TruckControlData.ServoMiddle)
+      {
 
-      //   servoAngle = SteeringServo.read();
+        servoAngle = SteeringServo.read();
 
-      //   if (servoAngle >= 0 && servoAngle < 89)
-      //   {
-      //     for (servoAngle = SteeringServo.read(); servoAngle < 90; servoAngle++)
-      //     {
-      //       SteeringServo.write(servoAngle);
-      //       delay(servoDelay);
-      //       if (BTSerial.available())
-      //         break;
-      //     }
-      //   }
-      //   else if (servoAngle > 89)
-      //   {
-      //     for (servoAngle = SteeringServo.read(); servoAngle > 90; servoAngle--)
-      //     {
-      //       SteeringServo.write(servoAngle);
-      //       delay(servoDelay);
-      //       if (BTSerial.available())
-      //         break;
-      //     }
-      //   }
-      //   else
-      //   {
-      //     SteeringServo.write(90);
-      //   }
-      //   data = ' ';
-      // }
-      // // Turn the servo to 180 degrees
-      // else if (dirXNum > 0)
-      // {
+        if (servoAngle >= 0 && servoAngle < 89)
+        {
+          for (servoAngle = SteeringServo.read(); servoAngle < 90; servoAngle++)
+          {
+            SteeringServo.write(servoAngle);
+            delay(servoDelay);
+          }
+        }
+        else if (servoAngle > 89)
+        {
+          for (servoAngle = SteeringServo.read(); servoAngle > 90; servoAngle--)
+          {
+            SteeringServo.write(servoAngle);
+            delay(servoDelay);
+          }
+        }
+        else
+        {
+          SteeringServo.write(90);
+        }
+        data = ' ';
+      }
+      // Turn the servo to 180 degrees
+      else if (data == TruckControlData.ServoRight)
+      {
 
-      //   servoAngle = SteeringServo.read();
+        servoAngle = SteeringServo.read();
 
-      //   for (servoAngle = SteeringServo.read(); servoAngle <= 180; servoAngle++)
-      //   {
-      //     SteeringServo.write(servoAngle);
-      //     delay(servoDelay);
-      //     if (BTSerial.available())
-      //       break;
-      //   }
-      //   data = ' ';
-      // }
+        for (servoAngle = SteeringServo.read(); servoAngle <= 180; servoAngle++)
+        {
+          SteeringServo.write(servoAngle);
+          delay(servoDelay);
+        }
+        data = ' ';
+      }
     }
     if (engageMotor)
     {
@@ -206,13 +162,14 @@ void loop()
         SpeedCon.write(165);
       }
     }
+    canReceive = true;
   }
 }
 
 // I2C_RxHandler handles bytes coming over the I2C protocol from the Arduino Master 
 void I2C_RxHandler(int numBytes)
 {
-  if(Wire.available() && canReceive) {  // Read Any Received Data
+  if(Wire.available()) {  // Read Any Received Data
     data = Wire.read();
     newData = true;
     canReceive = false;
@@ -227,7 +184,7 @@ void I2C_RxHandler(int numBytes)
   }
   
 
-  delay(1000);
+  // delay(1000);
 }
 
 // initSC initializes the speed controller
