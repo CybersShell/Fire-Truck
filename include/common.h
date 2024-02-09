@@ -13,5 +13,9 @@ struct ControlData
     char ServoMiddle = 'p';
     char ServoRight = 'R';
     char ToggleWaterPump = 'W';
+    char UpLeft = 'U';
+    char UpRight = 'V';
+    char DownLeft = 'D'; 
+    char DownRight = 'E'; 
 
 } TruckControlData;

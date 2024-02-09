@@ -36,13 +36,38 @@ void loop()
     Usb.Task();
     if (GameController.connected())
     {
-        if (GameController.getAnalogHat(LeftHatX) > 137 || GameController.getAnalogHat(LeftHatX) < 117 || GameController.getAnalogHat(LeftHatY) > 137 || GameController.getAnalogHat(LeftHatY) < 117)
+        // If the left stick is up - ctm 
+        if (GameController.getAnalogHat(LeftHatY) > 100)
         {
 
+            // If the right stick is to the right - ctm 
+            if (GameController.getAnalogHat(RightHatX) > 100) 
+            {
+                sendData(TruckControlData.UpRight);
+                Serial.println("Moving Up and to the Right \n");
+            }
+
+            // If the right stick is to the left - ctm 
+            else if  (GameController.getAnalogHat(RightHatX) > 200)
+            {
+                sendData(TruckControlData.UpLeft);
+                Serial.println("Moving Up and to the Left \n"); 
+            }
+
+            // If the right stick is neutral 
+            else 
+            {
+                sendData(TruckControlData.MotorForward); 
+                Serial.println("Moving Up"); 
+            }
+
+            // Comment out for now, use it for debugging later 
+            /*********************************************************
             Serial.println(F("\r\nLeftHatX: "));
             Serial.print(GameController.getAnalogHat(LeftHatX));
             Serial.print(F("\tLeftHatY: "));
             Serial.println(GameController.getAnalogHat(LeftHatY));
+            *********************************************************/
         }
         if (GameController.getAnalogHat(RightHatX) > 137 || GameController.getAnalogHat(RightHatX) < 117 || GameController.getAnalogHat(RightHatY) > 137 || GameController.getAnalogHat(RightHatY) < 117)
         {
