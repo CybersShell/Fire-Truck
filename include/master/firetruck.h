@@ -3,6 +3,13 @@
 #include <usbhub.h>
 #include <SPI.h>
 #include <common.h>
+#include <PS4Parser.h> // Added this header to the file
+
+// Defined controller test to be used 
+#define CONTROLLER_TEST
+
+// Defined the ps4 controller to be used - ctm 
+#define PS4_CONTROLLER
 
 #if defined(CONTROLLER_TEST)
 
