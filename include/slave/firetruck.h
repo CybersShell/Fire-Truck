@@ -41,10 +41,6 @@ PWMServo SteeringServo;
 
 
 // char arrays for data
-char dirX[3];
-char dirY[3];
-double dirXNum;
-double dirYNum;
 bool movement = false;
 bool engageMotor = false;
 // Constant used for baud rate
@@ -58,6 +54,7 @@ bool waterPumpEnabled = false;
 unsigned long currentTime;
 unsigned long timeMotorsEngaged;
 boolean motorsMoving = false;
+bool canReceive = false;
 
 unsigned long timeSoundStarted;
 unsigned long timeToStopPlayingSound;
@@ -73,13 +70,13 @@ FatReader file;
 
 // data variables used for receiving and transmitting data
 char data;
-bool newData = false;
+volatile bool newData = false;
 
 
 char *firstSound = "3.wav";
 char *secondSound = "4.wav";
 
-#define TO_MASTER_SIZE 3
+#define TO_MASTER_SIZE 2
 #define TO_SLAVE_SIZE 4
 #define NODE_READ_DELAY 100
 
@@ -91,6 +88,8 @@ byte nodeReceive[TO_SLAVE_SIZE];
 void I2C_RxHandler(int numBytes);
 
 void playSound(char soundFile[12]);
+
+void stopPlayback();
 
 void engageMotors(const char *dir);
 

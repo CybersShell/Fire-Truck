@@ -27,11 +27,11 @@ char data;
 void setup()
 {
 
-    Serial.begin(9600); // start serial for output
-    // block while waiting for serial connection
-    while (!Serial)
-    {
-    }
+    // Serial.begin(9600); // start serial for output
+    // // block while waiting for serial connection
+    // while (!Serial)
+    // {
+    // }
     Serial.print("Starting USB Host Shield Test");
 
 #if !defined(__MIPSEL__)
@@ -41,8 +41,7 @@ void setup()
     if (Usb.Init() == -1)
     {
         Serial.print(F("\r\nOSC did not start"));
-        while (1)
-            ; // Halt
+        while (1); // Halt
     }
     Serial.print(F("\r\nPS4 Bluetooth Library Started"));
 }
@@ -80,7 +79,7 @@ void loop()
         if (PS4.getButtonClick(PS))
         {
             Serial.print(F("\r\nPS"));
-            PS4.disconnect();
+            // PS4.disconnect();
         }
         else
         {
@@ -177,5 +176,6 @@ void loop()
                 }
             }
         }
-    }
+    } 
+    
 }

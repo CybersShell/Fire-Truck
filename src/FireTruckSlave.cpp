@@ -9,10 +9,16 @@
 
 // Links the header file
 #include <slave/firetruck.h>
-
+// #include <avr8-stub.h>
+// #include <app_api.h> // only needed with flash breakpoints
 void setup()
 {
-
+  Serial.begin(9600);
+  while (!Serial)
+  {
+    delay(100);
+  }
+  
   // Attaches the servo object to the correct servo pin and prints debug message in case it does not connect (Commented out until servo gets used)
   SteeringServo.attach(servoPin);
   delay(500);
@@ -49,10 +55,15 @@ void loop()
   // stop sound after specified time
   if (wave.isplaying && (currentTime - timeSoundStarted >= timeToStopPlayingSound))
   {
+    timeSoundStarted = 0;
+    timeToStopPlayingSound = 0;
     // Stop playing, close the sound file, and go back to the beginning of the filesystem
+    // Serial.println("data");
     wave.stop();
     file.close();
+    
     root.rewind();
+    delay(5000);
   }
 
 
@@ -94,11 +105,10 @@ void loop()
   if (newData)
   {
     newData = false;
-    
     // If-else statements that'll call the specific function if the condition gets met
     if (data == TruckControlData.SoundStop)
     {
-      wave.stop();
+      stopPlayback();
       data = ' ';
     }
     else if (data == TruckControlData.SoundOne)
@@ -202,8 +212,10 @@ void loop()
 // I2C_RxHandler handles bytes coming over the I2C protocol from the Arduino Master 
 void I2C_RxHandler(int numBytes)
 {
-  while(Wire.available()) {  // Read Any Received Data
+  if(Wire.available() && canReceive) {  // Read Any Received Data
     data = Wire.read();
+    newData = true;
+    canReceive = false;
   }
   if (
     data == TruckControlData.MotorForward || 
@@ -214,7 +226,8 @@ void I2C_RxHandler(int numBytes)
     engageMotor = true;
   }
   
-  newData = true;
+
+  delay(1000);
 }
 
 // initSC initializes the speed controller
@@ -232,6 +245,8 @@ void initSC()
 void stopPlayback()
 {
   wave.stop();
+  file.close();
+  root.rewind();
   data = ' ';
 }
 
@@ -313,6 +328,12 @@ void initShield()
 // playSound reads a file in the root directory and plays it over the speaker
 void playSound(char soundFile[12])
 {
+
+  if (wave.isplaying) {
+    wave.stop();
+    file.close();
+    root.rewind();
+  }
 
   if (!file.open(root, soundFile))
   { // open the file in the directory
