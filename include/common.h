@@ -13,9 +13,11 @@ struct ControlData
     char ServoMiddle = 'p';
     char ServoRight = 'R';
     char ToggleWaterPump = 'W';
-    char UpLeft = 'U';
-    char UpRight = 'V';
-    char DownLeft = 'D'; 
-    char DownRight = 'E'; 
+
+    // Added characters that correspond to a specific movement - ctm
+    char ForwardLeft = 'U';
+    char ForwardRight = 'V';
+    char BackwardLeft = 'D'; 
+    char BackwardRight = 'E';
 
 } TruckControlData;
