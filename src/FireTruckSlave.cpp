@@ -136,7 +136,7 @@ void I2C_RxHandler(int numBytes)
     data = Wire.read();
     newData = true;
   }
-  if (data == TruckControlData.DownLeft)
+  if (data == TruckControlData.BackwardLeft)
   {
     engageMotor = true;
     movementStates.backwardLeft = true;
