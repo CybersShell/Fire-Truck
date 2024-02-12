@@ -2,15 +2,14 @@
 //
 // This program is what will be used to communicate to the Arduino board which will operate and control the other parts of
 // the firetruck including the speed controller, water pump, and AdaFruit Wave Shield.
-// Connect the Arduino over I2C as shown here: https://archive.is/iZrCx#selection-1403.0-1412.8. 
+// Connect the Arduino over I2C as shown here: https://archive.is/iZrCx#selection-1403.0-1412.8.
 // Programmed by Colby McClure and Andrew Woodlee at SMAP.
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Links the header file
 #include <slave/firetruck.h>
-// #include <avr8-stub.h>
-// #include <app_api.h> // only needed with flash breakpoints
+
 void setup()
 {
   // Serial.begin(9600);
@@ -35,9 +34,8 @@ void setup()
   // Initialize Wave Shield
   initShield();
 
-  Wire.begin(8);                // join the I2C bus with address 8
-  Wire.onReceive(I2C_RxHandler); // call receiveEvent when data is received
-
+  Wire.begin(8);                 // join the I2C bus with address 8
+  Wire.onReceive(I2C_RxHandler); // call I2C_RxHandler when data is received
 }
 
 void loop()
@@ -60,22 +58,21 @@ void loop()
     // Stop playing, close the sound file, and go back to the beginning of the filesystem
     wave.stop();
     file.close();
-    
+
     root.rewind();
     delay(5000);
   }
-
 
   if (newData)
   {
     newData = false;
     // If-else statements that'll call the specific function if the condition gets met
-    if (data == TruckControlData.SoundStop)
+    if (checkData(TruckControlData.SoundStop))
     {
       stopPlayback();
       data = ' ';
     }
-    else if (data == TruckControlData.SoundOne)
+    else if (checkData(TruckControlData.SoundOne))
     {
       playSound(firstSound);
       data = ' ';
@@ -88,6 +85,7 @@ void loop()
     else if (data == TruckControlData.ToggleWaterPump)
     {
       waterPump();
+      data = ' ';
     }
 
     if (movement)
@@ -96,95 +94,63 @@ void loop()
       // Turn the servo to 0 degrees
       if (data == TruckControlData.ServoLeft)
       {
-
-        for (servoAngle = SteeringServo.read(); servoAngle >= 0; servoAngle--)
-        {
-          SteeringServo.write(servoAngle);
-          delay(servoDelay);
-        }
+        SteeringServo.write(0);
         data = ' ';
       }
       // Turn the servo perpendicular (90 degrees)
       else if (data == TruckControlData.ServoMiddle)
       {
-
-        servoAngle = SteeringServo.read();
-
-        if (servoAngle >= 0 && servoAngle < 89)
-        {
-          for (servoAngle = SteeringServo.read(); servoAngle < 90; servoAngle++)
-          {
-            SteeringServo.write(servoAngle);
-            delay(servoDelay);
-          }
-        }
-        else if (servoAngle > 89)
-        {
-          for (servoAngle = SteeringServo.read(); servoAngle > 90; servoAngle--)
-          {
-            SteeringServo.write(servoAngle);
-            delay(servoDelay);
-          }
-        }
-        else
-        {
-          SteeringServo.write(90);
-        }
+        SteeringServo.write(90);
         data = ' ';
       }
       // Turn the servo to 180 degrees
       else if (data == TruckControlData.ServoRight)
       {
-
-        servoAngle = SteeringServo.read();
-
-        for (servoAngle = SteeringServo.read(); servoAngle <= 180; servoAngle++)
+        SteeringServo.write(180);
+      }
+      if (engageMotor)
+      {
+        engageMotor = false;
+        if (data == TruckControlData.MotorBackward)
         {
-          SteeringServo.write(servoAngle);
-          delay(servoDelay);
+          SpeedCon.write(17);
         }
-        data = ' ';
+        else if (data == TruckControlData.MotorStop)
+        {
+          SpeedCon.write(90);
+        }
+        else if (data == TruckControlData.MotorForward)
+        {
+          SpeedCon.write(165);
+        }
       }
     }
-    if (engageMotor)
-    {
-      engageMotor = false;
-      if (data == TruckControlData.MotorBackward)
-      {
-        SpeedCon.write(17);
-      }
-      else if (data == TruckControlData.MotorStop)
-      {
-        SpeedCon.write(90);
-      }
-      else if (data == TruckControlData.MotorForward)
-      {
-        SpeedCon.write(165);
-      }
-    }
-    canReceive = true;
   }
 }
 
-// I2C_RxHandler handles bytes coming over the I2C protocol from the Arduino Master 
+// I2C_RxHandler handles bytes coming over the I2C protocol from the Arduino Master
 void I2C_RxHandler(int numBytes)
 {
-  if(Wire.available()) {  // Read Any Received Data
+  if (Wire.available())
+  { // Read Any Received Data
     data = Wire.read();
     newData = true;
-    canReceive = false;
   }
-  if (
-    data == TruckControlData.MotorForward || 
-    data == TruckControlData.MotorBackward || 
-    data == TruckControlData.MotorStop
-    )
+  if (data == TruckControlData.DownLeft)
   {
     engageMotor = true;
+    movementStates.backwardLeft = true;
   }
-  
-
-  // delay(1000);
+  if (data == TruckControlData.MotorForward)
+  {
+    engageMotor = true;
+    movementStates.forward;
+  }
+  if (data == TruckControlData.MotorBackward)
+  {
+    engageMotor = true;
+    movementStates.backward;
+  }
 }
 
 // initSC initializes the speed controller
@@ -216,12 +182,13 @@ void waterPump()
     waterPumpEnabled = true;
     digitalWrite(waterPumpPin, LOW);
     delay(1000);
-  } else {
+  }
+  else
+  {
     waterPumpEnabled = false;
     digitalWrite(waterPumpPin, HIGH);
   }
 }
-
 
 // engageMotors changes the motors' speed to speed and direction to dir
 void engageMotors(const char *dir)
@@ -240,7 +207,6 @@ void engageMotors(const char *dir)
   data = ' ';
 }
 
-
 // initialize and check Wave Shield and SD card
 void initShield()
 {
@@ -253,12 +219,12 @@ void initShield()
   pinMode(MOSI, OUTPUT);
   pinMode(MISO, OUTPUT);
 
-
   if (!card.init())
   { // play with 8 MHz spi (default faster!)
     // Serial.println("Card init. failed!");  // Something went wrong, lets print out why
     // sdErrorCheck();
-    while(1);                            // then 'halt' - do nothing!
+    while (1)
+      ; // then 'halt' - do nothing!
   }
 
   // Now we will look for a FAT partition!
@@ -272,7 +238,8 @@ void initShield()
   { // if we ended up not finding one  :(
     // Serial.println("No valid FAT partition!");
     // sdErrorCheck();      // Something went wrong, lets print out why
-    while (1); // then 'halt' - do nothing!
+    while (1)
+      ; // then 'halt' - do nothing!
   }
 
   // Open the root of the SD Card
@@ -286,7 +253,8 @@ void initShield()
 void playSound(char soundFile[12])
 {
 
-  if (wave.isplaying) {
+  if (wave.isplaying)
+  {
     wave.stop();
     file.close();
     root.rewind();
@@ -295,11 +263,13 @@ void playSound(char soundFile[12])
   if (!file.open(root, soundFile))
   { // open the file in the directory
     // Serial.println("file.open failed");  // something went wrong :(
-    while (1); // halt
+    while (1)
+      ; // halt
   }
 
   // create wave object for the file and play if no error
-  if (wave.create(file)) {
+  if (wave.create(file))
+  {
     // play the file
     wave.play();
     // get the current time
@@ -307,12 +277,12 @@ void playSound(char soundFile[12])
     // time = 10 * 1000 = 10 s
     timeToStopPlayingSound = 10 * 1000;
   }
-
 }
 
-void sendToMaster() {
-
-  messageToMaster[0] = 'D';
-  Wire.write(messageToMaster, 1);
-
+bool checkData(char c)
+{
+  cli();
+  bool eq = data == c;
+  sei();
+  return eq;
 }

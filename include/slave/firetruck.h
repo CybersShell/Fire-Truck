@@ -40,9 +40,20 @@ PWMServo SteeringServo;
 
 
 
-// char arrays for data
-bool movement = false;
-bool engageMotor = false;
+// booleans for movement
+struct movementBools
+{
+  volatile bool forward = false;
+  volatile bool forwardLeft = false;
+  volatile bool forwardRight = false;
+
+  volatile bool backward = false;
+  volatile bool backwardRight = false;
+  volatile bool backwardLeft = false;
+} movementStates;
+
+volatile bool movement = false;
+volatile bool engageMotor = false;
 // Constant used for baud rate
 const int baud = 9600;
 
@@ -54,7 +65,6 @@ bool waterPumpEnabled = false;
 unsigned long currentTime;
 unsigned long timeMotorsEngaged;
 boolean motorsMoving = false;
-volatile bool canReceive = false;
 
 unsigned long timeSoundStarted;
 unsigned long timeToStopPlayingSound;
@@ -69,8 +79,9 @@ WaveHC wave;      // This is the only wave (audio) object, since we will only pl
 FatReader file;
 
 // data variables used for receiving and transmitting data
-char data;
+volatile char data;
 volatile bool newData = false;
+volatile bool canReceive = false;
 
 
 char *firstSound = "3.wav";
@@ -82,6 +93,10 @@ char *secondSound = "4.wav";
 
 byte messageToMaster[TO_MASTER_SIZE];
 byte nodeReceive[TO_SLAVE_SIZE];
+
+#define SpeedControllerForward SpeedCon.write(165)
+#define SpeedControllerStraight SpeedCon.write(90)
+#define SpeedControllerBackward SpeedCon.write(17)
 
 // Function definitions
 
@@ -100,3 +115,5 @@ void initSC();
 void initShield();
 
 void sendToMaster();
+
+bool checkData(char c);
