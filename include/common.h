@@ -34,3 +34,6 @@ enum FireTruckStates
 
 // Initialize the state to start out while still - ctm 
 unsigned char FiretruckState = firetruckStill; 
+
+// Initialize the old state variable - ctm 
+unsigned char OldState; 

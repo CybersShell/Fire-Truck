@@ -1,5 +1,15 @@
 #include <master/firetruck.h>
 
+// Comment out for time being until state machine is working - ctm 
+/*
+    bool leftStickUp = false; 
+    bool leftStickDown = false;
+    bool rightStickLeft = false;
+    bool rightStickRight = false; 
+    bool leftNeutral = false;
+    bool rightNeutral = false; 
+*/ 
+
 void setup()
 {
     Wire.begin();       // join i2c bus
@@ -227,15 +237,32 @@ void setState() {
 
             // If the right stick is turned towards the right - ctm 
             if(GameController.getAnalogHat(RightHatX) < 120)
-            {
-                sendData(TruckControlData.ForwardRight);
-                break;
+            {   
+
+                // If the old state does not equal to the current state - ctm
+                if(OldState != FiretruckState) 
+                {
+                    OldState = FiretruckState; 
+                    sendData(TruckControlData.ForwardRight);
+                    break;
+                } else {
+                    break; 
+                }
+                
 
             // If the right stick is turned towards the left - ctm 
             } else if(GameController.getAnalogHat(RightHatX) > 150) 
-            {
-                sendData(TruckControlData.ForwardLeft); 
-                break; 
+            { 
+
+                // If the old state does not equal to the current state  - ctm 
+               if(OldState != FiretruckState) 
+                {
+                    OldState = FiretruckState; 
+                    sendData(TruckControlData.ForwardLeft);
+                    break;
+                } else {
+                    break; 
+                }
 
             // If the left stick is in the neutral position - ctm 
             } else if(GameController.getAnalogHat(LeftHatY) > 120 && GameController.getAnalogHat(LeftHatY) < 150)
@@ -255,14 +282,30 @@ void setState() {
             // If the right stick is to the right - ctm 
             if(GameController.getAnalogHat(RightHatX) < 120)
             {
-                sendData(TruckControlData.BackwardRight);
-                break; 
+
+                // If the old state does not equal to the current state - ctm 
+                if(OldState != FiretruckState) 
+                {
+                    OldState = FiretruckState; 
+                    sendData(TruckControlData.BackwardRight);
+                    break;
+                } else {
+                    break; 
+                }
 
             // If the right stick is to the left - ctm 
             } else if(GameController.getAnalogHat(RightHatX) > 150)
             {
-                sendData(TruckControlData.BackwardLeft); 
-                break; 
+
+                // If the old state does not equal to the current state - ctm
+                if(OldState != FiretruckState) 
+                {
+                    OldState = FiretruckState; 
+                    sendData(TruckControlData.BackwardLeft);
+                    break;
+                } else {
+                    break; 
+                }
 
             // If the left stick is in the neutral position - ctm 
             } else if(GameController.getAnalogHat(LeftHatY) > 120 && GameController.getAnalogHat(LeftHatY) < 150)
@@ -296,8 +339,16 @@ void setState() {
 
             // If there is nothing going on with the left stick - ctm 
             } else {
-                sendData(TruckControlData.ServoLeft);
-                break;
+                
+                // If the old state does not equal to the current state - ctm
+                if(OldState != FiretruckState) 
+                {
+                    OldState = FiretruckState; 
+                    sendData(TruckControlData.ServoLeft);
+                    break;
+                } else {
+                    break; 
+                }
             }
         
         // If the firetruck is turning right - ctm 
@@ -321,8 +372,16 @@ void setState() {
 
             // If there is nothing going on with the left stick - ctm 
             } else {
-                sendData(TruckControlData.ServoRight);
-                break;
+
+                // If the old state does not equal to the current state - ctm
+                if(OldState != FiretruckState) 
+                {
+                    OldState = FiretruckState; 
+                    sendData(TruckControlData.ServoLeft);
+                    break;
+                } else {
+                    break; 
+                }
             }
     }
 

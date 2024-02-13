@@ -35,3 +35,5 @@ char i2cData;
 void sendData(char data);
 
 void readFromSlave();
+
+void setState(); 
