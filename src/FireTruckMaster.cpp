@@ -1,13 +1,5 @@
 #include <master/firetruck.h>
 
-// The following bools are used to keep track of the states of each analog stick - ctm 
-bool leftNeutral = false;
-bool rightNeutral = false; 
-bool leftStickDown = false;
-bool leftStickUp = false;
-bool rightStickLeft = false; 
-bool rightStickRight = false; 
-
 void setup()
 {
     Wire.begin();       // join i2c bus
@@ -44,6 +36,10 @@ void loop()
     Usb.Task();
     if (GameController.connected())
     {
+        setState(); 
+    
+// Old implementation, can delete when state machine has been figured out - ctm 
+/*
         // If the left stick is up - ctm 
         if(GameController.getAnalogHat(LeftHatY) > 150) 
         {
@@ -149,6 +145,7 @@ void loop()
         {
             sendData(TruckControlData.ServoRight);
         }
+*/
 
         // If the X button has been hit, play the second sound - ctm 
         if(GameController.getButtonClick(CROSS))
@@ -174,6 +171,8 @@ void loop()
             sendData(TruckControlData.ToggleWaterPump); 
         }
 
+
+
             // Comment out for now, use it for debugging purposes later 
             /*********************************************************
             Serial.println(F("\r\nLeftHatX: "));
@@ -184,6 +183,150 @@ void loop()
     }
 }
 
+// Function that checks the state of the firetruck and sends data depending on what state its in - ctm 
+void setState() {
+    switch (FiretruckState) {
+        
+        // If the firetruck is still or not moving - ctm 
+        case firetruckStill: 
+
+            // If the left stick has been moved up - ctm 
+            if(GameController.getAnalogHat(LeftHatY) < 120)
+            {
+                // Changes state then breaks - ctm 
+                FiretruckState = firetruckMoveForward;
+                break; 
+
+            // If the left stick has been moved down - ctm 
+            } else if(GameController.getAnalogHat(LeftHatY) > 150) {
+
+                // Changes states then breaks - ctm 
+                FiretruckState = firetruckMoveBackward; 
+                break; 
+
+            // If the right stick is turned to the left - ctm 
+            } else if(GameController.getAnalogHat(RightHatX) > 150) {
+
+                // Changes states then breaks - ctm 
+                FiretruckState = firetruckTurnLeft; 
+                break; 
+
+            // If the right stick is turned to the right - ctm 
+            } else if(GameController.getAnalogHat(RightHatX) < 120) {
+
+                // Changes state then breaks - ctm 
+                FiretruckState = firetruckTurnRight; 
+                break; 
+
+            } else {
+                break; 
+            }
+
+        // If the firetruck is moving forward - ctm 
+        case firetruckMoveForward:
+
+            // If the right stick is turned towards the right - ctm 
+            if(GameController.getAnalogHat(RightHatX) < 120)
+            {
+                sendData(TruckControlData.ForwardRight);
+                break;
+
+            // If the right stick is turned towards the left - ctm 
+            } else if(GameController.getAnalogHat(RightHatX) > 150) 
+            {
+                sendData(TruckControlData.ForwardLeft); 
+                break; 
+
+            // If the left stick is in the neutral position - ctm 
+            } else if(GameController.getAnalogHat(LeftHatY) > 120 && GameController.getAnalogHat(LeftHatY) < 150)
+            {
+                // Send the corresponding data then reset the state to the still state - ctm 
+                sendData(TruckControlData.MotorStop); 
+                FiretruckState = firetruckStill; 
+                break; 
+
+            } else {
+                break; 
+            }
+
+        // If the firetruck is moving backwards 
+        case firetruckMoveBackward: 
+
+            // If the right stick is to the right - ctm 
+            if(GameController.getAnalogHat(RightHatX) < 120)
+            {
+                sendData(TruckControlData.BackwardRight);
+                break; 
+
+            // If the right stick is to the left - ctm 
+            } else if(GameController.getAnalogHat(RightHatX) > 150)
+            {
+                sendData(TruckControlData.BackwardLeft); 
+                break; 
+
+            // If the left stick is in the neutral position - ctm 
+            } else if(GameController.getAnalogHat(LeftHatY) > 120 && GameController.getAnalogHat(LeftHatY) < 150)
+            {
+                // Send the corresponding data then reset state to the still state - ctm 
+                sendData(TruckControlData.MotorStop); 
+                FiretruckState = firetruckStill; 
+                break; 
+
+            } else {
+                break; 
+            }
+
+        // If the firetruck is turning left - ctm 
+        case firetruckTurnLeft:
+
+            // If the left stick is up - ctm 
+            if(GameController.getAnalogHat(LeftHatY) < 120)
+            {   
+                // Change states to the forward state then breaks - ctm 
+                FiretruckState = firetruckMoveForward;
+                break; 
+
+            // If the left stick is down - ctm 
+            } else if(GameController.getAnalogHat(LeftHatY) > 150)
+            {
+                
+                // Changes states to the backward state then breaks - ctm 
+                FiretruckState = firetruckMoveBackward;
+                break; 
+
+            // If there is nothing going on with the left stick - ctm 
+            } else {
+                sendData(TruckControlData.ServoLeft);
+                break;
+            }
+        
+        // If the firetruck is turning right - ctm 
+        case firetruckTurnRight: 
+
+            // If the left stick is up - ctm 
+            if(GameController.getAnalogHat(LeftHatY) < 120)
+            {
+
+                // Changes states to the forward state then breaks - ctm 
+                FiretruckState = firetruckMoveForward;
+                break; 
+
+            // If the left stick is down - ctm 
+            } else if(GameController.getAnalogHat(LeftHatY) > 150)
+            {
+
+                // Changes states to the backwards state then breaks - ctm 
+                FiretruckState = firetruckMoveBackward;
+                break; 
+
+            // If there is nothing going on with the left stick - ctm 
+            } else {
+                sendData(TruckControlData.ServoRight);
+                break;
+            }
+    }
+
+}
         
 
 void readFromSlave() {
