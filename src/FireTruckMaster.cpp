@@ -13,12 +13,12 @@
 void setup()
 {
     Wire.begin();       // join i2c bus
-    // Serial.begin(9600); // start serial for output
-    // // block while waiting for character over serial
-    // while (!Serial)
-    // {
+    Serial.begin(9600); // start serial for output
+    // block while waiting for character over serial
+    while (!Serial)
+    {
 
-    // }
+    }
 
     Serial.println("Starting Fire Truck Master Test");
 
