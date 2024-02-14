@@ -1,5 +1,15 @@
 #include <master/firetruck.h>
 
+// These bools keep track of if the left stick moves - ctm 
+#define upConditional GameController.getAnalogHat(LeftHatY) < 120
+#define downConditional GameController.getAnalogHat(LeftHatY) > 150
+#define leftNeutralConditional GameController.getAnalogHat(LeftHatY) > 120 && GameController.getAnalogHat(LeftHatY) < 150
+
+// These bools keep track of if the right stick moves - ctm 
+bool leftConditional = false;
+bool rightConditional = false;
+bool rightNeutralConditional = true; 
+
 // Comment out for time being until state machine is working - ctm 
 /*
     bool leftStickUp = false; 
@@ -192,7 +202,9 @@ void loop()
     }
 }
 
+
 // Function that checks the state of the firetruck and sends data depending on what state its in - ctm 
+/* Comment out this function until we get working implementation - ctm 
 void setState() {
     switch (FiretruckState) {
         
@@ -385,6 +397,8 @@ void setState() {
     }
 
 }
+
+*/ 
         
 
 void readFromSlave() {
@@ -422,7 +436,92 @@ void sendData(char data)
 
     Wire.beginTransmission(I2CAddress); // Transmit to device
     Wire.write(data);                   // Send serial data
-    // Wire.write(data2);                   // Send serial data
+    // Wire.write(data2);               // Send serial data
     Wire.endTransmission();             // Stop transmitting
+
+}
+
+// This function updates both the old/new state of both analog sticks - ctm 
+void getState()
+{
+    // Set the new states to be equal to the result of their respective functions - ctm 
+    leftStick.newState = getStateOfLeftStick();
+    rightStick.newState = getStateOfRightStick();
+    combineStates();
+
+    // Set the old states to be equal to the new states - ctm
+    leftStick.oldState = leftStick.newState;
+    rightStick.oldState = rightStick.newState; 
+}
+
+
+void combineStates()
+{
+
+    // If the old state doesn't match to the new one - ctm 
+    if(leftStick.newState != leftStick.oldState) 
+    {
+        switch (leftStick.newState)
+        {
+            case leftStickStates::leftStickUp:
+                firetruck.newState = fireTruckStates::forward;
+                break; 
+            case leftStickStates::leftStickDown:
+                firetruck.newState = fireTruckStates::backward; 
+                break;
+            case leftStickStates::leftStickNeutral:
+                break; 
+        }
+    }
+
+    // If the old state doesn't match to the new one - ctm 
+    if(rightStick.newState != rightStick.oldState)
+    {
+
+    }
+
+}
+
+leftStickStates getStateOfLeftStick()
+{
+    // Set these bools equal to the global variables - ctm 
+    bool isUp = upConditional;
+    bool isDown = downConditional;
+    bool isNeutral = leftNeutralConditional; 
+
+    // If the left stick is up - ctm 
+    if(isUp && !isDown)
+    {
+        leftStick.newState = leftStickStates::leftStickUp;
+
+    // If the left stick is down - ctm 
+    } else if (!isUp && isDown) {
+        leftStick.newState = leftStickStates::leftStickDown; 
+
+    // If the left stick is neutral - ctm 
+    } else {
+        leftStick.newState = leftStickStates::leftStickNeutral; 
+    }
+
+    // If the old state differs from the new one - ctm 
+    if(leftStick.oldState != leftStick.newState) {
+        if(isNeutral)
+        {
+            return leftStickStates::leftStickNeutral;
+        } else if(isUp && !isDown) {
+            return leftStickStates::leftStickUp;
+        } else {
+            return leftStickStates::leftStickDown; 
+        }
+    }
+
+    return leftStick.oldState; 
+}
+
+rightStickStates getStateOfRightStick()
+{
+    bool isLeft = leftConditional;
+    bool isRight = rightConditional;
+    bool isNeutral = rightNeutralConditional;
 
 }
