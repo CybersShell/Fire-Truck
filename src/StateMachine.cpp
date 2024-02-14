@@ -34,7 +34,7 @@ void getState()
     rightStick.oldState = rightStick.newState;
 }
 
-void combinedStates()
+void combineStates()
 {
     if (leftStick.newState != leftStick.oldState)
     {
