@@ -98,6 +98,11 @@ void loop()
             rightNeutral = false; 
         }
 
+        // // If the left stick is neutral, stop the motor - ctm 
+        // if(leftNeutral == true && !leftStickDown && !leftStickUp)
+        // {
+        //     sendData(TruckControlData.MotorStop);
+        // }
         // Here are all the cases in which the left stick is up - ctm 
         if(leftStickUp == true) 
         {
@@ -119,43 +124,37 @@ void loop()
         }
 
         // Here are all the cases in which the left stick is down - ctm 
-        if(leftStickDown == true)
+        else if(leftStickDown == true)
         {
 
             // If the right stick is turned left - ctm 
             if(rightStickLeft == true)
             {
                 sendData(TruckControlData.BackwardLeft);
-
             // If the right stick is turned right - ctm 
             } else if(rightStickRight == true) {
-                sendData(TruckControlData.BackwardRight); 
-
+                sendData(TruckControlData.BackwardRight);
             // If the right stick is neutral - ctm 
             } else {
-                sendData(TruckControlData.ServoMiddle); 
-                sendData(TruckControlData.MotorBackward); 
+                sendData(TruckControlData.ServoMiddle);
+                sendData(TruckControlData.MotorBackward);
             }
         }
 
-        // If the left stick is neutral, stop the motor - ctm 
-        if(leftNeutral == true)
-        {
-            sendData(TruckControlData.MotorStop); 
-        }
 
         // If the right stick is left while the left stick is neutral - ctm 
-        if(rightStickLeft == true && leftNeutral == true) 
+        else if(rightStickLeft == true && leftNeutral == true) 
         {
             sendData(TruckControlData.ServoLeft);
         }
 
         // If the right stick is right while the left stick is neutral - ctm 
-        if(rightStickRight == true && leftNeutral == true)
+        else if(rightStickRight == true && leftNeutral == true)
         {
             sendData(TruckControlData.ServoRight);
         }
 */
+
 
         // If the X button has been hit, play the second sound - ctm 
         if(GameController.getButtonClick(CROSS))

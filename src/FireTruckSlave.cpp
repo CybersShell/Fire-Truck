@@ -98,8 +98,9 @@ void loop()
         data = ' ';
       }
       // Turn the servo perpendicular (90 degrees)
-      else if (data == TruckControlData.ServoMiddle)
+      else if (movementStates.straight)
       {
+        movementStates.straight = false;
         SteeringServo.write(90);
         data = ' ';
       }
@@ -131,25 +132,36 @@ void loop()
 // I2C_RxHandler handles bytes coming over the I2C protocol from the Arduino Master
 void I2C_RxHandler(int numBytes)
 {
-  if (Wire.available())
+  if (Wire.available() && !newData)
   { // Read Any Received Data
     data = Wire.read();
     newData = true;
+  } else {
+    return;
   }
   if (data == TruckControlData.BackwardLeft)
   {
     engageMotor = true;
+    movement = true;
     movementStates.backwardLeft = true;
   }
   if (data == TruckControlData.MotorForward)
   {
     engageMotor = true;
-    movementStates.forward;
+    movement = true;
+    movementStates.forward = true;
   }
   if (data == TruckControlData.MotorBackward)
   {
     engageMotor = true;
+    movement = true;
     movementStates.backward;
+  }
+  if (data == TruckControlData.MotorStop)
+  {
+    engageMotor = true;
+    movement = true;
+    movementStates.straight;
   }
 }
 
@@ -285,4 +297,30 @@ bool checkData(char c)
   bool eq = data == c;
   sei();
   return eq;
+}
+
+
+movementState checkState (){
+forward:
+    // Do some stuff here
+    switch(currentState) {
+    case movementState::forwardLeft:
+        goto forward;
+    case movementState::forwardRight:
+        goto backward;
+    default:
+        return;
+    }
+
+backward:
+    // Do some stuff here
+    switch(currentState) {
+    case 0:
+        goto forward;
+    case 1:
+        goto backward;
+    default:
+        return;
+    };
+
 }

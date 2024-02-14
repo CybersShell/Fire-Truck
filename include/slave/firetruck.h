@@ -39,10 +39,24 @@ const int servoDelay = 7;
 PWMServo SteeringServo;
 
 
+//enums for states
+enum movementState {
+  forward,
+  backward,
+  stopped,
+  forwardRight,
+  forwardLeft,
+  backwardRight,
+  backwardLeft
+};
 
+movementState currentState = stopped;
 // booleans for movement
 struct movementBools
 {
+  volatile bool straight = false;
+  volatile bool right = false;
+  volatile bool left = false;
   volatile bool forward = false;
   volatile bool forwardLeft = false;
   volatile bool forwardRight = false;
@@ -114,6 +128,6 @@ void initSC();
 
 void initShield();
 
-void sendToMaster();
-
 bool checkData(char c);
+
+movementState checkState();
