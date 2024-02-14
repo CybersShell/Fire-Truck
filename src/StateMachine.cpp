@@ -1,4 +1,4 @@
-enum leftStickStates = {fireTruckRight, fireTruckLeft, fireTruckStraight};
+enum leftStickStates {fireTruckRight, fireTruckLeft, fireTruckStraight};
 struct LeftStickState
 {
     leftStickStates newState;
@@ -13,9 +13,9 @@ enum fireTruckStates
     left,
     still,
     forwardRight,
-    forwardLeft;
-    backwardLeft;
-    backwardRight;
+    forwardLeft,
+    backwardLeft,
+    backwardRight,
 };
 
 struct fireTruckState
