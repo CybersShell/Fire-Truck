@@ -1,14 +1,14 @@
 #include <master/firetruck.h>
 
-// These bools keep track of if the left stick moves - ctm 
+// These defined macros keep track of if the left stick moves - ctm 
 #define upConditional GameController.getAnalogHat(LeftHatY) < 120
 #define downConditional GameController.getAnalogHat(LeftHatY) > 150
 #define leftNeutralConditional GameController.getAnalogHat(LeftHatY) > 120 && GameController.getAnalogHat(LeftHatY) < 150
 
-// These bools keep track of if the right stick moves - ctm 
-bool leftConditional = false;
-bool rightConditional = false;
-bool rightNeutralConditional = true; 
+// These defined macros keep track of if the right stick moves - ctm 
+#define leftConditional GameController.getAnalogHat(RightHatX) > 150
+#define rightConditional GameController.getAnalogHat(RightHatX) < 120
+#define rightNeutralConditional GameController.getAnalogHat(RightHatX) > 120 && GameController.getAnalogHat(RightHatX) < 150
 
 // Comment out for time being until state machine is working - ctm 
 /*
@@ -458,33 +458,142 @@ void getState()
 void combineStates()
 {
 
-    // If the old state doesn't match to the new one - ctm 
+    // If the new left stick state doesn't match to the old one - ctm 
     if(leftStick.newState != leftStick.oldState) 
     {
         switch (leftStick.newState)
         {
+            
+            // If the left stick state is set to up - ctm 
             case leftStickStates::leftStickUp:
-                firetruck.newState = fireTruckStates::forward;
-                break; 
+
+                // If the right stick new state is different from the old state - ctm 
+                if(rightStick.newState != rightStick.oldState) {
+
+                    // If the right stick state is set to left - ctm 
+                    if(rightStick.newState == rightStickStates::rightStickLeft) 
+                    {
+                        firetruck.newState = fireTruckStates::forwardToLeft; 
+                        break;
+
+                    // If the right stick state is set to right - ctm 
+                    } else if(rightStick.newState == rightStickStates::rightStickRight) {
+                        firetruck.newState = fireTruckStates::forwardToRight;
+                        break; 
+                    
+                    // If the right stick state is set to neutral - ctm 
+                    } else {
+                        firetruck.newState = fireTruckStates::forward; 
+                        break; 
+                    }
+                } 
+
+            // If the left stick state is set to down - ctm 
             case leftStickStates::leftStickDown:
-                firetruck.newState = fireTruckStates::backward; 
-                break;
+
+                // If the right stick new state is different from the old state - ctm 
+                if(rightStick.newState != rightStick.oldState) {
+
+                    // If the right stick state is set to left - ctm 
+                    if(rightStick.newState == rightStickStates::rightStickLeft)
+                    {
+                        firetruck.newState = fireTruckStates::backwardToLeft; 
+                        break; 
+
+                    // If the right stick state is set to right - ctm 
+                    } else if(rightStick.newState == rightStickStates::rightStickRight) {
+                        firetruck.newState = fireTruckStates::backwardToRight; 
+                        break; 
+
+                    // If the right stick state is set to neutral - ctm 
+                    } else {
+                        firetruck.newState = fireTruckStates::backward; 
+                        break; 
+                    }
+                }
+
+            // If the left stick state is set to neutral - ctm 
             case leftStickStates::leftStickNeutral:
-                break; 
+
+                // If the right stick new state is different from the old state - ctm 
+                if(rightStick.newState != rightStick.oldState) {
+                    if(rightStick.newState == rightStickStates::rightStickLeft) 
+                    {
+                        firetruck.newState = fireTruckStates::left;
+                        break;
+                    } else if(rightStick.newState == rightStickStates::rightStickRight) {
+                        firetruck.newState = fireTruckStates::right; 
+                        break; 
+                    } else {
+                        firetruck.newState = fireTruckStates::still;
+                        break; 
+                    }
+                } 
         }
     }
 
-    // If the old state doesn't match to the new one - ctm 
+    // If the new right stick state doesn't match to the old one - ctm 
     if(rightStick.newState != rightStick.oldState)
     {
+        switch (rightStick.newState) 
+        {
+            case rightStickStates::rightStickLeft:
+                if(leftStick.newState != leftStick.oldState)
+                {
+                    if(leftStick.newState == leftStickStates::leftStickUp) 
+                    {
+                        firetruck.newState = fireTruckStates::forwardToLeft;
+                        break; 
+                    } else if(leftStick.newState == leftStickStates::leftStickDown) {
+                        firetruck.newState = fireTruckStates::backwardToLeft; 
+                        break; 
+                    } else {
+                        firetruck.newState = fireTruckStates::left; 
+                        break; 
+                    }
+                }
+            
+            case rightStickStates::rightStickRight:
+                if(leftStick.newState != leftStick.oldState) 
+                {
+                    if(leftStick.newState == leftStickStates::leftStickUp)
+                    {
+                        firetruck.newState == fireTruckStates::forwardToRight;
+                        break;
+                    } else if(leftStick.newState == leftStickStates::leftStickDown) {
+                        firetruck.newState == fireTruckStates::backwardToRight;
+                        break; 
+                    } else {
+                        firetruck.newState = fireTruckStates::left; 
+                        break; 
+                    }
+                }
 
+            case rightStickStates::rightStickNeutral:
+                if(leftStick.newState != leftStick.oldState)
+                {
+                    if(leftStick.newState == leftStickStates::leftStickUp)
+                    {
+                        firetruck.newState == fireTruckStates::forward;
+                        break;
+                    } else if(leftStick.newState == leftStickStates::leftStickDown) {
+                        firetruck.newState == fireTruckStates::backward; 
+                        break; 
+                    } else {
+                        firetruck.newState == fireTruckStates::still; 
+                        break; 
+                    }
+                }
+            
+        }
     }
 
 }
 
+// This function updates the new state of the left stick and returns the new state depending on if the old state is the same or not - ctm 
 leftStickStates getStateOfLeftStick()
 {
-    // Set these bools equal to the global variables - ctm 
+    // Set these bools equal to the macros defined at the beginning - ctm 
     bool isUp = upConditional;
     bool isDown = downConditional;
     bool isNeutral = leftNeutralConditional; 
@@ -518,10 +627,39 @@ leftStickStates getStateOfLeftStick()
     return leftStick.oldState; 
 }
 
+// This function updates the new state of the right stick and returns the new state depending on if the old state is the same or not - ctm
 rightStickStates getStateOfRightStick()
 {
+
+    // Set these bools equal to the macros defined at the beginning - ctm 
     bool isLeft = leftConditional;
     bool isRight = rightConditional;
     bool isNeutral = rightNeutralConditional;
+
+    // If the right stick is to the left - ctm 
+    if(isLeft && !isRight) {
+        rightStick.newState = rightStickStates::rightStickLeft;
+
+    // If the right stick is to the right - ctm 
+    } else if (!isLeft && isRight) {
+        rightStick.newState = rightStickStates::rightStickRight; 
+
+    // If the right stick is neutral - ctm 
+    } else {
+        rightStick.newState = rightStickStates::rightStickNeutral; 
+    }
+
+    // If the old state differs from the new one - ctm 
+    if(rightStick.oldState != rightStick.newState) {
+        if(isNeutral) {
+            return rightStickStates::rightStickNeutral;
+        } else if(isLeft && !isRight) {
+            return rightStickStates::rightStickLeft;
+        } else {
+            return rightStickStates::rightStickRight; 
+        }
+    }
+
+    return rightStick.oldState; 
 
 }
