@@ -190,6 +190,14 @@ void loop()
             sendData(TruckControlData.ToggleWaterPump); 
         }
 
+        // Set the states of the left stick, right stick, and the firetruck - ctm 
+        getState(); 
+
+        // If the new firetruck state is different from the old one - ctm 
+        if(firetruck.newState != firetruck.oldState) {
+            fireTruckControl(); 
+        }
+
 
 
             // Comment out for now, use it for debugging purposes later 
@@ -454,6 +462,46 @@ void getState()
     rightStick.oldState = rightStick.newState; 
 }
 
+void fireTruckControl() {
+
+    // If the firetruck state is set to still - ctm 
+    if(firetruck.newState == fireTruckStates::still) 
+    {
+        sendData(TruckControlData.MotorStop); 
+
+    // If the firetruck state is set to forward to left - ctm 
+    } else if(firetruck.newState == fireTruckStates::forwardToLeft) {
+        sendData(TruckControlData.ForwardLeft); 
+
+    // If the firetruck state is set to forward to right - ctm 
+    } else if(firetruck.newState == fireTruckStates::forwardToRight) {
+        sendData(TruckControlData.ForwardRight); 
+
+    // If the firetruck state is set to forward - ctm 
+    } else if(firetruck.newState == fireTruckStates::forward) {
+        sendData(TruckControlData.MotorForward); 
+
+    // If the firetruck state is set to backward to left - ctm 
+    } else if(firetruck.newState == fireTruckStates::backwardToLeft) {
+        sendData(TruckControlData.BackwardLeft); 
+
+    // If the firetruck state is set to backward to right - ctm 
+    } else if(firetruck.newState == fireTruckStates::backwardToRight) {
+        sendData(TruckControlData.BackwardRight);
+
+    // If the firetruck state is set to backward - ctm 
+    } else if(firetruck.newState == fireTruckStates::backward) {
+        sendData(TruckControlData.MotorBackward); 
+
+    // If the firetruck state is set to left - ctm 
+    } else if(firetruck.newState == fireTruckStates::left) {
+        sendData(TruckControlData.ServoLeft); 
+
+    // If the firetruck state is set to right - ctm 
+    } else if(firetruck.newState == fireTruckStates::right) {
+        sendData(TruckControlData.ServoRight); 
+    }
+}
 
 void combineStates()
 {
@@ -473,16 +521,19 @@ void combineStates()
                     // If the right stick state is set to left - ctm 
                     if(rightStick.newState == rightStickStates::rightStickLeft) 
                     {
+                        firetruck.oldState = firetruck.newState; 
                         firetruck.newState = fireTruckStates::forwardToLeft; 
                         break;
 
                     // If the right stick state is set to right - ctm 
                     } else if(rightStick.newState == rightStickStates::rightStickRight) {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState = fireTruckStates::forwardToRight;
                         break; 
                     
                     // If the right stick state is set to neutral - ctm 
                     } else {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState = fireTruckStates::forward; 
                         break; 
                     }
@@ -497,16 +548,19 @@ void combineStates()
                     // If the right stick state is set to left - ctm 
                     if(rightStick.newState == rightStickStates::rightStickLeft)
                     {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState = fireTruckStates::backwardToLeft; 
                         break; 
 
                     // If the right stick state is set to right - ctm 
                     } else if(rightStick.newState == rightStickStates::rightStickRight) {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState = fireTruckStates::backwardToRight; 
                         break; 
 
                     // If the right stick state is set to neutral - ctm 
                     } else {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState = fireTruckStates::backward; 
                         break; 
                     }
@@ -517,14 +571,23 @@ void combineStates()
 
                 // If the right stick new state is different from the old state - ctm 
                 if(rightStick.newState != rightStick.oldState) {
+
+                    // If the right stick state is set to left - ctm 
                     if(rightStick.newState == rightStickStates::rightStickLeft) 
                     {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState = fireTruckStates::left;
                         break;
+                    
+                    // If the right stick state is set to right - ctm 
                     } else if(rightStick.newState == rightStickStates::rightStickRight) {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState = fireTruckStates::right; 
                         break; 
+
+                    // If the right stick state is set to neutral - ctm 
                     } else {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState = fireTruckStates::still;
                         break; 
                     }
@@ -537,57 +600,92 @@ void combineStates()
     {
         switch (rightStick.newState) 
         {
+            
+            // If the right stick state is set to left - ctm 
             case rightStickStates::rightStickLeft:
+
+                // If the left stick new state is different from the old state - ctm 
                 if(leftStick.newState != leftStick.oldState)
                 {
+
+                    // If the left stick state is set to up - ctm 
                     if(leftStick.newState == leftStickStates::leftStickUp) 
                     {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState = fireTruckStates::forwardToLeft;
                         break; 
+
+                    // If the left stick state is set to down - ctm 
                     } else if(leftStick.newState == leftStickStates::leftStickDown) {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState = fireTruckStates::backwardToLeft; 
                         break; 
+
+                    // If the left stick state is set to neutral - ctm 
                     } else {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState = fireTruckStates::left; 
                         break; 
                     }
                 }
             
+            // If the right stick state is set to right - ctm 
             case rightStickStates::rightStickRight:
+
+                // If the new left stick state is different from the old state - ctm 
                 if(leftStick.newState != leftStick.oldState) 
                 {
+                    
+                    // If the left stick state is set to up - ctm 
                     if(leftStick.newState == leftStickStates::leftStickUp)
                     {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState == fireTruckStates::forwardToRight;
                         break;
+                    
+                    // If the left stick state is set to down - ctm 
                     } else if(leftStick.newState == leftStickStates::leftStickDown) {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState == fireTruckStates::backwardToRight;
                         break; 
+
+                    // If the left stick state is set to neutral - ctm 
                     } else {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState = fireTruckStates::left; 
                         break; 
                     }
                 }
-
+            
+            // If the right stick state is set to neutral - ctm 
             case rightStickStates::rightStickNeutral:
+
+                // If the new left stick state is different from the old state - ctm 
                 if(leftStick.newState != leftStick.oldState)
                 {
+
+                    // If the left stick state is set to up - ctm 
                     if(leftStick.newState == leftStickStates::leftStickUp)
                     {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState == fireTruckStates::forward;
                         break;
+
+                    // If the left stick state is set to down - ctm 
                     } else if(leftStick.newState == leftStickStates::leftStickDown) {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState == fireTruckStates::backward; 
                         break; 
+
+                    // If the left stick state is set to neutral - ctm 
                     } else {
+                        firetruck.oldState = firetruck.newState;
                         firetruck.newState == fireTruckStates::still; 
                         break; 
                     }
                 }
-            
         }
     }
-
 }
 
 // This function updates the new state of the left stick and returns the new state depending on if the old state is the same or not - ctm 
