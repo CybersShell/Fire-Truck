@@ -6,9 +6,10 @@
 #define leftNeutralConditional GameController.getAnalogHat(LeftHatY) > 120 && GameController.getAnalogHat(LeftHatY) < 150
 
 // These defined macros keep track of if the right stick moves - ctm 
-#define leftConditional GameController.getAnalogHat(RightHatX) > 150
-#define rightConditional GameController.getAnalogHat(RightHatX) < 120
+#define leftConditional GameController.getAnalogHat(RightHatX) < 120
+#define rightConditional GameController.getAnalogHat(RightHatX) > 150
 #define rightNeutralConditional GameController.getAnalogHat(RightHatX) > 120 && GameController.getAnalogHat(RightHatX) < 150
+
 
 // Comment out for time being until state machine is working - ctm 
 /*
@@ -43,6 +44,15 @@ void setup()
                 ; // Halt
         }
         Serial.print(F("\r\nGameController Bluetooth Library Started"));
+
+        // Initialize the old state of the firetruck - ctm 
+        firetruck.oldState = fireTruckStates::still; 
+
+        // Initialize the old state of the left stick - ctm 
+        leftStick.oldState = leftStickStates::leftStickNeutral;
+
+        // Initialize the old state of the right stick - ctm 
+        rightStick.oldState = rightStickStates::rightStickNeutral;
 }
 
 
@@ -56,7 +66,7 @@ void loop()
     Usb.Task();
     if (GameController.connected())
     {
-        setState(); 
+    //   setState(); 
     
 // Old implementation, can delete when state machine has been figured out - ctm 
 /*
@@ -197,8 +207,6 @@ void loop()
         if(firetruck.newState != firetruck.oldState) {
             fireTruckControl(); 
         }
-
-
 
             // Comment out for now, use it for debugging purposes later 
             /*********************************************************
@@ -442,10 +450,10 @@ void sendData(char data)
     Serial.println(data);
 
 
-    Wire.beginTransmission(I2CAddress); // Transmit to device
-    Wire.write(data);                   // Send serial data
-    // Wire.write(data2);               // Send serial data
-    Wire.endTransmission();             // Stop transmitting
+    //Wire.beginTransmission(I2CAddress); // Transmit to device // Comment back in later - ctm 
+    //Wire.write(data);                   // Send serial data
+    // Wire.write(data2);               // Send serial data // Comment back in later - ctm 
+    //Wire.endTransmission();             // Stop transmitting // Commnet back in later - ctm 
 
 }
 
@@ -455,6 +463,7 @@ void getState()
     // Set the new states to be equal to the result of their respective functions - ctm 
     leftStick.newState = getStateOfLeftStick();
     rightStick.newState = getStateOfRightStick();
+    firetruck.oldState = firetruck.newState;
     combineStates();
 
     // Set the old states to be equal to the new states - ctm
@@ -509,125 +518,118 @@ void combineStates()
     // If the new left stick state doesn't match to the old one - ctm 
     if(leftStick.newState != leftStick.oldState) 
     {
+
+        // Debug message NOTE: ARDUINO DOES RECOGNIZE THIS - ctm 
+        // Serial.println("Left stick new state differs from the old one");
         switch (leftStick.newState)
         {
             
             // If the left stick state is set to up - ctm 
             case leftStickStates::leftStickUp:
 
-                // If the right stick new state is different from the old state - ctm 
-                if(rightStick.newState != rightStick.oldState) {
-
                     // If the right stick state is set to left - ctm 
                     if(rightStick.newState == rightStickStates::rightStickLeft) 
                     {
-                        firetruck.oldState = firetruck.newState; 
+                         
                         firetruck.newState = fireTruckStates::forwardToLeft; 
                         break;
 
                     // If the right stick state is set to right - ctm 
                     } else if(rightStick.newState == rightStickStates::rightStickRight) {
-                        firetruck.oldState = firetruck.newState;
+                        
                         firetruck.newState = fireTruckStates::forwardToRight;
                         break; 
                     
-                    // If the right stick state is set to neutral - ctm 
                     } else {
-                        firetruck.oldState = firetruck.newState;
+ 
                         firetruck.newState = fireTruckStates::forward; 
                         break; 
                     }
-                } 
+
+
 
             // If the left stick state is set to down - ctm 
             case leftStickStates::leftStickDown:
 
-                // If the right stick new state is different from the old state - ctm 
-                if(rightStick.newState != rightStick.oldState) {
-
                     // If the right stick state is set to left - ctm 
                     if(rightStick.newState == rightStickStates::rightStickLeft)
                     {
-                        firetruck.oldState = firetruck.newState;
+
                         firetruck.newState = fireTruckStates::backwardToLeft; 
                         break; 
 
                     // If the right stick state is set to right - ctm 
                     } else if(rightStick.newState == rightStickStates::rightStickRight) {
-                        firetruck.oldState = firetruck.newState;
+
                         firetruck.newState = fireTruckStates::backwardToRight; 
                         break; 
 
                     // If the right stick state is set to neutral - ctm 
                     } else {
-                        firetruck.oldState = firetruck.newState;
+
                         firetruck.newState = fireTruckStates::backward; 
                         break; 
                     }
-                }
+    
+
+                break; 
 
             // If the left stick state is set to neutral - ctm 
             case leftStickStates::leftStickNeutral:
-
-                // If the right stick new state is different from the old state - ctm 
-                if(rightStick.newState != rightStick.oldState) {
-
+                
                     // If the right stick state is set to left - ctm 
                     if(rightStick.newState == rightStickStates::rightStickLeft) 
                     {
-                        firetruck.oldState = firetruck.newState;
+
                         firetruck.newState = fireTruckStates::left;
                         break;
                     
                     // If the right stick state is set to right - ctm 
                     } else if(rightStick.newState == rightStickStates::rightStickRight) {
-                        firetruck.oldState = firetruck.newState;
+
                         firetruck.newState = fireTruckStates::right; 
                         break; 
 
                     // If the right stick state is set to neutral - ctm 
                     } else {
-                        firetruck.oldState = firetruck.newState;
+
                         firetruck.newState = fireTruckStates::still;
                         break; 
                     }
-                } 
         }
     }
 
     // If the new right stick state doesn't match to the old one - ctm 
     if(rightStick.newState != rightStick.oldState)
     {
+        // Debug message NOTE: ARDUINO DOES RECOGNIZE THIS - ctm
+        // Serial.println("Right stick state differs from the old one"); 
         switch (rightStick.newState) 
         {
             
             // If the right stick state is set to left - ctm 
             case rightStickStates::rightStickLeft:
 
-                // If the left stick new state is different from the old state - ctm 
-                if(leftStick.newState != leftStick.oldState)
-                {
-
                     // If the left stick state is set to up - ctm 
                     if(leftStick.newState == leftStickStates::leftStickUp) 
                     {
-                        firetruck.oldState = firetruck.newState;
+
                         firetruck.newState = fireTruckStates::forwardToLeft;
                         break; 
 
                     // If the left stick state is set to down - ctm 
                     } else if(leftStick.newState == leftStickStates::leftStickDown) {
-                        firetruck.oldState = firetruck.newState;
+
                         firetruck.newState = fireTruckStates::backwardToLeft; 
                         break; 
 
                     // If the left stick state is set to neutral - ctm 
                     } else {
-                        firetruck.oldState = firetruck.newState;
+
                         firetruck.newState = fireTruckStates::left; 
                         break; 
                     }
-                }
+                break; 
             
             // If the right stick state is set to right - ctm 
             case rightStickStates::rightStickRight:
@@ -639,51 +641,48 @@ void combineStates()
                     // If the left stick state is set to up - ctm 
                     if(leftStick.newState == leftStickStates::leftStickUp)
                     {
-                        firetruck.oldState = firetruck.newState;
-                        firetruck.newState == fireTruckStates::forwardToRight;
+
+                        firetruck.newState = fireTruckStates::forwardToRight;
                         break;
                     
                     // If the left stick state is set to down - ctm 
                     } else if(leftStick.newState == leftStickStates::leftStickDown) {
-                        firetruck.oldState = firetruck.newState;
-                        firetruck.newState == fireTruckStates::backwardToRight;
+
+                        firetruck.newState = fireTruckStates::backwardToRight;
                         break; 
 
                     // If the left stick state is set to neutral - ctm 
                     } else {
-                        firetruck.oldState = firetruck.newState;
+
                         firetruck.newState = fireTruckStates::left; 
                         break; 
                     }
                 }
+
+                break;
             
             // If the right stick state is set to neutral - ctm 
             case rightStickStates::rightStickNeutral:
 
-                // If the new left stick state is different from the old state - ctm 
-                if(leftStick.newState != leftStick.oldState)
-                {
-
                     // If the left stick state is set to up - ctm 
                     if(leftStick.newState == leftStickStates::leftStickUp)
                     {
-                        firetruck.oldState = firetruck.newState;
-                        firetruck.newState == fireTruckStates::forward;
+
+                        firetruck.newState = fireTruckStates::forward;
                         break;
 
                     // If the left stick state is set to down - ctm 
                     } else if(leftStick.newState == leftStickStates::leftStickDown) {
-                        firetruck.oldState = firetruck.newState;
-                        firetruck.newState == fireTruckStates::backward; 
+
+                        firetruck.newState = fireTruckStates::backward; 
                         break; 
 
                     // If the left stick state is set to neutral - ctm 
                     } else {
-                        firetruck.oldState = firetruck.newState;
-                        firetruck.newState == fireTruckStates::still; 
+
+                        firetruck.newState = fireTruckStates::still; 
                         break; 
                     }
-                }
         }
     }
 }
@@ -699,14 +698,23 @@ leftStickStates getStateOfLeftStick()
     // If the left stick is up - ctm 
     if(isUp && !isDown)
     {
+        // Debug message NOTE: ARDUINO DOES RECOGNIZE THIS - ctm 
+        // Serial.println("Left stick up"); 
         leftStick.newState = leftStickStates::leftStickUp;
 
     // If the left stick is down - ctm 
     } else if (!isUp && isDown) {
+        
+        // Debug message NOTE: ARDUINO DOES RECOGNIZE THIS - ctm 
+        //Serial.println("Left stick down"); 
+
         leftStick.newState = leftStickStates::leftStickDown; 
 
     // If the left stick is neutral - ctm 
     } else {
+
+        // Debug message NOTE: ARDUINO DOES RECOGNIZE THIS - ctm 
+        // Serial.println("Left stick neutral");
         leftStick.newState = leftStickStates::leftStickNeutral; 
     }
 
@@ -714,6 +722,7 @@ leftStickStates getStateOfLeftStick()
     if(leftStick.oldState != leftStick.newState) {
         if(isNeutral)
         {
+
             return leftStickStates::leftStickNeutral;
         } else if(isUp && !isDown) {
             return leftStickStates::leftStickUp;
@@ -736,14 +745,23 @@ rightStickStates getStateOfRightStick()
 
     // If the right stick is to the left - ctm 
     if(isLeft && !isRight) {
+        
+        // Debug message NOTE ARDUINO DOES RECOGNIZE THIS - ctm 
+        // Serial.println("Right stick left"); 
         rightStick.newState = rightStickStates::rightStickLeft;
 
     // If the right stick is to the right - ctm 
     } else if (!isLeft && isRight) {
+
+        // Debug message NOTE: ARDUINO DOES RECOGNIZE THIS - ctm
+        // Serial.println("Right stick right"); 
         rightStick.newState = rightStickStates::rightStickRight; 
 
     // If the right stick is neutral - ctm 
     } else {
+        
+        // Debug message NOTE: ARDUINO DOES RECOGNIZE THIS - ctm 
+        // Serial.println("Right stick neutral"); 
         rightStick.newState = rightStickStates::rightStickNeutral; 
     }
 

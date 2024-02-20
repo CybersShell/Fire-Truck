@@ -36,4 +36,14 @@ void sendData(char data);
 
 void readFromSlave();
 
-void setState(); 
+//void setState(); 
+
+void getState();
+
+leftStickStates getStateOfLeftStick();
+
+rightStickStates getStateOfRightStick(); 
+
+void combineStates(); 
+
+void fireTruckControl(); 
