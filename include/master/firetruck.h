@@ -36,8 +36,6 @@ void sendData(char data);
 
 void readFromSlave();
 
-//void setState(); 
-
 void getState();
 
 leftStickStates getStateOfLeftStick();

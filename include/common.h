@@ -67,21 +67,3 @@ struct fireTruckState
     fireTruckStates newState;
     fireTruckStates oldState; 
 } firetruck; 
-
-/* Part of older implementation, comment out until we get working one
-// Moved all of the states to the header file that will be used to implement state machine - ctm 
-enum FireTruckStates 
-{
-   firetruckStill,
-   firetruckMoveForward,
-   firetruckMoveBackward,
-   firetruckTurnLeft,
-   firetruckTurnRight
-}; 
-
-// Initialize the state to start out while still - ctm 
-unsigned char FiretruckState = firetruckStill; 
-
-// Initialize the old state variable - ctm 
-unsigned char OldState; 
-*/ 
