@@ -1,14 +1,14 @@
 #include <master/firetruck.h>
 
 // These defined macros keep track of if the left stick moves - ctm 
-#define upConditional GameController.getAnalogHat(LeftHatY) < 120
-#define downConditional GameController.getAnalogHat(LeftHatY) > 150
-#define leftNeutralConditional GameController.getAnalogHat(LeftHatY) > 120 && GameController.getAnalogHat(LeftHatY) < 150
+#define upConditional GameController.getAnalogHat(LeftHatY) < 70
+#define downConditional GameController.getAnalogHat(LeftHatY) > 220
+#define leftNeutralConditional GameController.getAnalogHat(LeftHatY) > 70 && GameController.getAnalogHat(LeftHatY) < 220
 
 // These defined macros keep track of if the right stick moves - ctm 
-#define leftConditional GameController.getAnalogHat(RightHatX) < 120
-#define rightConditional GameController.getAnalogHat(RightHatX) > 150
-#define rightNeutralConditional GameController.getAnalogHat(RightHatX) > 120 && GameController.getAnalogHat(RightHatX) < 150
+#define leftConditional GameController.getAnalogHat(RightHatX) < 70
+#define rightConditional GameController.getAnalogHat(RightHatX) > 220
+#define rightNeutralConditional GameController.getAnalogHat(RightHatX) > 70 && GameController.getAnalogHat(RightHatX) < 220
 
 
 // Comment out for time being until state machine is working - ctm 
@@ -633,30 +633,25 @@ void combineStates()
             
             // If the right stick state is set to right - ctm 
             case rightStickStates::rightStickRight:
-
-                // If the new left stick state is different from the old state - ctm 
-                if(leftStick.newState != leftStick.oldState) 
+                    
+                // If the left stick state is set to up - ctm 
+                if(leftStick.newState == leftStickStates::leftStickUp)
                 {
+
+                    firetruck.newState = fireTruckStates::forwardToRight;
+                    break;
                     
-                    // If the left stick state is set to up - ctm 
-                    if(leftStick.newState == leftStickStates::leftStickUp)
-                    {
+                // If the left stick state is set to down - ctm 
+                } else if(leftStick.newState == leftStickStates::leftStickDown) {
 
-                        firetruck.newState = fireTruckStates::forwardToRight;
-                        break;
-                    
-                    // If the left stick state is set to down - ctm 
-                    } else if(leftStick.newState == leftStickStates::leftStickDown) {
+                    firetruck.newState = fireTruckStates::backwardToRight;
+                    break; 
 
-                        firetruck.newState = fireTruckStates::backwardToRight;
-                        break; 
+                // If the left stick state is set to neutral - ctm 
+                } else {
 
-                    // If the left stick state is set to neutral - ctm 
-                    } else {
-
-                        firetruck.newState = fireTruckStates::left; 
-                        break; 
-                    }
+                    firetruck.newState = fireTruckStates::right; 
+                    break; 
                 }
 
                 break;
