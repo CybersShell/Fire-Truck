@@ -85,7 +85,7 @@ byte nodeReceive[TO_SLAVE_SIZE];
 // join the I2C bus with address 8
 // call I2C_RxHandler when data is received
 // inlined to prevent extra functions calls
-#define initI2C Wire.begin(8); Wire.onReceive(I2C_RxHandler); delay(2000)
+#define initI2C Wire.begin(8); Wire.onReceive(I2C_RxHandler);
 
 /*  Begin movement macros
     The following steps prevent damaging the motors due to polarity reversal:

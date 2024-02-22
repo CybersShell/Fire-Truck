@@ -110,16 +110,6 @@ void readFromSlave() {
 // send data over I2C interface to slave
 void sendData(char data, char secondMovementChar)
 {
-// #if !defined(CONTROLLER_TEST)
-//     while (!Serial.available())
-//     {
-//         Serial.println("Waiting for input");
-//         delay(500);
-//     }
-//     data = Serial.read();
-
-// #endif // CONTROLLER_TEST
-
     Serial.print("Sending: ");
     Serial.println(data);
 

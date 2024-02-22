@@ -66,7 +66,7 @@ void loop()
   if (newData)
   {
     // stop I2C bus connection so that I2C ISR is not triggered
-    // Wire.end();
+    Wire.end();
     newData = false;
     // If-else statements that'll call the specific function if the condition gets met
     if (data == TruckControlData.SoundStop)
@@ -98,7 +98,6 @@ void loop()
         use the macros ft* to turn servos and SpeedCon* to turn move the truck
 
         the macros may need tweaking depending on data sent to account for the above rules for the macros
-        keep fire truck straight if not turning
     */
     else if (data == TruckControlData.MotorBackward) {
       SpeedConBackward;
@@ -147,6 +146,8 @@ void loop()
         Serial.println("SR");
         goto endOfLoop;
       }
+      Serial.println("Stop Straight");
+      ftStraight;
     }
     else if (data == TruckControlData.ServoLeft) {
       Serial.println("L");
@@ -156,17 +157,16 @@ void loop()
       Serial.println("R");
       ftTurnRight;
     }
+    else if (data == TruckControlData.ServoStraight) {
+      Serial.println("Straight");
+      ftStraight;
+    }
 
     // end movement conditionals
     // initialize and connect to I2C bus
-    // initI2C;
-  }
-endOfLoop:
-  for (int i = 0; i < 1; i++)
-  {
-    /* code */
-  }
-  
+  endOfLoop:
+    initI2C;
+  }  
 }
 
 // I2C_RxHandler handles bytes coming over the I2C protocol from the Arduino Master
@@ -284,7 +284,7 @@ void initShield()
 }
 
 // playSound reads a file in the root directory and plays it over the speaker
-void playSound(char soundFile[12])
+void playSound(char soundFile[6])
 {
 
   if (wave.isplaying)
