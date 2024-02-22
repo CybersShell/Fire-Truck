@@ -127,7 +127,7 @@ void sendData(char data, char secondMovementChar)
     Wire.beginTransmission(I2CAddress); // Transmit to device  
     Wire.write(data);                   // Send serial data
     if (sendMovementData) {
-        Serial.print("Sendind second char: ");
+        Serial.print("Sending second char: ");
         Serial.println(secondMovementChar);
         // Wire.write(secondMovementChar);
     }
