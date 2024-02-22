@@ -31,6 +31,8 @@ uint8_t oldL2Value, oldR2Value;
 const int I2CAddress = 8; // I2C bus address
 
 char i2cData;
+const char dummyData;
+volatile bool sendMovementData = false;
 
 // Set the states of the left stick - ctm 
 enum leftStickStates {leftStickUp, leftStickDown, leftStickNeutral}; 
@@ -79,7 +81,7 @@ struct fireTruckState
 } firetruck; 
 
 
-void sendData(char data);
+void sendData(char data, char secondMovmentChar);
 
 void readFromSlave();
 
