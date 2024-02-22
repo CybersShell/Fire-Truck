@@ -342,8 +342,6 @@ void combineStates()
 
                     // If the left stick state is set to neutral - ctm 
                     } else {
-
-                        firetruck.newState = fireTruckStates::still; 
                         break; 
                     }
         }
