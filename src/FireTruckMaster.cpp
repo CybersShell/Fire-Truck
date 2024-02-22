@@ -108,7 +108,7 @@ void readFromSlave() {
 }
 
 // send data over I2C interface to slave
-void sendData(char data, char secondMovmentChar)
+void sendData(char data, char secondMovementChar)
 {
 // #if !defined(CONTROLLER_TEST)
 //     while (!Serial.available())
@@ -129,7 +129,7 @@ void sendData(char data, char secondMovmentChar)
     if (sendMovementData) {
         Serial.print("Sending: ");
         Serial.println(data);
-        Wire.write(secondMovmentChar);
+        Wire.write(secondMovementChar);
     }
     //Wire.write(data2);                  // Send serial data 
     Wire.endTransmission();             // Stop transmitting 
