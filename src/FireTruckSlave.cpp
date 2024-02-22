@@ -43,6 +43,7 @@ void loop()
 
   currentTime = millis();
 
+  // TODO: evaluate if servo and motors should be reset af
   // motors will stop after 30 * 1000 ms = 30000 ms = 30 s
   if (motorsMoving && (currentTime - timeMotorsEngaged >= 30000))
   {
@@ -148,17 +149,17 @@ void loop()
       }
     }
     else if (data == TruckControlData.ServoLeft) {
-      Serial.println("R");
+      Serial.println("L");
       ftTurnLeft;
     }
     else if (data == TruckControlData.ServoRight) {
-      Serial.println("L");
+      Serial.println("R");
       ftTurnRight;
     }
 
     // end movement conditionals
     // initialize and connect to I2C bus
-    initI2C;
+    // initI2C;
   }
 endOfLoop:
   for (int i = 0; i < 1; i++)
