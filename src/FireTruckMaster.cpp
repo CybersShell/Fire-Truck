@@ -188,6 +188,8 @@ void fireTruckControl() {
     // If the firetruck state is set to right - ctm 
     } else if(firetruck.newState == fireTruckStates::right) {
         sendData(TruckControlData.ServoRight, TruckControlData.ServoRight);
+    } else if (firetruck.newState == fireTruckStates::straight) {
+        sendData(TruckControlData.ServoStraight, TruckControlData.ServoStraight);
     }
 }
 
@@ -350,6 +352,8 @@ void combineStates()
 
                     // If the left stick state is set to neutral - ctm 
                     } else {
+
+                        firetruck.newState = fireTruckStates::straight;
                         break; 
                     }
         }

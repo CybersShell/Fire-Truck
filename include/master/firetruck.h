@@ -69,6 +69,7 @@ enum fireTruckStates
     backwardToRight,
     backwardToLeft,
     backwardToForward,
+    straight, 
     right,
     left
 };

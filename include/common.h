@@ -13,6 +13,7 @@ struct ControlData
     char ServoMiddle = 'p';
     char ServoRight = 'R';
     char ToggleWaterPump = 'W';
+    char ServoStraight = 'T'; 
 
     // Added characters that correspond to a specific movement - ctm
     char ForwardLeft = 'U';
