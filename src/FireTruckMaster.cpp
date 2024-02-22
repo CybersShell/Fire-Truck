@@ -404,9 +404,7 @@ rightStickStates getStateOfRightStick()
 
     // Set these bools equal to the macros defined at the beginning - ctm 
     bool isLeft = leftConditional;
-    delayMicroseconds(500);
     bool isRight = rightConditional;
-    delayMicroseconds(500);
     bool isNeutral = rightNeutralConditional;
 
     // If the right stick is to the left - ctm 
