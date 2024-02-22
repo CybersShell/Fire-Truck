@@ -50,22 +50,28 @@ PWMServo SteeringServo;
 //   backwardLeft
 // };
 
+
+// Set the states of the firetruck - ctm 
+enum fireTruckStates
+{
+    still,
+    stillToForward,
+    stillToBackward,
+    forwardToStill,
+    backwardToStill,
+    forward,
+    backward,
+    forwardToRight,
+    forwardToLeft,
+    forwardToBackward,
+    backwardToRight,
+    backwardToLeft,
+    backwardToForward,
+    right,
+    left
+};
 // truck state controls the movement
 fireTruckStates truckState = fireTruckStates::still;
-
-// struct movementBools
-// {
-//   volatile bool straight = false;
-//   volatile bool right = false;
-//   volatile bool left = false;
-//   volatile bool forward = false;
-//   volatile bool forwardLeft = false;
-//   volatile bool forwardRight = false;
-
-//   volatile bool backward = false;
-//   volatile bool backwardRight = false;
-//   volatile bool backwardLeft = false;
-// } movementStates;
 
 volatile bool movement = false;
 volatile bool engageMotor = false;
@@ -121,26 +127,6 @@ byte nodeReceive[TO_SLAVE_SIZE];
 #define ftTurnLeft SteeringServo.write(180)
 #define ftTurnRight SteeringServo.write(180)
 #define ftStraight SteeringServo.write(180)
-
-// Set the states of the firetruck - ctm 
-enum fireTruckStates
-{
-    still,
-    stillToForward,
-    stillToBackward,
-    forwardToStill,
-    backwardToStill,
-    forward,
-    backward,
-    forwardToRight,
-    forwardToLeft,
-    forwardToBackward,
-    backwardToRight,
-    backwardToLeft,
-    backwardToForward,
-    right,
-    left
-};
 
 // Function definitions
 

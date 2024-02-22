@@ -112,40 +112,7 @@ void loop()
         initI2C;
         break;
       }
-      // Turn the servo to 0 degrees
-      if (data == TruckControlData.ServoLeft)
-      {
-        SteeringServo.write(0);
-        data = ' ';
-      }
-      // Turn the servo perpendicular (90 degrees)
-      else if (truckState == fireTruckStates::stillToBackward)
-      {
-        
-        SteeringServo.write(90);
-        data = ' ';
-      }
-      // Turn the servo to 180 degrees
-      else if (data == TruckControlData.ServoRight)
-      {
-        SteeringServo.write(180);
-      }
-      if (engageMotor)
-      {
-        engageMotor = false;
-        if (data == TruckControlData.MotorBackward)
-        {
-          SpeedCon.write(17);
-        }
-        else if (data == TruckControlData.MotorStop)
-        {
-          SpeedCon.write(90);
-        }
-        else if (data == TruckControlData.MotorForward)
-        {
-          SpeedCon.write(165);
-        }
-      }
+    
     }
   }
 }
