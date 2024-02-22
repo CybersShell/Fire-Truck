@@ -129,7 +129,7 @@ void sendData(char data, char secondMovementChar)
     if (sendMovementData) {
         Serial.print("Sending second char: ");
         Serial.println(secondMovementChar);
-        // Wire.write(secondMovementChar);
+        Wire.write(secondMovementChar);
     }
     //Wire.write(data2);                  // Send serial data 
     Wire.endTransmission();             // Stop transmitting 
@@ -362,11 +362,11 @@ leftStickStates getStateOfLeftStick()
     // Set these bools equal to the macros defined at the beginning - ctm 
     // check motor stick position and set flags aproproately
     // Might have to add debouncing later 
-    delayMicroseconds(500);
+    // delayMicroseconds(500);
     bool isUp = upConditional;
-    delayMicroseconds(500);
+    // delayMicroseconds(500);
     bool isDown = downConditional;
-    delayMicroseconds(500);
+    // delayMicroseconds(500);
     bool isNeutral = leftNeutralConditional; 
 
     // If the left stick is up - ctm 
@@ -414,12 +414,12 @@ rightStickStates getStateOfRightStick()
 
     // Set these bools equal to the macros defined at the beginning - ctm 
     // delay(500);
-    delayMicroseconds(2000);
+    // delayMicroseconds(2000);
     bool isLeft = leftConditional;
-    delayMicroseconds(2000);
+    // delayMicroseconds(2000);
     // delay(500);
     bool isRight = rightConditional;
-    delayMicroseconds(2000);
+    // delayMicroseconds(2000);
     // delay(500);
     bool isNeutral = rightNeutralConditional;
 
