@@ -33,8 +33,6 @@ PWMServo SpeedCon;
 // The constants used for what pin and angle the Servo will be on
 const int servoPin = 9;
 int servoAngle;
-// The constant for the delay when writing an angle to the servo
-const int servoDelay = 7;
 // Creates the "SteeringServo" object
 PWMServo SteeringServo;
 
@@ -89,14 +87,14 @@ byte nodeReceive[TO_SLAVE_SIZE];
 // inlined to prevent extra functions calls
 #define initI2C Wire.begin(8); Wire.onReceive(I2C_RxHandler); delay(2000)
 
-/* Begin movement macros
-  The following steps prevent damaging the motors due to polarity reversal:
-    when motor is backward, still the motor, and then move backward
-    when motor is forward, still the motor, and then move forward
+/*  Begin movement macros
+    The following steps prevent damaging the motors due to polarity reversal:
+      when motor is backward, still the motor, and then move backward
+      when motor is forward, still the motor, and then move forward
 */
-#define SpeedConForward SpeedCon.write(90); SpeedCon.write(165); motorsMoving = true; timeMotorsEngaged = millis()
+#define SpeedConForward SpeedCon.write(90); delayMicroseconds(500); SpeedCon.write(165); motorsMoving = true; timeMotorsEngaged = millis()
 #define SpeedConStop SpeedCon.write(90); motorsMoving = false
-#define SpeedConBackward SpeedCon.write(90); SpeedCon.write(17); motorsMoving = true; timeMotorsEngaged = millis()
+#define SpeedConBackward SpeedCon.write(90); delayMicroseconds(500); SpeedCon.write(17); motorsMoving = true; timeMotorsEngaged = millis()
 
 #define ftTurnLeft SteeringServo.write(0)
 #define ftTurnRight SteeringServo.write(180)
@@ -122,4 +120,4 @@ void initShield();
 
 bool checkData(char c);
 
-// movementState checkState();
+bool isDataMovementChar (char controlData);

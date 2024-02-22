@@ -362,8 +362,11 @@ leftStickStates getStateOfLeftStick()
     // Set these bools equal to the macros defined at the beginning - ctm 
     // check motor stick position and set flags aproproately
     // Might have to add debouncing later 
+    delayMicroseconds(500);
     bool isUp = upConditional;
+    delayMicroseconds(500);
     bool isDown = downConditional;
+    delayMicroseconds(500);
     bool isNeutral = leftNeutralConditional; 
 
     // If the left stick is up - ctm 
@@ -410,8 +413,14 @@ rightStickStates getStateOfRightStick()
 {
 
     // Set these bools equal to the macros defined at the beginning - ctm 
+    // delay(500);
+    delayMicroseconds(2000);
     bool isLeft = leftConditional;
+    delayMicroseconds(2000);
+    // delay(500);
     bool isRight = rightConditional;
+    delayMicroseconds(2000);
+    // delay(500);
     bool isNeutral = rightNeutralConditional;
 
     // If the right stick is to the left - ctm 

@@ -95,6 +95,9 @@ void loop()
         if firetruck control data is forward, still the truck, and then move forward
 
         use the macros ft* to turn servos and SpeedCon* to turn move the truck
+
+        the macros may need tweaking depending on data sent to account for the above rules for the macros
+        keep fire truck straight if not turning
     */
     else if (data == TruckControlData.MotorBackward) {
       SpeedConBackward;
@@ -106,6 +109,8 @@ void loop()
       } else if (movementChar == TruckControlData.ServoRight) {
         ftTurnRight;
       }
+      // keep fire truck straight if not turning
+      ftStraight;
     }
     else if (data == TruckControlData.MotorForward) {
       SpeedConForward;
@@ -115,6 +120,8 @@ void loop()
       } else if (movementChar == TruckControlData.ServoRight) {
         ftTurnRight;
       }
+      // keep fire truck straight if not turning
+      ftStraight;
     }
     else if (data == TruckControlData.MotorStop) {
       SpeedConForward;
@@ -127,6 +134,9 @@ void loop()
     }
     else if (data == TruckControlData.ServoLeft) {
       ftTurnLeft;
+    }
+    else if (data == TruckControlData.ServoRight) {
+      ftTurnRight;
     }
 
 
@@ -145,6 +155,12 @@ void I2C_RxHandler(int numBytes)
     newData = true;
   } else {
     return;
+  }
+
+  // read char for data
+  if (isDataMovementChar)
+  {
+    movementChar = Wire.read();
   }
 }
 
@@ -282,4 +298,13 @@ bool checkData(char c)
   return eq;
 }
 
-
+// check if data is movement char
+bool isDataMovementChar (char controlData){
+  return (data == TruckControlData.MotorStop || 
+          data == TruckControlData.MotorForward || 
+          data == TruckControlData.MotorBackward || 
+          data == TruckControlData.ServoLeft || 
+          data == TruckControlData.ServoRight ||
+          data == TruckControlData.ServoMiddle
+        );
+  }
