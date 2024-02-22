@@ -39,39 +39,8 @@ const int servoDelay = 7;
 PWMServo SteeringServo;
 
 
-// //enums for states
-// enum movementState {
-//   forward,
-//   backward,
-//   stopped,
-//   forwardRight,
-//   forwardLeft,
-//   backwardRight,
-//   backwardLeft
-// };
 
-
-// Set the states of the firetruck - ctm 
-enum fireTruckStates
-{
-    still,
-    stillToForward,
-    stillToBackward,
-    forwardToStill,
-    backwardToStill,
-    forward,
-    backward,
-    forwardToRight,
-    forwardToLeft,
-    forwardToBackward,
-    backwardToRight,
-    backwardToLeft,
-    backwardToForward,
-    right,
-    left
-};
-// truck state controls the movement
-fireTruckStates truckState = fireTruckStates::still;
+volatile char movementChar;
 
 volatile bool movement = false;
 volatile bool engageMotor = false;
@@ -120,13 +89,20 @@ byte nodeReceive[TO_SLAVE_SIZE];
 // inlined to prevent extra functions calls
 #define initI2C Wire.begin(8); Wire.onReceive(I2C_RxHandler); delay(2000)
 
-#define SpeedConForward SpeedCon.write(165)
-#define SpeedConStraight SpeedCon.write(90)
-#define SpeedConBackward SpeedCon.write(17)
+/* Begin movement macros
+  The following steps prevent damaging the motors due to polarity reversal:
+    when motor is backward, still the motor, and then move backward
+    when motor is forward, still the motor, and then move forward
+*/
+#define SpeedConForward SpeedCon.write(90); SpeedCon.write(165); motorsMoving = true; timeMotorsEngaged = millis()
+#define SpeedConStop SpeedCon.write(90); motorsMoving = false
+#define SpeedConBackward SpeedCon.write(90); SpeedCon.write(17); motorsMoving = true; timeMotorsEngaged = millis()
 
-#define ftTurnLeft SteeringServo.write(180)
+#define ftTurnLeft SteeringServo.write(0)
 #define ftTurnRight SteeringServo.write(180)
-#define ftStraight SteeringServo.write(180)
+#define ftStraight SteeringServo.write(90)
+
+// End movement macros
 
 // Function definitions
 

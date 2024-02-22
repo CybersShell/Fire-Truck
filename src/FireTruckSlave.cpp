@@ -41,7 +41,6 @@ void setup()
 void loop()
 {
 
-  // Serial.println("help");
   currentTime = millis();
 
   // motors will stop after 30 * 1000 ms = 30000 ms = 30 s
@@ -50,7 +49,7 @@ void loop()
     SpeedCon.write(90);
     motorsMoving = false;
   }
-  // stop sound after specified time
+  // stop sound after specified time - will need further testing/tweaking
   if (wave.isplaying && (currentTime - timeSoundStarted >= timeToStopPlayingSound))
   {
     timeSoundStarted = 0;
@@ -65,14 +64,16 @@ void loop()
 
   if (newData)
   {
+    // stop I2C bus connection so that I2C ISR is not triggered
+    Wire.end();
     newData = false;
     // If-else statements that'll call the specific function if the condition gets met
-    if (checkData(TruckControlData.SoundStop))
+    if (data == TruckControlData.SoundStop)
     {
       stopPlayback();
       data = ' ';
     }
-    else if (checkData(TruckControlData.SoundOne))
+    else if (data == TruckControlData.SoundOne)
     {
       playSound(firstSound);
       data = ' ';
@@ -87,33 +88,51 @@ void loop()
       waterPump();
       data = ' ';
     }
+    // begin movement conditionals
+    /*
+      Handled in macros:
+        if firetruck control data is backward, still the truck, and then move backward
+        if firetruck control data is forward, still the truck, and then move forward
 
-    if (movement)
-    {
-      movement = false;
-
-      switch (truckState)
+        use the macros ft* to turn servos and SpeedCon* to turn move the truck
+    */
+    else if (data == TruckControlData.MotorBackward) {
+      SpeedConBackward;
+      // possible implementation:
+      // check for servo stick left or right, if not either, do nothing
+      if (movementChar == TruckControlData.ServoLeft)
       {
-        Wire.end();
-        // motor starts backward and goes forward
-      case fireTruckStates::backwardToForward:
-        ftStraight;
-        SpeedConForward;
-        initI2C;
-        break;
-      case fireTruckStates::backwardToRight:
+        ftTurnLeft;
+      } else if (movementChar == TruckControlData.ServoRight) {
         ftTurnRight;
-        SpeedConBackward;
-        initI2C;
-        break;
-      case fireTruckStates::forwardToBackward:
-        ftStraight;
-        SpeedConBackward;
-        initI2C;
-        break;
       }
-    
     }
+    else if (data == TruckControlData.MotorForward) {
+      SpeedConForward;
+      if (movementChar == TruckControlData.ServoLeft)
+      {
+        ftTurnLeft;
+      } else if (movementChar == TruckControlData.ServoRight) {
+        ftTurnRight;
+      }
+    }
+    else if (data == TruckControlData.MotorStop) {
+      SpeedConForward;
+      if (movementChar == TruckControlData.ServoLeft)
+      {
+        ftTurnLeft;
+      } else if (movementChar == TruckControlData.ServoRight) {
+        ftTurnRight;
+      }
+    }
+    else if (data == TruckControlData.ServoLeft) {
+      ftTurnLeft;
+    }
+
+
+    // end movement conditionals
+    // initialize and connect to I2C bus
+    initI2C;
   }
 }
 
@@ -126,29 +145,6 @@ void I2C_RxHandler(int numBytes)
     newData = true;
   } else {
     return;
-  }
-  if (data == TruckControlData.BackwardLeft)
-  {
-    movement = true;
-    truckState = fireTruckStates::backwardToLeft;
-  }
-  if (data == TruckControlData.MotorForward)
-  {
-    engageMotor = true;
-    movement = true;
-    truckState = fireTruckStates::forwardToBackward;
-  }
-  if (data == TruckControlData.MotorBackward)
-  {
-    engageMotor = true;
-    movement = true;
-    truckState = fireTruckStates::backward;
-  }
-  if (data == TruckControlData.MotorStop)
-  {
-    engageMotor = true;
-    movement = true;
-    truckState = fireTruckStates::still;
   }
 }
 

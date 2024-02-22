@@ -1,0 +1,16 @@
+Main loop(){
+    checking for events
+
+    if (newData) {
+
+        Wire.end();
+        if-else conditionals
+            if firetruck control data is backward, still the truck, and then move backward
+            if firetruck control data is forward, still the truck, and then move forward
+            use the macros ft* to turn servos and SpeedCon* to turn move the truck
+
+        end if-else conditionals
+        restart i2c using initI2C macro
+    }   
+            
+}
