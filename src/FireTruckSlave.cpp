@@ -91,6 +91,27 @@ void loop()
     if (movement)
     {
       movement = false;
+
+      switch (truckState)
+      {
+        Wire.end();
+        // motor starts backward and goes forward
+      case fireTruckStates::backwardToForward:
+        ftStraight;
+        SpeedConForward;
+        initI2C;
+        break;
+      case fireTruckStates::backwardToRight:
+        ftTurnRight;
+        SpeedConBackward;
+        initI2C;
+        break;
+      case fireTruckStates::forwardToBackward:
+        ftStraight;
+        SpeedConBackward;
+        initI2C;
+        break;
+      }
       // Turn the servo to 0 degrees
       if (data == TruckControlData.ServoLeft)
       {
@@ -98,9 +119,9 @@ void loop()
         data = ' ';
       }
       // Turn the servo perpendicular (90 degrees)
-      else if (movementStates.straight)
+      else if (truckState == fireTruckStates::stillToBackward)
       {
-        movementStates.straight = false;
+        
         SteeringServo.write(90);
         data = ' ';
       }
@@ -141,27 +162,26 @@ void I2C_RxHandler(int numBytes)
   }
   if (data == TruckControlData.BackwardLeft)
   {
-    engageMotor = true;
     movement = true;
-    movementStates.backwardLeft = true;
+    truckState = fireTruckStates::backwardToLeft;
   }
   if (data == TruckControlData.MotorForward)
   {
     engageMotor = true;
     movement = true;
-    movementStates.forward = true;
+    truckState = fireTruckStates::forwardToBackward;
   }
   if (data == TruckControlData.MotorBackward)
   {
     engageMotor = true;
     movement = true;
-    movementStates.backward;
+    truckState = fireTruckStates::backward;
   }
   if (data == TruckControlData.MotorStop)
   {
     engageMotor = true;
     movement = true;
-    movementStates.straight;
+    truckState = fireTruckStates::still;
   }
 }
 
@@ -293,34 +313,10 @@ void playSound(char soundFile[12])
 
 bool checkData(char c)
 {
-  cli();
+  // cli();
   bool eq = data == c;
-  sei();
+  // sei();
   return eq;
 }
 
 
-movementState checkState (){
-forward:
-    // Do some stuff here
-    switch(currentState) {
-    case movementState::forwardLeft:
-        goto forward;
-    case movementState::forwardRight:
-        goto backward;
-    default:
-        return;
-    }
-
-backward:
-    // Do some stuff here
-    switch(currentState) {
-    case 0:
-        goto forward;
-    case 1:
-        goto backward;
-    default:
-        return;
-    };
-
-}

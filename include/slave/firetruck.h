@@ -39,32 +39,33 @@ const int servoDelay = 7;
 PWMServo SteeringServo;
 
 
-//enums for states
-enum movementState {
-  forward,
-  backward,
-  stopped,
-  forwardRight,
-  forwardLeft,
-  backwardRight,
-  backwardLeft
-};
+// //enums for states
+// enum movementState {
+//   forward,
+//   backward,
+//   stopped,
+//   forwardRight,
+//   forwardLeft,
+//   backwardRight,
+//   backwardLeft
+// };
 
-movementState currentState = stopped;
-// booleans for movement
-struct movementBools
-{
-  volatile bool straight = false;
-  volatile bool right = false;
-  volatile bool left = false;
-  volatile bool forward = false;
-  volatile bool forwardLeft = false;
-  volatile bool forwardRight = false;
+// truck state controls the movement
+fireTruckStates truckState = fireTruckStates::still;
 
-  volatile bool backward = false;
-  volatile bool backwardRight = false;
-  volatile bool backwardLeft = false;
-} movementStates;
+// struct movementBools
+// {
+//   volatile bool straight = false;
+//   volatile bool right = false;
+//   volatile bool left = false;
+//   volatile bool forward = false;
+//   volatile bool forwardLeft = false;
+//   volatile bool forwardRight = false;
+
+//   volatile bool backward = false;
+//   volatile bool backwardRight = false;
+//   volatile bool backwardLeft = false;
+// } movementStates;
 
 volatile bool movement = false;
 volatile bool engageMotor = false;
@@ -108,9 +109,38 @@ char *secondSound = "4.wav";
 byte messageToMaster[TO_MASTER_SIZE];
 byte nodeReceive[TO_SLAVE_SIZE];
 
-#define SpeedControllerForward SpeedCon.write(165)
-#define SpeedControllerStraight SpeedCon.write(90)
-#define SpeedControllerBackward SpeedCon.write(17)
+// join the I2C bus with address 8
+// call I2C_RxHandler when data is received
+// inlined to prevent extra functions calls
+#define initI2C Wire.begin(8); Wire.onReceive(I2C_RxHandler); delay(2000)
+
+#define SpeedConForward SpeedCon.write(165)
+#define SpeedConStraight SpeedCon.write(90)
+#define SpeedConBackward SpeedCon.write(17)
+
+#define ftTurnLeft SteeringServo.write(180)
+#define ftTurnRight SteeringServo.write(180)
+#define ftStraight SteeringServo.write(180)
+
+// Set the states of the firetruck - ctm 
+enum fireTruckStates
+{
+    still,
+    stillToForward,
+    stillToBackward,
+    forwardToStill,
+    backwardToStill,
+    forward,
+    backward,
+    forwardToRight,
+    forwardToLeft,
+    forwardToBackward,
+    backwardToRight,
+    backwardToLeft,
+    backwardToForward,
+    right,
+    left
+};
 
 // Function definitions
 
@@ -130,4 +160,4 @@ void initShield();
 
 bool checkData(char c);
 
-movementState checkState();
+// movementState checkState();

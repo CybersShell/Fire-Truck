@@ -32,6 +32,53 @@ const int I2CAddress = 8; // I2C bus address
 
 char i2cData;
 
+// Set the states of the left stick - ctm 
+enum leftStickStates {leftStickUp, leftStickDown, leftStickNeutral}; 
+
+// Set the struct of the left stick state to have an old and new value - ctm 
+struct LeftStickState 
+{
+    leftStickStates newState;
+    leftStickStates oldState; 
+} leftStick;
+
+// Set the states of the right stick - ctm 
+enum rightStickStates {rightStickRight, rightStickLeft, rightStickNeutral};
+
+// Set the struct of the right stick state to have an old and new value - ctm 
+struct RightStickState {
+    rightStickStates newState; 
+    rightStickStates oldState; 
+} rightStick; 
+
+// Set the states of the firetruck - ctm 
+enum fireTruckStates
+{
+    still,
+    stillToForward,
+    stillToBackward,
+    forwardToStill,
+    backwardToStill,
+    forward,
+    backward,
+    forwardToRight,
+    forwardToLeft,
+    forwardToBackward,
+    backwardToRight,
+    backwardToLeft,
+    backwardToForward,
+    right,
+    left
+};
+
+// Set the struct of the firetruck state to have an old and new value - ctm
+struct fireTruckState
+{
+    fireTruckStates newState;
+    fireTruckStates oldState; 
+} firetruck; 
+
+
 void sendData(char data);
 
 void readFromSlave();
