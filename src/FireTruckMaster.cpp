@@ -77,7 +77,7 @@ void loop()
         {
             sendData(TruckControlData.ToggleWaterPump, dummyData); 
         }
-        delay(500);
+        // delay(500);
 
         // Set the states of the left stick, right stick, and the firetruck - ctm 
         getState(); 
@@ -127,9 +127,9 @@ void sendData(char data, char secondMovementChar)
     Wire.beginTransmission(I2CAddress); // Transmit to device  
     Wire.write(data);                   // Send serial data
     if (sendMovementData) {
-        Serial.print("Sending: ");
-        Serial.println(data);
-        Wire.write(secondMovementChar);
+        Serial.print("Sendind second char: ");
+        Serial.println(secondMovementChar);
+        // Wire.write(secondMovementChar);
     }
     //Wire.write(data2);                  // Send serial data 
     Wire.endTransmission();             // Stop transmitting 
