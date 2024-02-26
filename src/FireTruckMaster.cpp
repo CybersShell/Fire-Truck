@@ -47,7 +47,7 @@ void setup()
 
 void loop()
 {
-
+    delayMicroseconds(600);
     // #if defined(CONTROLLER_TEST)
 
     Usb.Task();
@@ -360,12 +360,18 @@ leftStickStates getStateOfLeftStick()
     // Set these bools equal to the macros defined at the beginning - ctm 
     // check motor stick position and set flags aproproately
     // Might have to add debouncing later 
-    // delayMicroseconds(500);
+    delayMicroseconds(200);
     bool isUp = upConditional;
-    // delayMicroseconds(500);
+    delayMicroseconds(200);
+    isUp = upConditional;
+    delayMicroseconds(300);
     bool isDown = downConditional;
-    // delayMicroseconds(500);
+    delayMicroseconds(300);
+    isDown = downConditional;
+    delayMicroseconds(300);
     bool isNeutral = leftNeutralConditional; 
+    delayMicroseconds(300);
+    isNeutral = leftNeutralConditional; 
 
     // If the left stick is up - ctm 
     if(isUp && !isDown)

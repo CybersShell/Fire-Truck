@@ -40,10 +40,11 @@ void setup()
 
 void loop()
 {
-
+  // add delay for sanity
+  delayMicroseconds(1000);
   currentTime = millis();
 
-  // TODO: evaluate if servo and motors should be reset af
+  // TODO: evaluate if servo and motors should be reset
   // motors will stop after 30 * 1000 ms = 30000 ms = 30 s
   if (motorsMoving && (currentTime - timeMotorsEngaged >= 30000))
   {
