@@ -68,19 +68,13 @@ FatReader file;
 
 // data variables used for receiving and transmitting data
 volatile char data;
+volatile char motorControl, servoControl;
 volatile bool newData = false;
 volatile bool canReceive = false;
 
 
 char *firstSound = "3.wav";
 char *secondSound = "4.wav";
-
-#define TO_MASTER_SIZE 2
-#define TO_SLAVE_SIZE 4
-#define NODE_READ_DELAY 100
-
-byte messageToMaster[TO_MASTER_SIZE];
-byte nodeReceive[TO_SLAVE_SIZE];
 
 // join the I2C bus with address 8
 // call I2C_RxHandler when data is received

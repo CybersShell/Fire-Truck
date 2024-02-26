@@ -68,6 +68,7 @@ void loop()
     // stop I2C bus connection so that I2C ISR is not triggered
     Wire.end();
     newData = false;
+    // Serial.println(data);
     // If-else statements that'll call the specific function if the condition gets met
     if (data == TruckControlData.SoundStop)
     {
@@ -99,72 +100,41 @@ void loop()
 
         the macros may need tweaking depending on data sent to account for the above rules for the macros
     */
-    else if (data == TruckControlData.MotorBackward) {
+   if (data == 'M') {
+
+    // movement control
+    // control statements for motor
+    // 
+    if (motorControl == TruckControlData.MotorBackward) {
       SpeedConBackward;
       // possible implementation:
-        Serial.println("Backward");
-      // check for servo stick left or right, if not either, do nothing
-      if (movementChar == TruckControlData.ServoLeft)
-      {
-        Serial.println("Backward left");
-        ftTurnLeft;
-        goto endOfLoop;
-      } else if (movementChar == TruckControlData.ServoRight) {
-        Serial.println("Backward right");
-        ftTurnRight;
-        goto endOfLoop;
-      }
-      // keep fire truck straight if not turning
-      ftStraight;
+      Serial.println("Backward");
     }
-    else if (data == TruckControlData.MotorForward) {
+    else if (motorControl == TruckControlData.MotorForward) {
       SpeedConForward;
-      Serial.println("forward");
-      if (movementChar == TruckControlData.ServoLeft)
-      {
-        ftTurnLeft;
-        Serial.println("forward left");
-        goto endOfLoop;
-      } else if (movementChar == TruckControlData.ServoRight) {
-        ftTurnRight;
-        Serial.println("forward right");
-        goto endOfLoop;
-      }
-      // keep fire truck straight if not turning
-      ftStraight;
     }
-    else if (data == TruckControlData.MotorStop) {
+    else if (motorControl == TruckControlData.MotorStop) {
       SpeedConStop;
       Serial.println("Stop");
-      if (movementChar == TruckControlData.ServoLeft)
-      {
-        ftTurnLeft;
-        Serial.println("SL");
-        goto endOfLoop;
-      } else if (movementChar == TruckControlData.ServoRight) {
-        ftTurnRight;
-        Serial.println("SR");
-        goto endOfLoop;
-      }
-      Serial.println("Stop Straight");
-      ftStraight;
     }
-    else if (data == TruckControlData.ServoLeft) {
+    // end control statements for motor
+    // control statements for servo
+    if (servoControl == TruckControlData.ServoLeft) {
       Serial.println("L");
       ftTurnLeft;
     }
-    else if (data == TruckControlData.ServoRight) {
+    else if (servoControl == TruckControlData.ServoRight) {
       Serial.println("R");
       ftTurnRight;
     }
-    else if (data == TruckControlData.ServoStraight) {
+    else if (servoControl == TruckControlData.ServoStraight) {
       Serial.println("Straight");
       ftStraight;
     }
-
-    // end movement conditionals
+   }
+    // end control statements for servo
+    // end movement control
     // initialize and connect to I2C bus
-  endOfLoop:
     initI2C;
   }  
 }
@@ -181,9 +151,10 @@ void I2C_RxHandler(int numBytes)
   }
 
   // read char for data
-  if (isDataMovementChar(data))
+  if (data == 'M')
   {
-    movementChar = Wire.read();
+    motorControl = Wire.read();
+    servoControl = Wire.read();
   }
 }
 

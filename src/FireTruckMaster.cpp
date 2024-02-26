@@ -111,15 +111,19 @@ void readFromSlave() {
 void sendData(char data, char secondMovementChar)
 {
     Serial.print("Sending: ");
-    Serial.println(data);
 
 
     Wire.beginTransmission(I2CAddress); // Transmit to device  
-    Wire.write(data);                   // Send serial data
     if (sendMovementData) {
-        Serial.print("Sending second char: ");
+        Serial.println(data);
         Serial.println(secondMovementChar);
+        Wire.write(TruckControlData.MovementData);
+        Wire.write(data);
         Wire.write(secondMovementChar);
+        sendMovementData = false;
+    } else {
+        Serial.println(data);
+        Wire.write(data);                   // Send serial data
     }
     //Wire.write(data2);                  // Send serial data 
     Wire.endTransmission();             // Stop transmitting 
@@ -157,7 +161,7 @@ void fireTruckControl() {
 
     // If the firetruck state is set to forward - ctm 
     } else if(firetruck.newState == fireTruckStates::forward) {
-        sendData(TruckControlData.MotorForward, TruckControlData.MotorForward);
+        sendData(TruckControlData.MotorForward, TruckControlData.ServoStraight);
 
     // If the firetruck state is set to backward to left - ctm 
     } else if(firetruck.newState == fireTruckStates::backwardToLeft) {
@@ -169,7 +173,7 @@ void fireTruckControl() {
 
     // If the firetruck state is set to backward - ctm 
     } else if(firetruck.newState == fireTruckStates::backward) {
-        sendData(TruckControlData.MotorBackward, TruckControlData.MotorBackward);
+        sendData(TruckControlData.MotorBackward, TruckControlData.ServoStraight);
 
     // If the firetruck state is set to left - ctm 
     } else if(firetruck.newState == fireTruckStates::left) {
