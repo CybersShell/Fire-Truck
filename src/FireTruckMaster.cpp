@@ -181,9 +181,9 @@ void fireTruckControl() {
 
     // If the firetruck state is set to right - ctm 
     } else if(firetruck.newState == fireTruckStates::right) {
-        sendData(TruckControlData.ServoRight, TruckControlData.ServoRight);
+        sendData(TruckControlData.MotorStop, TruckControlData.ServoRight);
     } else if (firetruck.newState == fireTruckStates::straight) {
-        sendData(TruckControlData.ServoStraight, TruckControlData.ServoStraight);
+        sendData(TruckControlData.MotorStop, TruckControlData.ServoStraight);
     }
 }
 
