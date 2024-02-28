@@ -76,6 +76,10 @@ void loop()
         {
             sendData(TruckControlData.ToggleWaterPump, dummyData); 
         }
+        if(GameController.getButtonClick(R3))
+        {
+            sendData(TruckControlData.ServoStraight, dummyData); 
+        }
         // delay(500);
 
         // Set the states of the left stick, right stick, and the firetruck - ctm 

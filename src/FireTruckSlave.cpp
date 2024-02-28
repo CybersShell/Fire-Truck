@@ -93,7 +93,13 @@ void loop()
     {
       waterPump();
       data = ' ';
+    } else if (data == TruckControlData.ServoStraight) {
+      servoAngle = 90;
+      SteeringServo.write(servoAngle);
+      data = ' ';
     }
+
+    
     // begin movement conditionals
     /*
       Handled in macros:
