@@ -10,6 +10,7 @@
 // Links the header file
 #include <slave/firetruck.h>
 
+// Setup function that only runs once when the Arduino is powered on - ctm 
 void setup()
 {
   Serial.begin(9600);
@@ -17,6 +18,7 @@ void setup()
   {
     delay(100);
   }
+
   // Attaches the servo object to the correct servo pin and prints debug message in case it does not connect (Commented out until servo gets used)
   SteeringServo.attach(servoPin);
   delay(500);
@@ -37,7 +39,7 @@ void setup()
   Wire.begin(8);                 // join the I2C bus with address 8
   Wire.onReceive(I2C_RxHandler); // call I2C_RxHandler when data is received
 
-  // Variable for the CURRENT servo angle 
+  // Variable for the CURRENT servo angle - ctm 
   int servoAngle = 90;
 }
 
@@ -47,8 +49,6 @@ void loop()
   delayMicroseconds(1000);
   currentTime = millis();
 
-  // TODO: evaluate if servo and motors should be reset
-  // motors will stop after 30 * 1000 ms = 30000 ms = 30 s
   if (motorsMoving && (currentTime - timeMotorsEngaged >= 30000))
   {
     SpeedCon.write(90);
@@ -59,6 +59,7 @@ void loop()
   {
     timeSoundStarted = 0;
     timeToStopPlayingSound = 0;
+
     // Stop playing, close the sound file, and go back to the beginning of the filesystem
     wave.stop();
     file.close();
@@ -72,7 +73,10 @@ void loop()
     // stop I2C bus connection so that I2C ISR is not triggered
     Wire.end();
     newData = false;
+
+    // Uncomment for debugging - ctm
     // Serial.println(data);
+
     // If-else statements that'll call the specific function if the condition gets met
     if (data == TruckControlData.SoundStop)
     {
@@ -99,68 +103,68 @@ void loop()
       data = ' ';
     }
 
-    
-    // begin movement conditionals
-    /*
-      Handled in macros:
-        if firetruck control data is backward, still the truck, and then move backward
-        if firetruck control data is forward, still the truck, and then move forward
-
-        use the macros ft* to turn servos and SpeedCon* to turn move the truck
-
-        the macros may need tweaking depending on data sent to account for the above rules for the macros
-    */
    if (data == 'M') {
 
-    // movement control
-    // control statements for motor
-    // 
+    
     if (motorControl == TruckControlData.MotorBackward) {
       SpeedConBackward;
-      // possible implementation:
-      Serial.println("Backward");
+
+      // Uncomment for debugging - ctm
+      //Serial.println("Backward");
     }
     else if (motorControl == TruckControlData.MotorForward) {
       SpeedConForward;
+
+      // Uncomment for debugging - ctm
+      //Serial.println("Forward");
     }
     else if (motorControl == TruckControlData.MotorStop) {
       SpeedConStop;
-      Serial.println("Stop");
+
+      // Uncomment for debugging - ctm
+      //Serial.println("Stop");
     }
     // end control statements for motor
     // control statements for servo
     if (servoControl == TruckControlData.ServoLeft) {
+
+      // While the servo control is left, do the following - ctm 
       while(servoControl == TruckControlData.ServoLeft) {
+
+        // if the servo angle is greater than or equal to 0, decrement the servo angle by 3
         if(servoAngle >= 0) {
           servoAngle -= 3;
           SteeringServo.write(servoAngle);
-          Wire.begin(8);                 
-          Wire.onReceive(I2C_RxHandler);
+          initI2C; 
           delay(10); 
         }
+        initI2C; 
       }
 
-      Serial.println("L");
-      //ftTurnLeft;
+      // Uncomment for debugging - ctm 
+      //Serial.println("L");
     }
     else if (servoControl == TruckControlData.ServoRight) {
 
+      // While the servo control is right, do the following - ctm 
       while(servoControl == TruckControlData.ServoRight) {
+
+        // If the servo angle is less than or equal to 180, increment the servo angle by 3 - ctm 
         if(servoAngle <= 180) {
           servoAngle += 3;
           SteeringServo.write(servoAngle);
-          Wire.begin(8);                 
-          Wire.onReceive(I2C_RxHandler);
+          initI2C;
           delay(10); 
         }
+        initI2C; 
       }
-      Serial.println("R");
 
-      //ftTurnRight;
+      // Uncomment for debugging - ctm
+      //Serial.println("R");
+
     }
     else if (servoControl == TruckControlData.ServoStraight) {
       Serial.println("Straight");
-      //ftStraight;
     }
    }
     // end control statements for servo
