@@ -10,7 +10,6 @@
 // Links the header file
 #include <slave/firetruck.h>
 
-
 void setup()
 {
   Serial.begin(9600);
@@ -37,16 +36,6 @@ void setup()
 
   Wire.begin(8);                 // join the I2C bus with address 8
   Wire.onReceive(I2C_RxHandler); // call I2C_RxHandler when data is received
-
-  // This variable stores the CURRENT servo angle of the truck - ctm
-  int servoAngle = 90; 
-
-  // Set the servo to the middle position - ctm
-  SteeringServo.write(servoAngle); 
-  
-  // Debug message
-  Serial.println("Setup complete");
-
 }
 
 void loop()
@@ -133,48 +122,15 @@ void loop()
     // control statements for servo
     if (servoControl == TruckControlData.ServoLeft) {
       Serial.println("L");
-
-      // Commented out until new implementation works - ctm
-      //ftTurnLeft;
-
-      // While the state remains the same, keep turning the servo to the left - ctm
-      while(leftConditional) {
-        if (servoAngle >= 0) {
-          servoAngle -= 3;
-          SteeringServo.write(servoAngle);
-          delay(15);
-
-          // Debugging - ctm
-          Serial.println(servoAngle);
-        } 
-      }
-
+      ftTurnLeft;
     }
     else if (servoControl == TruckControlData.ServoRight) {
       Serial.println("R");
-
-      // Commented out until new implementation works - ctm
-      //ftTurnRight;
-
-      // While the state remains the same, keep turning the servo to the right - ctm
-      while(rightConditional) {
-        if(servoAngle <= 180) {
-        servoAngle += 3;
-        SteeringServo.write(servoAngle);
-        delay(15);
-
-        // Debugging - ctm
-        Serial.println(servoAngle);
-        }
-      } 
-  
-      
+      ftTurnRight;
     }
     else if (servoControl == TruckControlData.ServoStraight) {
       Serial.println("Straight");
-
-      // Commented out until new implementation works - ctm
-      //ftStraight;
+      ftStraight;
     }
    }
     // end control statements for servo
