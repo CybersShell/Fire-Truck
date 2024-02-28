@@ -36,6 +36,9 @@ void setup()
 
   Wire.begin(8);                 // join the I2C bus with address 8
   Wire.onReceive(I2C_RxHandler); // call I2C_RxHandler when data is received
+
+  // Variable for the CURRENT servo angle 
+  int servoAngle = 90;
 }
 
 void loop()
@@ -121,16 +124,37 @@ void loop()
     // end control statements for motor
     // control statements for servo
     if (servoControl == TruckControlData.ServoLeft) {
+      while(servoControl == TruckControlData.ServoLeft) {
+        if(servoAngle >= 0) {
+          servoAngle -= 3;
+          SteeringServo.write(servoAngle);
+          Wire.begin(8);                 
+          Wire.onReceive(I2C_RxHandler);
+          delay(10); 
+        }
+      }
+
       Serial.println("L");
-      ftTurnLeft;
+      //ftTurnLeft;
     }
     else if (servoControl == TruckControlData.ServoRight) {
+
+      while(servoControl == TruckControlData.ServoRight) {
+        if(servoAngle <= 180) {
+          servoAngle += 3;
+          SteeringServo.write(servoAngle);
+          Wire.begin(8);                 
+          Wire.onReceive(I2C_RxHandler);
+          delay(10); 
+        }
+      }
       Serial.println("R");
-      ftTurnRight;
+
+      //ftTurnRight;
     }
     else if (servoControl == TruckControlData.ServoStraight) {
       Serial.println("Straight");
-      ftStraight;
+      //ftStraight;
     }
    }
     // end control statements for servo
@@ -303,3 +327,4 @@ bool isDataMovementChar (char controlData){
           data == TruckControlData.ServoMiddle
         );
   }
+

@@ -44,7 +44,6 @@ void setup()
         rightStick.oldState = rightStickStates::rightStickNeutral;
 }
 
-
 void loop()
 {
     delayMicroseconds(600);
