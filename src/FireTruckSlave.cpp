@@ -197,7 +197,7 @@ void I2C_RxHandler(int numBytes)
 // See SpeedCon* macros for more detail
 void initSC()
 {
-  SpeedCon.attach(speedControllerPin); // attaches the servo on pin 9 to the servo object
+  SpeedCon.attach(speedControllerPin); // attaches the speed controller on pin 10
   SpeedConStop;
 }
 
