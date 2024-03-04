@@ -17,12 +17,6 @@ BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 // create PS4 controller Bluetooth class, enter pairing mode
 PS4BT GameController(&Btd, PAIR);
 
-#define TO_MASTER_SIZE 2
-#define TO_SLAVE_SIZE 4
-#define NODE_READ_DELAY 100
-
-byte messageToMaster[TO_MASTER_SIZE];
-byte nodeReceive[TO_SLAVE_SIZE];
 bool printAngle, printTouch;
 uint8_t oldL2Value, oldR2Value;
 

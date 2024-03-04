@@ -15,8 +15,8 @@
 #include <Arduino.h>
 // ---------------------------------------------------------------------------
 // Customize here pulse lengths as needed
-#define MIN_PULSE_LENGTH 17 // Minimum pulse length in µs
-#define MAX_PULSE_LENGTH 2600 // Maximum pulse length in µs
+#define MIN_PULSE_LENGTH 1100 // Minimum pulse length in µs
+#define MAX_PULSE_LENGTH 2000 // Maximum pulse length in µs
 // ---------------------------------------------------------------------------
 PWMServo motA, motB, motC, motD;
 char data;
@@ -37,7 +37,13 @@ void setup() {
     
     motA.attach(10, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
 
-    
+    delay(1500); // delay to allow the ESC to recognize the stopped signal
+    motA.write(MIN_PULSE_LENGTH);
+    delay(1500); // delay to allow the ESC to recognize the stopped signal
+    motA.write(MAX_PULSE_LENGTH);
+    delay(1500); // delay to allow the ESC to recognize the stopped signal
+    motA.write(1500);
+
     displayInstructions();
 }
 
@@ -79,7 +85,7 @@ void loop() {
  */
 void test()
 {
-    for (int i = MIN_PULSE_LENGTH; i <= MAX_PULSE_LENGTH; i += 5) {
+    for (int i = MIN_PULSE_LENGTH; i <= MAX_PULSE_LENGTH; i += 10) {
         Serial.print("Pulse length = ");
         Serial.println(i);
         

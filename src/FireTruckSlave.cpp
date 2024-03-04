@@ -130,13 +130,13 @@ void loop()
 
       // While the servo control is left, do the following - ctm 
       while(servoControl == TruckControlData.ServoLeft) {
-
+        servoAngle = SteeringServo.read();
         // if the servo angle is greater than or equal to 0, decrement the servo angle by 3
         if(servoAngle >= 0) {
           servoAngle -= 3;
           SteeringServo.write(servoAngle);
-          initI2C; 
-          delay(10); 
+          initI2C;
+          delay(10);
         }
         initI2C; 
       }
@@ -145,6 +145,7 @@ void loop()
       //Serial.println("L");
     }
     else if (servoControl == TruckControlData.ServoRight) {
+        servoAngle = SteeringServo.read();
 
       // While the servo control is right, do the following - ctm 
       while(servoControl == TruckControlData.ServoRight) {
@@ -162,9 +163,6 @@ void loop()
       // Uncomment for debugging - ctm
       //Serial.println("R");
 
-    }
-    else if (servoControl == TruckControlData.ServoStraight) {
-      Serial.println("Straight");
     }
    }
     // end control statements for servo
@@ -194,14 +192,13 @@ void I2C_RxHandler(int numBytes)
 }
 
 // initSC initializes the speed controller
-// For the QuicRun 1060, the minimum reverse is ~17 and the neutral is ~100.
-// The max forward throttle is ~160-170
+// For the QuicRun 1060, the minimum reverse is ~17 and the neutral is ~90.
+// The max forward throttle is ~160-180
+// See SpeedCon* macros for more detail
 void initSC()
 {
   SpeedCon.attach(speedControllerPin); // attaches the servo on pin 9 to the servo object
-  SpeedCon.write(2600);
-  delay(1000);
-  SpeedCon.write(90);
+  SpeedConStop;
 }
 
 // Function used for pausing playback
