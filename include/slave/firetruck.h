@@ -87,7 +87,7 @@ char *secondSound = "4.wav";
       when motor is forward, still the motor, and then move forward
 */
 #define SpeedConForward delay(1500); SpeedCon.write(165); motorsMoving = true; timeMotorsEngaged = millis()
-#define SpeedConStop delay(1500); motorsMoving = false
+#define SpeedConStop delay(1500); SpeedCon.write(0); motorsMoving = false
 #define SpeedConBackward delay(1500); SpeedCon.write(17); motorsMoving = true; timeMotorsEngaged = millis()
 
 #define ftTurnLeft SteeringServo.write(0)
