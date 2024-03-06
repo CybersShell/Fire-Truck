@@ -107,12 +107,14 @@ void loop()
 
     
     if (motorControl == TruckControlData.MotorBackward) {
+      if (motorsMoving) SpeedConStop;
       SpeedConBackward;
 
       // Uncomment for debugging - ctm
       //Serial.println("Backward");
     }
     else if (motorControl == TruckControlData.MotorForward) {
+      if (motorsMoving) SpeedConStop;
       SpeedConForward;
 
       // Uncomment for debugging - ctm

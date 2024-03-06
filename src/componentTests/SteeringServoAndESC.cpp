@@ -9,45 +9,59 @@ PWMServo ESC;           // create servo object to control a servo
 int pos = 0; // variable to store the servo position
 bool motorsMoving;
 unsigned long timeMotorsEngaged;
-#define SpeedConForward delay(1500); SteeringServo.write(165); motorsMoving = true; timeMotorsEngaged = millis()
-#define SpeedConStop delay(1000); SteeringServo.write(90); motorsMoving = false
-#define SpeedConBackward delay(1000); SteeringServo.write(17); motorsMoving = true; timeMotorsEngaged = millis()
+#define SpeedConForward Serial.println("SpeedConForward"); delay(1500);  SteeringServo.write(34); motorsMoving = true; timeMotorsEngaged = millis()
+#define SpeedConStop Serial.println("SpeedConStop"); delay(1000); SteeringServo.write(90); motorsMoving = false
+#define SpeedConBackward Serial.println("SpeedConBackward"); delay(1000); SteeringServo.write(130); motorsMoving = true; timeMotorsEngaged = millis()
 void setup()
 {
+  Serial.begin(9600);
   SteeringServo.attach(10); // attaches the servo on pin 9 to the servo object
   //ESC.attach(10);
-  //delay(5000);
+  //delay(TurnDelay);
   //ESC.write(2600);
   // delay(1000);
   //ESC.write(90);
   pinMode(LED_BUILTIN, OUTPUT);
 }
-
+const int TurnDelay = 2000;
 void loop()
 {
-  //   // Tell the servo to go to a particular angle:
+  // Tell the servo to go to a particular angle:
   SpeedConStop;
-  delay(10000);
+  delay(TurnDelay);
   SpeedConForward;
+  delay(TurnDelay);
+  SpeedConStop;
+  delay(TurnDelay);
   SpeedConBackward;
-  // SteeringServo.write(0);
-  // delay(15);
-  // SteeringServo.write(5);
-  // delay(15);
-  // SteeringServo.write(180);
-  // delay(1000);
+  delay(TurnDelay);
 
-  // // Sweep from 0 to 180 degrees:
-  // for (int angle = 0; angle <= 180; angle += 1) {
+  // Sweep from 0 to 180 degrees:
+  // for (int angle = 0; angle <= 270; angle += 1) {
+  //   Serial.println(angle);
   //   SteeringServo.write(angle);
-  //   delay(15);
+  //   delay(20);
   // }
-  // delay(1000);
+  // delay(TurnDelay);
   // // And back from 180 to 0 degrees:
-  // for (int angle = 180; angle >= 0; angle -= 1) {
+  // for (int angle = 270; angle >= 0; angle -= 1) {
+  //   Serial.println(angle);
   //   SteeringServo.write(angle);
-  //   delay(15);
+  //   delay(20);
   // }
+  // delay(TurnDelay);
+  // SpeedConStop;
+  // delay(TurnDelay);
+  // SpeedConStop;
+  // delay(TurnDelay);
+  // SpeedConForward;
+  // delay(TurnDelay);
+  // SpeedConForward;
+  // delay(TurnDelay);
+  // SpeedConBackward;
+  // delay(TurnDelay);
+  // SpeedConBackward;
+  // delay(TurnDelay);
   // delay(1000);
   //ESC.write(17);
   // SteeringServo.write(180);
@@ -57,7 +71,7 @@ void loop()
   // delay(1000);    // waits 5s for the servo to reach the position
   // SteeringServo.write(0);
   // //ESC.write(110);
-  // //delay(5000);    // waits 5s for the servo to reach the position
+  // //delay(TurnDelay);    // waits 5s for the servo to reach the position
   // //ESC.write(180);
   // delay(1000);    // waits 5s for the servo to reach the position
   // //ESC.write(110);

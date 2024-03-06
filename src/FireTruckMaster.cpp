@@ -92,22 +92,6 @@ void loop()
         }
         sendMovementData = false;
     }
-}  
-
-void readFromSlave() {
-  // if data size is available from nodes
-  if(Wire.available()) {
-    for (int i = 0; i < 1; i++) {
-      messageToMaster[i] = Wire.read();  // get data
-    }
-  Serial.print("Slave: ");
-  Serial.println(messageToMaster[0]);
-  if (messageToMaster[0] == 'D')
-  {
-    
-  }
-
-  }
 }
 
 // send data over I2C interface to slave
