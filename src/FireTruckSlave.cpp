@@ -107,37 +107,59 @@ void loop()
 
     
     if (motorControl == TruckControlData.MotorBackward) {
-      if (motorsMoving) SpeedConStop;
+
       SpeedConBackward;
 
-      
-      for(int i = 90; i < 180; i++)
+      delay(200);
+      for(int i = 90; i < 165; i++)
       {
         SteeringServo.write(i);
+        escValue = i;
         delay(20);
       }
 
       // Uncomment for debugging - ctm
-      //Serial.println("Backward");
+      Serial.println("Backward");
     }
     else if (motorControl == TruckControlData.MotorForward) {
-      if (motorsMoving) SpeedConStop;
+      
       SpeedConForward;
 
-      for(int i = 90; i > 0; i--)
+      delay(200);
+      for(int i = 90; i > 17; i--)
       {
         SteeringServo.write(i);
+        escValue = i;
         delay(20);
       }
 
       // Uncomment for debugging - ctm
-      //Serial.println("Forward");
+      Serial.println("Forward");
     }
     else if (motorControl == TruckControlData.MotorStop) {
       SpeedConStop;
+      if (escValue > 90)
+      {
+        for(int i = escValue; i > 90; i--)
+        {
+          SteeringServo.write(i);
+          escValue = i;
+          delay(20);
+        } 
+        
+      }
+        else {
+        
+          for(int i = escValue; i < 90; i++)
+          {
+            SteeringServo.write(i);
+            escValue = i;
+            delay(20);
+          }
+        }
+      
 
-      // Uncomment for debugging - ctm
-      //Serial.println("Stop");
+      Serial.println("Stop");
     }
     // end control statements for motor
     // control statements for servo
@@ -213,7 +235,14 @@ void I2C_RxHandler(int numBytes)
 void initSC()
 {
   SpeedCon.attach(speedControllerPin); // attaches the speed controller on pin 10
-  SpeedConStop;
+  delay(200);
+  SpeedCon.write(0);
+  for(int i = 0; i < 90; i++)
+  {
+    SpeedCon.write(i);
+    delay(20);
+  }
+  delay(200);
 }
 
 // Function used for pausing playback

@@ -148,7 +148,7 @@ void fireTruckControl() {
 
     // If the firetruck state is set to forward - ctm 
     } else if(firetruck.newState == fireTruckStates::forward) {
-        sendData(TruckControlData.MotorForward, TruckControlData.ServoStraight);
+        sendData(TruckControlData.MotorForward, TruckControlData.MotorBackward);
 
     // If the firetruck state is set to backward to left - ctm 
     } else if(firetruck.newState == fireTruckStates::backwardToLeft) {
@@ -160,7 +160,7 @@ void fireTruckControl() {
 
     // If the firetruck state is set to backward - ctm 
     } else if(firetruck.newState == fireTruckStates::backward) {
-        sendData(TruckControlData.MotorBackward, TruckControlData.ServoStraight);
+        sendData(TruckControlData.MotorBackward, TruckControlData.MotorBackward);
 
     // If the firetruck state is set to left - ctm 
     } else if(firetruck.newState == fireTruckStates::left) {

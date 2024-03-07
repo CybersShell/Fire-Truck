@@ -39,7 +39,7 @@ PWMServo SteeringServo;
 
 
 volatile char movementChar;
-
+int escValue = 90;
 volatile bool movement = false;
 volatile bool engageMotor = false;
 // Constant used for baud rate
@@ -86,9 +86,9 @@ char *secondSound = "4.wav";
       when motor is backward, still the motor, and then move backward
       when motor is forward, still the motor, and then move forward
 */
-#define SpeedConForward delay(1500); SpeedCon.write(165); motorsMoving = true; timeMotorsEngaged = millis()
-#define SpeedConStop delay(1500); SpeedCon.write(0); motorsMoving = false
-#define SpeedConBackward delay(1500); SpeedCon.write(17); motorsMoving = true; timeMotorsEngaged = millis()
+#define SpeedConForward  motorsMoving = true; timeMotorsEngaged = millis()
+#define SpeedConStop  motorsMoving = false
+#define SpeedConBackward  motorsMoving = true; timeMotorsEngaged = millis()
 
 #define ftTurnLeft SteeringServo.write(0)
 #define ftTurnRight SteeringServo.write(180)
