@@ -27,14 +27,14 @@ const int TurnDelay = 2000;
 void loop()
 {
   // Tell the servo to go to a particular angle:
-  SpeedConStop;
+  /*SpeedConStop;
   delay(TurnDelay);
   SpeedConForward;
   delay(TurnDelay);
   SpeedConStop;
   delay(TurnDelay);
   SpeedConBackward;
-  delay(TurnDelay);
+  delay(TurnDelay); */
 
   // Sweep from 0 to 180 degrees:
   // for (int angle = 0; angle <= 270; angle += 1) {
@@ -49,6 +49,42 @@ void loop()
   //   SteeringServo.write(angle);
   //   delay(20);
   // }
+
+  for(int i = 0; i < 90; i++)
+  {
+    SteeringServo.write(i);
+    delay(20);
+  }
+
+  for(int i = 90; i > 0; i--)
+  {
+    SteeringServo.write(i);
+    delay(20);
+  }
+
+  delay(1000);
+
+  for(int i = 90; i < 180; i++)
+  {
+    SteeringServo.write(i);
+    delay(20);
+  }
+
+  delay(1000);
+
+  for(int i = 180; i > 90; i--)
+  {
+    SteeringServo.write(i);
+    delay(20);
+  }
+
+  delay(1000);
+
+
+
+
+
+
   // delay(TurnDelay);
   // SpeedConStop;
   // delay(TurnDelay);
