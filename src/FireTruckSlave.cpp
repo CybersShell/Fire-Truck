@@ -49,7 +49,7 @@ void loop()
   delayMicroseconds(200);
   currentTime = millis();
   // motors will stop after 10 seconds
-  if (motorsMoving && (currentTime - timeMotorsEngaged >= 10000))
+  if (motorsMoving && (currentTime - timeMotorsEngaged >= 2000))
   {
     SpeedCon.write(90);
     motorsMoving = false;
