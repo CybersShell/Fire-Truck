@@ -46,10 +46,10 @@ void setup()
 void loop()
 {
   // add delay for sanity
-  delayMicroseconds(1000);
+  delayMicroseconds(200);
   currentTime = millis();
-
-  if (motorsMoving && (currentTime - timeMotorsEngaged >= 30000))
+  // motors will stop after 10 seconds
+  if (motorsMoving && (currentTime - timeMotorsEngaged >= 10000))
   {
     SpeedCon.write(90);
     motorsMoving = false;
@@ -111,10 +111,11 @@ void loop()
       SpeedConBackward;
 
       delay(200);
-      for(int i = 90; i < 165; i++)
+      for(int i = 90; i < 110; i++)
       {
-        SteeringServo.write(i);
+        SpeedCon.write(i);
         escValue = i;
+        initI2C;
         delay(20);
       }
 
@@ -126,9 +127,10 @@ void loop()
       SpeedConForward;
 
       delay(200);
-      for(int i = 90; i > 17; i--)
+      for(int i = 90; i > 60; i--)
       {
-        SteeringServo.write(i);
+        initI2C;
+        SpeedCon.write(i);
         escValue = i;
         delay(20);
       }
@@ -142,7 +144,8 @@ void loop()
       {
         for(int i = escValue; i > 90; i--)
         {
-          SteeringServo.write(i);
+          initI2C;
+          SpeedCon.write(i);
           escValue = i;
           delay(20);
         } 
@@ -152,6 +155,7 @@ void loop()
         
           for(int i = escValue; i < 90; i++)
           {
+            initI2C;
             SteeringServo.write(i);
             escValue = i;
             delay(20);
@@ -159,6 +163,8 @@ void loop()
         }
       
 
+      SpeedCon.write(90);
+      delay(20);
       Serial.println("Stop");
     }
     // end control statements for motor
@@ -235,13 +241,6 @@ void I2C_RxHandler(int numBytes)
 void initSC()
 {
   SpeedCon.attach(speedControllerPin); // attaches the speed controller on pin 10
-  delay(200);
-  SpeedCon.write(0);
-  for(int i = 0; i < 90; i++)
-  {
-    SpeedCon.write(i);
-    delay(20);
-  }
   delay(200);
 }
 
