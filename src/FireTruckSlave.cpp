@@ -140,31 +140,10 @@ void loop()
     }
     else if (motorControl == TruckControlData.MotorStop) {
       SpeedConStop;
-      if (escValue > 90)
-      {
-        for(int i = escValue; i > 90; i--)
-        {
-          initI2C;
-          SpeedCon.write(i);
-          escValue = i;
-          delay(20);
-        } 
-        
-      }
-        else {
-        
-          for(int i = escValue; i < 90; i++)
-          {
-            initI2C;
-            SteeringServo.write(i);
-            escValue = i;
-            delay(20);
-          }
-        }
       
 
       SpeedCon.write(90);
-      delay(20);
+      delay(500);
       Serial.println("Stop");
     }
     // end control statements for motor
