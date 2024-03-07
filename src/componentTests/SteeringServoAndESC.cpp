@@ -9,9 +9,9 @@ PWMServo ESC;           // create servo object to control a servo
 int pos = 0; // variable to store the servo position
 bool motorsMoving;
 unsigned long timeMotorsEngaged;
-#define SpeedConForward Serial.println("SpeedConForward"); delay(1500);  SteeringServo.write(34); motorsMoving = true; timeMotorsEngaged = millis()
-#define SpeedConStop Serial.println("SpeedConStop"); delay(1000); SteeringServo.write(90); motorsMoving = false
-#define SpeedConBackward Serial.println("SpeedConBackward"); delay(1000); SteeringServo.write(130); motorsMoving = true; timeMotorsEngaged = millis()
+#define SpeedConForward Serial.println("SpeedConForward"); motorsMoving = true; timeMotorsEngaged = millis()
+#define SpeedConStop Serial.println("SpeedConStop"); SteeringServo.write(90); motorsMoving = false
+#define SpeedConBackward Serial.println("SpeedConBackward"); motorsMoving = true; timeMotorsEngaged = millis()
 void setup()
 {
   Serial.begin(9600);

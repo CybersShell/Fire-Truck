@@ -110,12 +110,25 @@ void loop()
       if (motorsMoving) SpeedConStop;
       SpeedConBackward;
 
+      
+      for(int i = 90; i < 180; i++)
+      {
+        SteeringServo.write(i);
+        delay(20);
+      }
+
       // Uncomment for debugging - ctm
       //Serial.println("Backward");
     }
     else if (motorControl == TruckControlData.MotorForward) {
       if (motorsMoving) SpeedConStop;
       SpeedConForward;
+
+      for(int i = 90; i > 0; i--)
+      {
+        SteeringServo.write(i);
+        delay(20);
+      }
 
       // Uncomment for debugging - ctm
       //Serial.println("Forward");
