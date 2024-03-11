@@ -6,6 +6,16 @@
 #include <PS4Parser.h> // Added this header to the file
 #include <PS4BT.h>
 
+// These defined macros keep track of if the left stick moves - ctm 
+#define upConditional GameController.getAnalogHat(LeftHatY) < 70
+#define downConditional GameController.getAnalogHat(LeftHatY) > 220
+#define leftNeutralConditional GameController.getAnalogHat(LeftHatY) > 70 && GameController.getAnalogHat(LeftHatY) < 220
+
+// These defined macros keep track of if the right stick moves - ctm 
+#define leftConditional GameController.getAnalogHat(RightHatX) < 70
+#define rightConditional GameController.getAnalogHat(RightHatX) > 220
+#define rightNeutralConditional GameController.getAnalogHat(RightHatX) > 70 && GameController.getAnalogHat(RightHatX) < 220
+
 
 USB Usb;
 BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so

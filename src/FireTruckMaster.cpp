@@ -1,15 +1,6 @@
 #include <master/firetruck.h>
 
-// These defined macros keep track of if the left stick moves - ctm 
-#define upConditional GameController.getAnalogHat(LeftHatY) < 70
-#define downConditional GameController.getAnalogHat(LeftHatY) > 220
-#define leftNeutralConditional GameController.getAnalogHat(LeftHatY) > 70 && GameController.getAnalogHat(LeftHatY) < 220
-
-// These defined macros keep track of if the right stick moves - ctm 
-#define leftConditional GameController.getAnalogHat(RightHatX) < 70
-#define rightConditional GameController.getAnalogHat(RightHatX) > 220
-#define rightNeutralConditional GameController.getAnalogHat(RightHatX) > 70 && GameController.getAnalogHat(RightHatX) < 220
-
+// Setup function that only runs once when the Arduino is powered on - ctm
 void setup()
 {
     Wire.begin();       // join i2c bus
@@ -20,7 +11,8 @@ void setup()
 
     }
 
-    Serial.println("Starting Fire Truck Master Test");
+    // Uncomment for Debug message - ctm
+    //Serial.println("Starting Fire Truck Master Test");
 
     #if !defined(__MIPSEL__)
         while (!Serial)
@@ -32,6 +24,7 @@ void setup()
             while (1)
                 ; // Halt
         }
+
         Serial.print(F("\r\nGameController Bluetooth Library Started"));
 
         // Initialize the old state of the firetruck - ctm 
@@ -44,6 +37,9 @@ void setup()
         rightStick.oldState = rightStickStates::rightStickNeutral;
 }
 
+/********************************************************************************************************************/
+
+// Loop function that runs over and over again - ctm
 void loop()
 {
     delayMicroseconds(600);
@@ -80,7 +76,6 @@ void loop()
         {
             sendData(TruckControlData.ServoStraight, dummyData); 
         }
-        // delay(500);
 
         // Set the states of the left stick, right stick, and the firetruck - ctm 
         getState(); 
@@ -90,15 +85,17 @@ void loop()
             sendMovementData = true;
             fireTruckControl();
         }
+
         sendMovementData = false;
     }
 }
+
+/********************************************************************************************************************/
 
 // send data over I2C interface to slave
 void sendData(char data, char secondMovementChar)
 {
     Serial.print("Sending: ");
-
 
     Wire.beginTransmission(I2CAddress); // Transmit to device  
     if (sendMovementData) {
@@ -110,12 +107,13 @@ void sendData(char data, char secondMovementChar)
         sendMovementData = false;
     } else {
         Serial.println(data);
-        Wire.write(data);                   // Send serial data
-    }
-    //Wire.write(data2);                  // Send serial data 
+        Wire.write(data);               // Send serial data
+    }              
     Wire.endTransmission();             // Stop transmitting 
 
 }
+
+/********************************************************************************************************************/
 
 // This function updates both the old/new state of both analog sticks - ctm 
 void getState()
@@ -131,6 +129,9 @@ void getState()
     rightStick.oldState = rightStick.newState; 
 }
 
+/********************************************************************************************************************/
+
+// This function controls the firetruck - ctm
 void fireTruckControl() {
 
     // If the firetruck state is set to still - ctm 
@@ -174,6 +175,9 @@ void fireTruckControl() {
     }
 }
 
+/********************************************************************************************************************/
+
+// This function combines the states of the left and right stick - ctm
 void combineStates()
 {
 
@@ -341,6 +345,8 @@ void combineStates()
     }
 }
 
+/********************************************************************************************************************/
+
 // This function updates the new state of the left stick and returns the new state depending on if the old state is the same or not - ctm 
 leftStickStates getStateOfLeftStick()
 {
@@ -399,6 +405,8 @@ leftStickStates getStateOfLeftStick()
     return leftStick.oldState; 
 }
 
+/********************************************************************************************************************/
+
 // This function updates the new state of the right stick and returns the new state depending on if the old state is the same or not - ctm
 rightStickStates getStateOfRightStick()
 {
@@ -448,5 +456,4 @@ rightStickStates getStateOfRightStick()
     }
 
     return rightStick.oldState; 
-
 }
