@@ -52,8 +52,9 @@ void loop()
 {
 
   // add delay for sanity
-  delayMicroseconds(200);
+  delayMicroseconds(100);
   currentTime = millis();
+  Serial.println(FreeRam());
 
   // motors will stop after 10 seconds
   if (motorsMoving && (currentTime - timeMotorsEngaged >= 2000))
@@ -178,6 +179,7 @@ void loop()
         if(servoAngle >= 0) {
           servoAngle -= 3;
           SteeringServo.write(servoAngle);
+          Serial.println("Left");
           initI2C;
           delay(10);
         }
@@ -198,6 +200,7 @@ void loop()
         // If the servo angle is less than or equal to 180, increment the servo angle by 3 - ctm 
         if(servoAngle <= 180) {
           servoAngle += 3;
+          Serial.println("Right");
           SteeringServo.write(servoAngle);
           initI2C;
           delay(10); 
