@@ -335,18 +335,12 @@ leftStickStates getStateOfLeftStick()
     // Set these bools equal to the macros defined at the beginning - ctm 
     // check motor stick position and set flags aproproately
     // Might have to add debouncing later 
-    //delayMicroseconds(200);
+
     bool isUp = upConditional;
-    //delayMicroseconds(200);
-    isUp = upConditional;
-    //delayMicroseconds(300);
+
     bool isDown = downConditional;
-    //delayMicroseconds(300);
-    isDown = downConditional;
-    //delayMicroseconds(300);
-    bool isNeutral = leftNeutralConditional; 
-    //delayMicroseconds(300);
-    isNeutral = leftNeutralConditional; 
+
+    bool isNeutral = leftNeutralConditional;
 
     // If the left stick is up - ctm 
     if(isUp && !isDown)
