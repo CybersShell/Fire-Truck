@@ -12,7 +12,7 @@
 
 /********************************************************************************************************************/
 
-// Setup function that only runs once when the Arduino is powered on - ctm 
+// Setup function that only runs once when the Arduino is powered on - ctm
 void setup()
 {
 
@@ -27,7 +27,7 @@ void setup()
   SteeringServo.attach(servoPin);
   delay(500);
 
-  // Function that will initialize the speed controller - ctm 
+  // Function that will initialize the speed controller - ctm
   initSC();
 
   // Initialize the water pump pin
@@ -42,7 +42,7 @@ void setup()
   Wire.begin(8);                 // join the I2C bus with address 8
   Wire.onReceive(I2C_RxHandler); // call I2C_RxHandler when data is received
 
-  // Variable for the CURRENT servo angle - ctm 
+  // Variable for the CURRENT servo angle - ctm
   int servoAngle = 90;
 }
 
@@ -54,7 +54,6 @@ void loop()
   // add delay for sanity
   delayMicroseconds(100);
   currentTime = millis();
-  Serial.println(FreeRam());
 
   // motors will stop after 10 seconds
   if (motorsMoving && (currentTime - timeMotorsEngaged >= 2000))
@@ -76,9 +75,11 @@ void loop()
     delay(5000);
   }
 
-  // If new data is received, stop the I2C bus connection and process the data - ctm 
+  // If new data is received, stop the I2C bus connection and process the data - ctm
   if (newData)
   {
+    Serial.print("FreeRam = ");
+    Serial.println(FreeRam());
     // stop I2C bus connection so that I2C ISR is not triggered
     Wire.end();
     newData = false;
@@ -115,110 +116,159 @@ void loop()
       waterPump();
       data = ' ';
 
-    // If the data is a servo straight command, set the servo angle to 90 - ctm
-    } else if (data == TruckControlData.ServoStraight) {
+      // If the data is a servo straight command, set the servo angle to 90 - ctm
+    }
+    else if (data == TruckControlData.ServoStraight)
+    {
       servoAngle = 90;
       SteeringServo.write(servoAngle);
       data = ' ';
     }
 
-  // If the data is a movement command, do the following - ctm
-   if (data == 'M') {
+    // If the data is a movement command, do the following - ctm
+    if (data == 'M')
+    {
 
-    // If the data is a motor backward command, do the following - ctm
-    if (motorControl == TruckControlData.MotorBackward) {
-      SpeedConBackward;
-      delay(200);
-      for(int i = 90; i < 110; i++)
+      // If the data is a motor backward command, do the following - ctm
+      if (motorControl == TruckControlData.MotorBackward)
       {
-        SpeedCon.write(i);
-        escValue = i;
-        initI2C;
-        delay(20);
+        SpeedConBackward;
+        Serial.print("FreeRam when Backward = ");
+        Serial.println(FreeRam());
+        delay(200);
+        for (int i = 90; i < 110; i++)
+        {
+          SpeedCon.write(i);
+          escValue = i;
+          initI2C;
+          delay(20);
+        }
+
+        // Uncomment for debugging - ctm
+        Serial.println("Backward");
       }
 
-      // Uncomment for debugging - ctm
-      Serial.println("Backward");
-    }
-
-    // If the data is a motor forward command, do the following - ctm
-    else if (motorControl == TruckControlData.MotorForward) {
-      SpeedConForward;
-      delay(200);
-      for(int i = 90; i > 60; i--)
+      // If the data is a motor forward command, do the following - ctm
+      else if (motorControl == TruckControlData.MotorForward)
       {
-        initI2C;
-        SpeedCon.write(i);
-        escValue = i;
-        delay(20);
+        SpeedConForward;
+        Serial.print("FreeRam when Forward = ");
+        Serial.println(FreeRam());
+        delay(200);
+        for (int i = 90; i > 60; i--)
+        {
+          initI2C;
+          SpeedCon.write(i);
+          escValue = i;
+          delay(20);
+        }
+
+        // Uncomment for debugging - ctm
+        Serial.println("Forward");
       }
 
-      // Uncomment for debugging - ctm
-      Serial.println("Forward");
-    }
+      // If the data is a motor stop command, do the following - ctm
+      else if (motorControl == TruckControlData.MotorStop)
+      {
+        SpeedConStop;
+        SpeedCon.write(90);
+        delay(500);
+        Serial.print("FreeRam when stop = ");
+        Serial.println(FreeRam());
+        Serial.println("Stop");
+      }
+      // end control statements for motor
 
-    // If the data is a motor stop command, do the following - ctm
-    else if (motorControl == TruckControlData.MotorStop) {
-      SpeedConStop;
-      SpeedCon.write(90);
-      delay(500);
-      Serial.println("Stop");
-    }
-    // end control statements for motor
+      Serial.print("servoAngle = ");
+      Serial.println(servoAngle);
+      // control statements for servo
 
-    // control statements for servo
+      // If the data is a servo left command, do the following - ctm
+      if (servoControl == TruckControlData.ServoLeft)
+      {
+          servoAngle = SteeringServo.read();
 
-    // If the data is a servo left command, do the following - ctm
-    if (servoControl == TruckControlData.ServoLeft) {
+        // While the servo control is left, do the following - ctm
+        while (servoControl == TruckControlData.ServoLeft)
+        {
 
-      // While the servo control is left, do the following - ctm 
-      while(servoControl == TruckControlData.ServoLeft) {
+          // if the servo angle is greater than or equal to 0, decrement the servo angle by 3
+          if (servoAngle >= 0)
+          {
+            if (servoAngle < 0)
+            {
+              SteeringServo.detach();
+              delay(50);
+              SteeringServo.attach(servoPin);
+              break;
+            }
+            
+            servoAngle -= 2;
+            SteeringServo.write(servoAngle);
+            delay(20);
+            Serial.println("Left");
+            Serial.print("servoAngle = ");
+            Serial.println(servoAngle);
+            initI2C;
+            delay(10);
+            servoAngle = SteeringServo.read();
+            delay(10);
+          }
+          else
+          {
+            initI2C;
+            break;
+          }
+        }
+
+        Serial.print("FreeRam when left = ");
+        Serial.println(FreeRam());
+
+        // Uncomment for debugging - ctm
+        // Serial.println("L");
+      }
+
+      // If the data is a servo right command, do the following - ctm
+      else if (servoControl == TruckControlData.ServoRight)
+      {
         servoAngle = SteeringServo.read();
 
-        // if the servo angle is greater than or equal to 0, decrement the servo angle by 3
-        if(servoAngle >= 0) {
-          servoAngle -= 3;
-          SteeringServo.write(servoAngle);
-          Serial.println("Left");
+        // While the servo control is right, do the following - ctm
+        while (servoControl == TruckControlData.ServoRight)
+        {
+
+          // If the servo angle is less than or equal to 180, increment the servo angle by 3 - ctm
+          if (servoAngle <= 180)
+          {
+            servoAngle += 2;
+            Serial.println("Right");
+            SteeringServo.write(servoAngle);
+            initI2C;
+            delay(10);
+            servoAngle = SteeringServo.read();
+          }
+          else
+          {
+            initI2C;
+            delay(50);
+            break;
+          }
           initI2C;
-          delay(10);
         }
-        initI2C; 
+        Serial.print("FreeRam when right = ");
+        Serial.println(FreeRam());
+
+        // Uncomment for debugging - ctm
+        // Serial.println("R");
       }
-
-      // Uncomment for debugging - ctm 
-      //Serial.println("L");
     }
-
-    // If the data is a servo right command, do the following - ctm
-    else if (servoControl == TruckControlData.ServoRight) {
-        servoAngle = SteeringServo.read();
-
-      // While the servo control is right, do the following - ctm 
-      while(servoControl == TruckControlData.ServoRight) {
-
-        // If the servo angle is less than or equal to 180, increment the servo angle by 3 - ctm 
-        if(servoAngle <= 180) {
-          servoAngle += 3;
-          Serial.println("Right");
-          SteeringServo.write(servoAngle);
-          initI2C;
-          delay(10); 
-        }
-        initI2C; 
-      }
-
-      // Uncomment for debugging - ctm
-      //Serial.println("R");
-    }
-   }
 
     // end control statements for servo
     // end movement control
 
     // initialize and connect to I2C bus
     initI2C;
-  }  
+  }
 }
 
 /********************************************************************************************************************/
@@ -227,19 +277,29 @@ void loop()
 void I2C_RxHandler(int numBytes)
 {
   if (Wire.available() && !newData)
-  { 
+  {
     // Read Any Received Data
     data = Wire.read();
     newData = true;
-  } else {
+  }
+  else
+  {
     return;
   }
 
+  Serial.print("FreeRam in I2C handler = ");
+  Serial.println(FreeRam());
+  delay(50);
   // read char for data
   if (data == 'M')
   {
     motorControl = Wire.read();
+    delay(50);
     servoControl = Wire.read();
+    Serial.print("motor control: ");
+    Serial.println(motorControl);
+    Serial.print("servo control: ");
+    Serial.println(servoControl);
   }
 }
 
@@ -317,7 +377,7 @@ void initShield()
   pinMode(MISO, OUTPUT);
 
   if (!card.init())
-  { 
+  {
     // play with 8 MHz spi (default faster!)
     // Serial.println("Card init. failed!");  // Something went wrong, lets print out why
     // sdErrorCheck();
@@ -328,13 +388,13 @@ void initShield()
   // Now we will look for a FAT partition!
   uint8_t part;
   for (part = 0; part < 5; part++)
-  { 
+  {
     // we have up to 5 slots to look in
     if (vol.init(card, part))
       break; // we found one, lets bail
   }
   if (part == 5)
-  { 
+  {
     // if we ended up not finding one  :(
     // Serial.println("No valid FAT partition!");
     // sdErrorCheck();      // Something went wrong, lets print out why
@@ -363,7 +423,7 @@ void playSound(char soundFile[6])
   }
 
   if (!file.open(root, soundFile))
-  { 
+  {
     // open the file in the directory
     // Serial.println("file.open failed");  // something went wrong :(
     while (1)
@@ -395,13 +455,12 @@ bool checkData(char c)
 /********************************************************************************************************************/
 
 // check if data is movement char
-bool isDataMovementChar (char controlData){
-  return (data == TruckControlData.MotorStop || 
-          data == TruckControlData.MotorForward || 
-          data == TruckControlData.MotorBackward || 
-          data == TruckControlData.ServoLeft || 
+bool isDataMovementChar(char controlData)
+{
+  return (data == TruckControlData.MotorStop ||
+          data == TruckControlData.MotorForward ||
+          data == TruckControlData.MotorBackward ||
+          data == TruckControlData.ServoLeft ||
           data == TruckControlData.ServoRight ||
-          data == TruckControlData.ServoMiddle
-        );
-  }
-
+          data == TruckControlData.ServoMiddle);
+}
