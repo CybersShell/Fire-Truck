@@ -196,7 +196,7 @@ void combineStates()
                     // If the right stick state is set to left - ctm 
                     if(rightStick.newState == rightStickStates::rightStickLeft) 
                     {
-                        firetruck.newState = fireTruckStates::forwardToLeft; 
+                        firetruck.newState = fireTruckStates::forwardToLeft;
                         break;
 
                     // If the right stick state is set to right - ctm 

@@ -144,14 +144,16 @@ typedef struct {
 
 motorStates truckMotorState;
 typedef struct {
-volatile char motor, servo, oldMotor, oldServo;
+  volatile char motor, servo, oldMotor, oldServo;
 } movementChars;
 // holds the "states" of the controller pins
 movementChars truckControllerStickMovementChars;
 
-#define isMotorForward truckMotorState.forward
-#define isMotorBackward truckMotorState.backward
-#define isMotorStopped (!isMotorBackward && !isMotorForward)
+#define setServoState 
+
+#define isMotorStickPositionForward truckMotorState.forward
+#define isMotorStickPositionBackward truckMotorState.backward
+#define isMotorStickPositionStop (!isMotorStickPositionForward && !isMotorStickPositionBackward)
 
 #define isServoStickLeft truckServoState.left == true
 #define isServoStickRight truckServoState.right == true

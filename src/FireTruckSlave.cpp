@@ -119,7 +119,7 @@ void loop()
     else if (data == TruckControlData.ServoStraight)
     {
 
-      truckMovementAngles.motor = 90;
+      truckMovementAngles.servo = 90;
       SteeringServo.write(truckMovementAngles.motor);
       data = ' ';
     }
@@ -333,23 +333,27 @@ void truckMovement()
       truckMotorState.forward = false;
     }
   }
-  if (truckControllerStickMovementChars.servo == TruckControlData.ServoLeft)
+
+  if (truckControllerStickMovementChars.servo != truckControllerStickMovementChars.oldServo)
   {
-    truckServoState.left = true;
-    truckServoState.right = false;
-  }
-  else if (truckControllerStickMovementChars.servo == TruckControlData.ServoRight)
-  {
-    truckServoState.left = false;
-    truckServoState.right = true;
-  }
-  else
-  {
-    truckServoState.left = false;
-    truckServoState.right = false;
+    if (truckControllerStickMovementChars.servo == TruckControlData.ServoLeft)
+    {
+      truckServoState.left = true;
+      truckServoState.right = false;
+    }
+    else if (truckControllerStickMovementChars.servo == TruckControlData.ServoRight)
+    {
+      truckServoState.left = false;
+      truckServoState.right = true;
+    }
+    else
+    {
+      truckServoState.left = false;
+      truckServoState.right = false;
+    }
   }
 
-  if (isMotorForward)
+  if (isMotorStickPositionBackward)
   {
     if (currentTime - truckControlTimes.motorsEngaged >= motorPeriod)
     {
@@ -364,23 +368,22 @@ void truckMovement()
       }
     }
   }
-  else if (isMotorBackward)
+  else if (isMotorStickPositionForward)
   {
     if (currentTime - truckControlTimes.motorsEngaged >= motorPeriod)
     {
-      truckControlTimes.motorsEngaged = currentTime;
       if (MotorForwardAngleCheck)
       {
+        truckControlTimes.motorsEngaged = currentTime;
+        SpeedConForward;
         Serial.println("Forward");
         Serial.println(truckMovementAngles.motor);
-        SpeedConForward;
         SpeedCon.write(truckMovementAngles.motor);
         truckMovementAngles.motor += motorAngleChange;
       }
     }
-  }
-  // If the data is a motor stop command, do the following - ctm
-  else if (isMotorStopped && motorsMoving)
+  }  // If the data is a motor stop command, do the following - ctm
+  else if (isMotorStickPositionStop && motorsMoving)
   {
     SpeedConStop;
     if (truckMovementAngles.motor < 90)
@@ -393,6 +396,7 @@ void truckMovement()
         Serial.println(i);
         SpeedCon.write(i);
         truckMovementAngles.motor = i;
+        truckControlTimes.motorsEngaged = 0;
         delay(15);
       }
     }
@@ -406,6 +410,7 @@ void truckMovement()
         Serial.println(i);
         SpeedCon.write(i);
         truckMovementAngles.motor = i;
+        truckControlTimes.motorsEngaged = 0;
         delay(15);
       }
     }
