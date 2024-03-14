@@ -70,7 +70,7 @@ void loop()
     wave.stop();
     file.close();
     root.rewind();
-    delay(5000);
+    delay(2000);
   }
 
   // If new data is received, stop the I2C bus connection and process the data - ctm
@@ -160,8 +160,11 @@ void I2C_RxHandler(int numBytes)
   // read char for data
   if (data == 'M')
   {
+    // keep the old char
+    truckControllerStickMovementChars.oldServo = truckControllerStickMovementChars.motor;
     truckControllerStickMovementChars.motor = Wire.read();
     delay(50);
+    truckControllerStickMovementChars.oldServo = truckControllerStickMovementChars.servo;
     truckControllerStickMovementChars.servo = Wire.read();
     Serial.print("motor control: ");
     Serial.println(truckControllerStickMovementChars.motor);
@@ -352,12 +355,13 @@ void truckMovement()
       truckServoState.right = false;
     }
   }
-
-  if (isMotorStickPositionBackward)
+  truckMovementAngles.motor = SpeedCon.read();
+  truckMovementAngles.servo = SteeringServo.read();
+  if (currentTime - truckControlTimes.motorsEngaged >= motorPeriod)
   {
-    if (currentTime - truckControlTimes.motorsEngaged >= motorPeriod)
+    truckControlTimes.motorsEngaged = currentTime;
+    if (isMotorStickPositionBackward)
     {
-      truckControlTimes.motorsEngaged = currentTime;
       if (MotorBackwardAngleCheck)
       {
         SpeedConBackward;
@@ -367,9 +371,7 @@ void truckMovement()
         truckMovementAngles.motor -= motorAngleChange;
       }
     }
-  }
-  else if (isMotorStickPositionForward)
-  {
+
     if (currentTime - truckControlTimes.motorsEngaged >= motorPeriod)
     {
       if (MotorForwardAngleCheck)
@@ -382,42 +384,43 @@ void truckMovement()
         truckMovementAngles.motor += motorAngleChange;
       }
     }
-  }  // If the data is a motor stop command, do the following - ctm
-  else if (isMotorStickPositionStop && motorsMoving)
-  {
-    SpeedConStop;
-    if (truckMovementAngles.motor < 90)
+    // If the data is a motor stop command, do the following - ctm
+    else if (isMotorStickPositionStop && motorsMoving)
     {
-      for (int i = truckMovementAngles.motor; i > 90; i++)
+      SpeedConStop;
+      if (truckMovementAngles.motor < 90)
       {
-        Serial.print("FreeRam when stop = ");
-        Serial.println(FreeRam());
-        Serial.print("angle = ");
-        Serial.println(i);
-        SpeedCon.write(i);
-        truckMovementAngles.motor = i;
-        truckControlTimes.motorsEngaged = 0;
-        delay(15);
+        for (int i = truckMovementAngles.motor; i > 90; i++)
+        {
+          Serial.print("FreeRam when stop = ");
+          Serial.println(FreeRam());
+          Serial.print("angle = ");
+          Serial.println(i);
+          SpeedCon.write(i);
+          truckMovementAngles.motor = i;
+          truckControlTimes.motorsEngaged = 0;
+          delay(15);
+        }
       }
-    }
-    else if (truckMovementAngles.motor > 90)
-    {
-      for (int i = truckMovementAngles.motor; i < 90; i--)
+      else if (truckMovementAngles.motor > 90)
       {
-        Serial.print("FreeRam when stop = ");
-        Serial.println(FreeRam());
-        Serial.print("angle = ");
-        Serial.println(i);
-        SpeedCon.write(i);
-        truckMovementAngles.motor = i;
-        truckControlTimes.motorsEngaged = 0;
-        delay(15);
+        for (int i = truckMovementAngles.motor; i < 90; i--)
+        {
+          Serial.print("FreeRam when stop = ");
+          Serial.println(FreeRam());
+          Serial.print("angle = ");
+          Serial.println(i);
+          SpeedCon.write(i);
+          truckMovementAngles.motor = i;
+          truckControlTimes.motorsEngaged = 0;
+          delay(15);
+        }
       }
-    }
-    else
-    {
-      truckMovementAngles.motor = 90;
-      SpeedCon.write(truckMovementAngles.motor);
+      else
+      {
+        truckMovementAngles.motor = 90;
+        SpeedCon.write(truckMovementAngles.motor);
+      }
     }
   }
 
