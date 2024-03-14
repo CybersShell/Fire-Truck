@@ -195,8 +195,6 @@ struct fireTruckState
 
 void sendData(char data, char secondMovementChar);
 
-void readFromSlave();
-
 void getState();
 
 void setMotorState();

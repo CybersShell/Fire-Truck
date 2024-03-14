@@ -38,6 +38,14 @@ void setup()
     // set the angles for the motor and servo
     truckMovementAngles.motor = 90;
     truckMovementAngles.servo = 90;
+    
+
+  SpeedCon.attach(speedControllerPin); // attaches the speed controller on pin 10
+  SpeedCon.write(truckMovementAngles.motor);
+  delay(600);
+  SteeringServo.attach(servoPin); // attaches the speed controller on pin 10
+  SpeedCon.write(truckMovementAngles.servo);
+  delay(600);
 }
 
 /********************************************************************************************************************/
@@ -429,15 +437,15 @@ void setSteeringServoState()
     // If the right stick is to the left - ctm
     if (isLeft && !isRight)
     {
-        if (truckControlTimes.current - truckControlTimes.motorsEngaged >= servoPeriod)
+        if (truckControlTimes.current - truckControlTimes.servoEngaged >= servoPeriod)
         {
-            truckControlTimes.motorsEngaged = truckControlTimes.current;
-            if (MotorBackwardAngleCheck)
+            truckControlTimes.servoEngaged = truckControlTimes.current;
+            if (truckMovementAngles.servo < 60)
             {
-                Serial.println("Backward");
-                Serial.println(truckMovementAngles.motor);
-                SpeedCon.write(truckMovementAngles.motor);
-                truckMovementAngles.motor -= motorAngleChange;
+                Serial.println("Left");
+                Serial.println(truckMovementAngles.servo);
+                SpeedCon.write(truckMovementAngles.servo);
+                truckMovementAngles.servo -= steeringAngleChange;
             }
         }
         // Debug message NOTE ARDUINO DOES RECOGNIZE THIS - ctm
