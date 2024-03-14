@@ -44,7 +44,7 @@ void setup()
   SpeedCon.write(truckMovementAngles.motor);
   delay(600);
   SteeringServo.attach(servoPin); // attaches the speed controller on pin 10
-  SpeedCon.write(truckMovementAngles.servo);
+  SteeringServo.write(truckMovementAngles.servo);
   delay(600);
 }
 
