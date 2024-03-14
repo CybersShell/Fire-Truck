@@ -102,13 +102,6 @@ int servoAngle;
 // Creates the "SteeringServo" object
 Servo SteeringServo;
 
-volatile char movementChar;
-int escValue = 90;
-volatile bool movement = false;
-volatile bool engageMotor = false;
-volatile bool motorForward = false;
-// Constant used for baud rate
-const int baud = 9600;
 
 // Constant used for the water pump pin
 const int waterPumpPin = A3;
@@ -121,20 +114,14 @@ boolean motorsMoving = false;
 
 
 // Servo turns every 20 ms
-unsigned long motorPeriod = 40;
+unsigned long motorPeriod = 20;
 // Servo turns every 20 ms
-unsigned long servoPeriod = 40;
-
-unsigned long timeToStopPlayingSound;
-unsigned long timeSoundStarted;
-
+unsigned long servoPeriod = 20;
 
 // increase the motor
 #define MotorForwardAngleCheck truckMovementAngles.motor <= 110
 // decrease the motor
 #define MotorBackwardAngleCheck truckMovementAngles.motor >= 60
-
-// End movement macros
 
 // Begin structs
 typedef struct
@@ -145,8 +132,8 @@ typedef struct
   // will be set in servo control statements
   unsigned long servoEngaged;
 } timeVariables;
- 
- // create instance of timeVariables struct
+
+// create instance of timeVariables struct
 timeVariables truckControlTimes;
 
 typedef struct {
@@ -155,25 +142,6 @@ typedef struct {
 } movementAngles;
 
 movementAngles truckMovementAngles;
-
-typedef struct {
-   bool forward, backward;
-} motorStates;
-
-motorStates truckMotorState;
-
-#define isMotorStickPositionForward truckMotorState.forward
-#define isMotorStickPositionBackward truckMotorState.backward
-#define isMotorStickPositionStop (!isMotorStickPositionForward && !isMotorStickPositionBackward)
-
-#define isServoStickLeft truckServoState.left == true
-#define isServoStickRight truckServoState.right == true
-
-
-typedef struct {
-  bool left, right;
-} steeringStates;
-steeringStates truckServoState;
 
 // end structs
 
