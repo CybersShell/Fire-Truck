@@ -38,14 +38,13 @@ void setup()
     // set the angles for the motor and servo
     truckMovementAngles.motor = 90;
     truckMovementAngles.servo = 90;
-    
 
-  SpeedCon.attach(speedControllerPin); // attaches the speed controller on pin 10
-  SpeedCon.write(truckMovementAngles.motor);
-  delay(600);
-  SteeringServo.attach(servoPin); // attaches the speed controller on pin 10
-  SteeringServo.write(truckMovementAngles.servo);
-  delay(600);
+    SpeedCon.attach(speedControllerPin); // attaches the speed controller on pin 10
+    SpeedCon.write(truckMovementAngles.motor);
+    delay(600);
+    SteeringServo.attach(servoPin); // attaches the speed controller on pin 10
+    SteeringServo.write(truckMovementAngles.servo);
+    delay(600);
 }
 
 /********************************************************************************************************************/
@@ -85,7 +84,9 @@ void loop()
         }
         if (GameController.getButtonClick(R3))
         {
-            sendData(TruckControlData.ServoStraight, dummyData);
+            truckControlTimes.servoEngaged = 0;
+            truckMovementAngles.servo = 90;
+            SteeringServo.write(truckMovementAngles.servo);
         }
 
         // call these functions to get and set the current state of the control sticks
@@ -100,7 +101,6 @@ void loop()
 void sendData(char data, char secondMovementChar)
 {
     Serial.print("Sending: ");
-
     Wire.beginTransmission(I2CAddress); // Transmit to device
     if (sendMovementData)
     {
@@ -114,6 +114,7 @@ void sendData(char data, char secondMovementChar)
     else
     {
         Serial.println(data);
+        return;
         Wire.write(data); // Send serial data
     }
     Wire.endTransmission(); // Stop transmitting
@@ -124,7 +125,6 @@ void sendData(char data, char secondMovementChar)
 // This function updates both the old/new state of both analog sticks - ctm
 void getState()
 {
-
 }
 
 /********************************************************************************************************************/
@@ -378,33 +378,55 @@ void setMotorState()
 
     bool isDown = downConditional;
 
-    bool isNeutral = leftNeutralConditional;
-
     // If the left stick is up - ctm
     if (isUp && !isDown)
     {
-        // Debug message NOTE: ARDUINO DOES RECOGNIZE THIS - ctm
-        // Serial.println("Left stick up");
-        truckMotorEscControlStick.newState = leftStickStates::leftStickUp;
-
-        // If the left stick is down - ctm
+        motorsMoving = true;
+        if (truckControlTimes.current - truckControlTimes.motorsEngaged >= motorPeriod)
+        {
+            if (MotorForwardAngleCheck)
+            {
+                truckControlTimes.motorsEngaged = millis();
+                Serial.println("Forward");
+                Serial.println(truckMovementAngles.motor);
+                SpeedCon.write(truckMovementAngles.motor);
+                truckMovementAngles.motor += motorAngleChange;
+            }
+        }
     }
     else if (!isUp && isDown)
     {
-        // Debug message NOTE: ARDUINO DOES RECOGNIZE THIS - ctm
-        // Serial.println("Left stick down");
-        truckMotorEscControlStick.newState = leftStickStates::leftStickDown;
-
-        // If the left stick is neutral - ctm
-    }
+        motorsMoving = true;
+        if (MotorBackwardAngleCheck)
+        {
+            truckControlTimes.motorsEngaged = millis();
+            Serial.println("Forward");
+            Serial.println(truckMovementAngles.motor);
+            SpeedCon.write(truckMovementAngles.motor);
+            truckMovementAngles.motor -= motorAngleChange;
+        }
+    } // If the left stick is neutral - ctm
     else
     {
-        // Debug message NOTE: ARDUINO DOES RECOGNIZE THIS - ctm
-        // Serial.println("Left stick neutral");
-        truckMotorEscControlStick.newState = leftStickStates::leftStickNeutral;
+        if (motorsMoving && truckControlTimes.current - truckControlTimes.motorsEngaged >= motorPeriod)
+        {
+            if (truckMovementAngles.motor <= 90)
+            {
+                Serial.println(truckMovementAngles.motor);
+                SpeedCon.write(truckMovementAngles.motor);
+                truckMovementAngles.motor += motorAngleChange;
+                truckControlTimes.motorsEngaged = truckControlTimes.current;
+            }
+            else if (truckMovementAngles.motor >= 90)
+            {
+                Serial.print("angle = ");
+                Serial.println(truckMovementAngles.motor);
+                SpeedCon.write(truckMovementAngles.motor);
+                truckMovementAngles.motor -= motorAngleChange;
+                truckControlTimes.motorsEngaged = truckControlTimes.current;
+            }
+        }
     }
-
-
 }
 
 /********************************************************************************************************************
@@ -429,69 +451,47 @@ void setSteeringServoState()
     // delayMicroseconds(2000);
     // delay(500);
     bool isRight = rightConditional;
-    // delayMicroseconds(2000);
-    // delay(500);
-    bool isNeutral = rightNeutralConditional;
 
-    truckMovementAngles.servo = SteeringServo.read();
+    // truckMovementAngles.servo = SteeringServo.read();
     // If the right stick is to the left - ctm
     if (isLeft && !isRight)
     {
         if (truckControlTimes.current - truckControlTimes.servoEngaged >= servoPeriod)
         {
-            truckControlTimes.servoEngaged = truckControlTimes.current;
-            if (truckMovementAngles.servo < 60)
+            if (truckMovementAngles.servo >= 60)
             {
+                truckControlTimes.servoEngaged = truckControlTimes.current;
+                truckMovementAngles.servo -= steeringAngleChange;
                 Serial.println("Left");
                 Serial.println(truckMovementAngles.servo);
-                SpeedCon.write(truckMovementAngles.servo);
-                truckMovementAngles.servo -= steeringAngleChange;
+                SteeringServo.write(truckMovementAngles.servo);
             }
         }
-        // Debug message NOTE ARDUINO DOES RECOGNIZE THIS - ctm
-        // Serial.println("Right stick left");
-        truckSteeringServoControlStick.newState = servoControlStickStates::rightStickLeft;
-
-        // If the right stick is to the right - ctm
     }
     else if (!isLeft && isRight)
     {
 
-        // Debug message NOTE: ARDUINO DOES RECOGNIZE THIS - ctm
-        // Serial.println("Right stick right");
-        truckSteeringServoControlStick.newState = servoControlStickStates::rightStickRight;
-
-        // If the right stick is neutral - ctm
+        if (truckControlTimes.current - truckControlTimes.servoEngaged >= servoPeriod)
+        {
+            if (truckMovementAngles.servo <= 120)
+            {
+                truckControlTimes.servoEngaged = truckControlTimes.current;
+                truckMovementAngles.servo += steeringAngleChange;
+                Serial.println("Right");
+                Serial.println(truckMovementAngles.servo);
+                SteeringServo.write(truckMovementAngles.servo);
+            }
+        }
     }
-    else
-    {
-
-        // Debug message NOTE: ARDUINO DOES RECOGNIZE THIS - ctm
-        // Serial.println("Right stick neutral");
-        truckSteeringServoControlStick.newState = servoControlStickStates::rightStickNeutral;
-    }
-
 }
 
 void truckMovement()
 {
 
-   
     truckMovementAngles.motor = SpeedCon.read();
     truckMovementAngles.servo = SteeringServo.read();
     if (currentTime - truckControlTimes.motorsEngaged >= motorPeriod)
     {
-
-        if (MotorBackwardAngleCheck)
-        {
-            motorsMoving = true;
-            truckControlTimes.motorsEngaged = millis();
-            motorForward = true;
-            Serial.println("Backward");
-            Serial.println(truckMovementAngles.motor);
-            SpeedCon.write(truckMovementAngles.motor);
-            truckMovementAngles.motor -= motorAngleChange;
-        }
 
         if (MotorForwardAngleCheck)
         {

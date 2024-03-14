@@ -77,9 +77,7 @@ enum fireTruckStates
     left
 };
 
-
-// Library used to control the servo
-#include <PWMServo.h>
+#include <Servo.h>
 
 
 /*
@@ -87,22 +85,22 @@ enum fireTruckStates
 */
 
 // Speed controller pin
-const int speedControllerPin = 10;
+const int speedControllerPin = 2;
 const int motorAngleChange = 2;
 const int steeringAngleChange = 2;
 
 // The Speed Controller PWMServo object that controls the Speed Controller
-PWMServo SpeedCon;
+Servo SpeedCon;
 
 /*
   Servo configuration
 */
 
 // The constants used for what pin and angle the Servo will be on
-const int servoPin = 9;
+const int servoPin = 3;
 int servoAngle;
 // Creates the "SteeringServo" object
-PWMServo SteeringServo;
+Servo SteeringServo;
 
 volatile char movementChar;
 int escValue = 90;
@@ -123,18 +121,18 @@ boolean motorsMoving = false;
 
 
 // Servo turns every 20 ms
-unsigned long motorPeriod = 20;
+unsigned long motorPeriod = 40;
 // Servo turns every 20 ms
-unsigned long servoPeriod = 20;
+unsigned long servoPeriod = 40;
 
 unsigned long timeToStopPlayingSound;
 unsigned long timeSoundStarted;
 
 
 // increase the motor
-#define MotorForwardAngleCheck truckMovementAngles.motor < 110
+#define MotorForwardAngleCheck truckMovementAngles.motor <= 110
 // decrease the motor
-#define MotorBackwardAngleCheck truckMovementAngles.motor > 60
+#define MotorBackwardAngleCheck truckMovementAngles.motor >= 60
 
 // End movement macros
 
