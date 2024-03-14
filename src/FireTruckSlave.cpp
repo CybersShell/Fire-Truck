@@ -118,7 +118,7 @@ void loop()
     }
     else if (data == TruckControlData.ServoStraight)
     {
-
+      truckControlTimes.servoEngaged = 0;
       truckMovementAngles.servo = 90;
       SteeringServo.write(truckMovementAngles.motor);
       data = ' ';
