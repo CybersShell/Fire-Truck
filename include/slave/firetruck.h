@@ -72,7 +72,6 @@ FatReader file;
 
 // data variables used for receiving and transmitting data
 volatile char data;
-volatile char motorControl, servoControl;
 volatile bool newData = false;
 volatile bool canReceive = false;
 
@@ -144,18 +143,24 @@ typedef struct {
 } motorStates;
 
 motorStates truckMotorState;
+typedef struct {
+volatile char motor, servo, oldMotor, oldServo;
+} movementChars;
+// holds the "states" of the controller pins
+movementChars truckControllerStickMovementChars;
 
-#define isMotorForward truckMotorState.forward == true
-#define isMotorBackward truckMotorState.backward == true
+#define isMotorForward truckMotorState.forward
+#define isMotorBackward truckMotorState.backward
 #define isMotorStopped (!isMotorBackward && !isMotorForward)
 
-#define checkRight truckMotorState.backward == true
-#define checkLeft truckMotorState.backward == true
+#define isServoStickLeft truckServoState.left == true
+#define isServoStickRight truckServoState.right == true
+
 
 typedef struct {
   bool left, right;
 } steeringStates;
-steeringStates truckSteeringState;
+steeringStates truckServoState;
 
 // end structs
 

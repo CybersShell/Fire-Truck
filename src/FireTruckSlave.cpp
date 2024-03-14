@@ -160,14 +160,14 @@ void I2C_RxHandler(int numBytes)
   // read char for data
   if (data == 'M')
   {
-    motorControl = Wire.read();
+    truckControllerStickMovementChars.motor = Wire.read();
     delay(50);
-    servoControl = Wire.read();
+    truckControllerStickMovementChars.servo = Wire.read();
     Serial.print("motor control: ");
-    Serial.println(motorControl);
-    
+    Serial.println(truckControllerStickMovementChars.motor);
+
     Serial.print("servo control: ");
-    Serial.println(servoControl);
+    Serial.println(truckControllerStickMovementChars.servo);
   }
 }
 
@@ -296,50 +296,59 @@ void playSound(char soundFile[6])
 
 /********************************************************************************************************************/
 
-bool checkData(char c)
-{
-  // cli();
-  bool eq = data == c;
-  // sei();
-  return eq;
-}
-
-/********************************************************************************************************************/
-
 // function for controlling truck movement
-// this 
+/*
+  Outline:
+
+    - check the motorEngaged bool for true
+      - check the if the period for the motor has elapsed
+      - set the truckControlTimes.motorsEngaged to the current time
+      - check if truckControlTimes.motorsEngaged is greater than the defined limit for this state (> 60)
+        - if yes:
+          - write the data to the motors
+          - set write the value of the angle for the motor
+        - if no:
+          - do nothing
+
+********************************************************************************************************************/
 void truckMovement()
 {
 
-   if (motorControl == TruckControlData.MotorForward)
-    {
-      truckMotorState.backward = false;
-      truckMotorState.forward = true;
-    }
-   else if (motorControl == TruckControlData.MotorBackward)
+  if (truckControllerStickMovementChars.motor != truckControllerStickMovementChars.oldMotor)
+  {
+
+    if (truckControllerStickMovementChars.motor == TruckControlData.MotorBackward)
     {
       truckMotorState.backward = true;
       truckMotorState.forward = false;
     }
-   else
-   {
+    else if (truckControllerStickMovementChars.motor == TruckControlData.MotorForward)
+    {
+      truckMotorState.backward = false;
+      truckMotorState.forward = true;
+    }
+    else
+    {
       truckMotorState.backward = false;
       truckMotorState.forward = false;
     }
-  /*
-    Outline:
+  }
+  if (truckControllerStickMovementChars.servo == TruckControlData.ServoLeft)
+  {
+    truckServoState.left = true;
+    truckServoState.right = false;
+  }
+  else if (truckControllerStickMovementChars.servo == TruckControlData.ServoRight)
+  {
+    truckServoState.left = false;
+    truckServoState.right = true;
+  }
+  else
+  {
+    truckServoState.left = false;
+    truckServoState.right = false;
+  }
 
-      - check the motorEngaged bool for true
-        - check the if the period for the motor has elapsed
-        - set the truckControlTimes.motorsEngaged to the current time
-        - check if truckControlTimes.motorsEngaged is greater than the defined limit for this state (> 60)
-          - if yes:
-            - write the data to the motors
-            - set write the value of the angle for the motor
-          - if no:
-            - do nothing
-
-  */
   if (isMotorForward)
   {
     if (currentTime - truckControlTimes.motorsEngaged >= motorPeriod)
@@ -371,7 +380,7 @@ void truckMovement()
     }
   }
   // If the data is a motor stop command, do the following - ctm
-  else if (!isMotorStopped && motorsMoving)
+  else if (isMotorStopped && motorsMoving)
   {
     SpeedConStop;
     if (truckMovementAngles.motor < 90)
@@ -386,7 +395,6 @@ void truckMovement()
         truckMovementAngles.motor = i;
         delay(15);
       }
-      
     }
     else if (truckMovementAngles.motor > 90)
     {
@@ -400,13 +408,15 @@ void truckMovement()
         truckMovementAngles.motor = i;
         delay(15);
       }
-    } else {
+    }
+    else
+    {
       truckMovementAngles.motor = 90;
       SpeedCon.write(truckMovementAngles.motor);
     }
   }
 
-  if (servoControl == TruckControlData.ServoLeft)
+  if (truckControllerStickMovementChars.servo == TruckControlData.ServoLeft)
   {
     if (currentTime - truckControlTimes.servoEngaged >= servoPeriod)
     {
@@ -418,7 +428,7 @@ void truckMovement()
       }
     }
   }
-  else if (servoControl == TruckControlData.ServoRight)
+  else if (isServoStickLeft)
   {
     if (currentTime - truckControlTimes.servoEngaged >= servoPeriod)
     {
@@ -427,7 +437,7 @@ void truckMovement()
         truckControlTimes.motorsEngaged = currentTime;
         SteeringServo.write(truckMovementAngles.servo);
         truckMovementAngles.servo += steeringAngleChange;
-        
+
         Serial.print("FreeRam when right = ");
         Serial.println(FreeRam());
       }
