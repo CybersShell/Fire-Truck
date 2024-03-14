@@ -133,8 +133,9 @@ void loop()
 
         // if the servo angle is greater than or equal to 0, decrement the servo angle by 3
         if(servoAngle >= 0) {
-          servoAngle -= 3;
+          servoAngle -= 1;
           SteeringServo.write(servoAngle);
+          Serial.println(servoAngle);
           initI2C; 
           delay(10); 
         }
@@ -151,8 +152,9 @@ void loop()
 
         // If the servo angle is less than or equal to 180, increment the servo angle by 3 - ctm 
         if(servoAngle <= 180) {
-          servoAngle += 3;
+          servoAngle += 1;
           SteeringServo.write(servoAngle);
+          Serial.println(servoAngle);
           initI2C;
           delay(10); 
         }
