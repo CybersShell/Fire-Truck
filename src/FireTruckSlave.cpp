@@ -372,17 +372,14 @@ void truckMovement()
       }
     }
 
-    if (currentTime - truckControlTimes.motorsEngaged >= motorPeriod)
+    if (MotorForwardAngleCheck)
     {
-      if (MotorForwardAngleCheck)
-      {
-        truckControlTimes.motorsEngaged = currentTime;
-        SpeedConForward;
-        Serial.println("Forward");
-        Serial.println(truckMovementAngles.motor);
-        SpeedCon.write(truckMovementAngles.motor);
-        truckMovementAngles.motor += motorAngleChange;
-      }
+      truckControlTimes.motorsEngaged = currentTime;
+      SpeedConForward;
+      Serial.println("Forward");
+      Serial.println(truckMovementAngles.motor);
+      SpeedCon.write(truckMovementAngles.motor);
+      truckMovementAngles.motor += motorAngleChange;
     }
     // If the data is a motor stop command, do the following - ctm
     else if (isMotorStickPositionStop && motorsMoving)

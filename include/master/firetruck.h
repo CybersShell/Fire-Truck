@@ -45,16 +45,16 @@ struct LeftStickState
 {
     leftStickStates newState;
     leftStickStates oldState; 
-} leftStick;
+} truckMotorEscControlStick;
 
 // Set the states of the right stick - ctm 
-enum rightStickStates {rightStickRight, rightStickLeft, rightStickNeutral};
+enum servoControlStickStates {rightStickRight, rightStickLeft, rightStickNeutral};
 
 // Set the struct of the right stick state to have an old and new value - ctm 
 struct RightStickState {
-    rightStickStates newState; 
-    rightStickStates oldState; 
-} rightStick; 
+    servoControlStickStates newState; 
+    servoControlStickStates oldState; 
+} truckSteeringServoControlStick; 
 
 // Set the states of the firetruck - ctm 
 enum fireTruckStates
@@ -77,6 +77,114 @@ enum fireTruckStates
     left
 };
 
+
+// Library used to control the servo
+#include <PWMServo.h>
+
+
+/*
+  Motor configuration
+*/
+
+// Speed controller pin
+const int speedControllerPin = 10;
+const int motorAngleChange = 2;
+const int steeringAngleChange = 2;
+
+// The Speed Controller PWMServo object that controls the Speed Controller
+PWMServo SpeedCon;
+
+/*
+  Servo configuration
+*/
+
+// The constants used for what pin and angle the Servo will be on
+const int servoPin = 9;
+int servoAngle;
+// Creates the "SteeringServo" object
+PWMServo SteeringServo;
+
+volatile char movementChar;
+int escValue = 90;
+volatile bool movement = false;
+volatile bool engageMotor = false;
+volatile bool motorForward = false;
+// Constant used for baud rate
+const int baud = 9600;
+
+// Constant used for the water pump pin
+const int waterPumpPin = A3;
+bool waterPumpEnabled = false;
+
+// Variables for events
+unsigned long currentTime;
+unsigned long timeMotorsEngaged;
+boolean motorsMoving = false;
+
+
+// Servo turns every 20 ms
+unsigned long motorPeriod = 20;
+// Servo turns every 20 ms
+unsigned long servoPeriod = 20;
+
+unsigned long timeToStopPlayingSound;
+unsigned long timeSoundStarted;
+
+
+// increase the motor
+#define MotorForwardAngleCheck truckMovementAngles.motor < 110
+// decrease the motor
+#define MotorBackwardAngleCheck truckMovementAngles.motor > 60
+
+// End movement macros
+
+// Begin structs
+typedef struct
+{
+  unsigned long current;
+  // will be set in the motor control statements
+  unsigned long motorsEngaged;
+  // will be set in servo control statements
+  unsigned long servoEngaged;
+} timeVariables;
+ 
+ // create instance of timeVariables struct
+timeVariables truckControlTimes;
+
+typedef struct {
+  int servo;
+  int motor;
+} movementAngles;
+
+movementAngles truckMovementAngles;
+
+typedef struct {
+   bool forward, backward;
+} motorStates;
+
+motorStates truckMotorState;
+
+#define isMotorStickPositionForward truckMotorState.forward
+#define isMotorStickPositionBackward truckMotorState.backward
+#define isMotorStickPositionStop (!isMotorStickPositionForward && !isMotorStickPositionBackward)
+
+#define isServoStickLeft truckServoState.left == true
+#define isServoStickRight truckServoState.right == true
+
+
+typedef struct {
+  bool left, right;
+} steeringStates;
+steeringStates truckServoState;
+
+// end structs
+
+// Function definitions
+
+void truckMovement();
+
+
+
 // Set the struct of the firetruck state to have an old and new value - ctm
 struct fireTruckState
 {
@@ -91,9 +199,9 @@ void readFromSlave();
 
 void getState();
 
-leftStickStates getStateOfLeftStick();
+void setMotorState();
 
-rightStickStates getStateOfRightStick(); 
+void setSteeringServoState(); 
 
 void combineStates(); 
 

@@ -149,8 +149,6 @@ typedef struct {
 // holds the "states" of the controller pins
 movementChars truckControllerStickMovementChars;
 
-#define setServoState 
-
 #define isMotorStickPositionForward truckMotorState.forward
 #define isMotorStickPositionBackward truckMotorState.backward
 #define isMotorStickPositionStop (!isMotorStickPositionForward && !isMotorStickPositionBackward)
