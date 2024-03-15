@@ -118,10 +118,6 @@ char *secondSound = "4.wav";
 typedef struct
 {
   unsigned long current;
-  // will be set in the motor control statements
-  unsigned long motorsEngaged;
-  // will be set in servo control statements
-  unsigned long servoEngaged;
   // this will be set in playSound()
   unsigned long soundStarted;
   // will be set in the
@@ -130,37 +126,6 @@ typedef struct
  
  // create instance of timeVariables struct
 timeVariables truckControlTimes;
-
-typedef struct {
-  int servo;
-  int motor;
-} movementAngles;
-
-movementAngles truckMovementAngles;
-
-typedef struct {
-   bool forward, backward;
-} motorStates;
-
-motorStates truckMotorState;
-typedef struct {
-  volatile char motor, servo, oldMotor, oldServo;
-} movementChars;
-// holds the "states" of the controller pins
-movementChars truckControllerStickMovementChars;
-
-#define isMotorStickPositionForward truckMotorState.forward
-#define isMotorStickPositionBackward truckMotorState.backward
-#define isMotorStickPositionStop (!isMotorStickPositionForward && !isMotorStickPositionBackward)
-
-#define isServoStickLeft truckServoState.left == true
-#define isServoStickRight truckServoState.right == true
-
-
-typedef struct {
-  bool left, right;
-} steeringStates;
-steeringStates truckServoState;
 
 // end structs
 

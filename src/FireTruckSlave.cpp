@@ -15,21 +15,10 @@
 // Setup function that only runs once when the Arduino is powered on - ctm
 void setup()
 {
-
-  // Begin the serial communication and wait for the serial port to connect
-  Serial.begin(9600);
-  while (!Serial)
-  {
-    delay(100);
-  }
-
-  delay(500);
-
   // Initialize the water pump pin
   // Pump is enabled if LOW, disabled if HIGH
   pinMode(waterPumpPin, OUTPUT);
   digitalWrite(waterPumpPin, HIGH);
-  delay(500);
 
   // Initialize Wave Shield
   initShield();
@@ -42,18 +31,8 @@ void setup()
 
 void loop()
 {
-
-  // add delay for sanity
-  delayMicroseconds(100);
   // track the current time
   currentTime = millis();
-
-  // motors will stop after 2 seconds
-  if (motorsMoving && (currentTime - truckControlTimes.motorsEngaged >= 2000))
-  {
-    SpeedCon.write(90);
-    motorsMoving = false;
-  }
 
   // stop sound after specified time - will need further testing/tweaking
   if (wave.isplaying && (currentTime - timeSoundStarted >= timeToStopPlayingSound))
@@ -65,7 +44,7 @@ void loop()
     wave.stop();
     file.close();
     root.rewind();
-    delay(2000);
+    delay(200);
   }
 
   // If new data is received, stop the I2C bus connection and process the data - ctm
@@ -106,8 +85,6 @@ void loop()
     {
       waterPump();
       data = ' ';
-
-      // If the data is a servo straight command, set the servo angle to 90 - ctm
     }
 
     // initialize and connect to I2C bus
@@ -136,20 +113,6 @@ void I2C_RxHandler(int numBytes)
   delay(50);
 }
 
-/********************************************************************************************************************
-
-initSC initializes the speed controller
-For the QuicRun 1060, the minimum reverse is ~60 and the neutral is ~90.
-The max forward throttle is ~160-180
-See SpeedCon* macros for more detail
-
-********************************************************************************************************************/
-
-void initSC()
-{
-  SpeedCon.attach(speedControllerPin); // attaches the speed controller on pin 10
-  delay(200);
-}
 
 // Function used for pausing playback
 void stopPlayback()

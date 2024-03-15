@@ -88,9 +88,20 @@ void loop()
         }
 
         // call these functions to get and set the current state of the control sticks
-        truckControlTimes.current = millis();
+        truckControlTimes.current = micros();
+        if (truckControlTimes.current + truckControlTimes.motorsEngaged > LONG_MAX + (unsigned long)1)
+        {
+            truckControlTimes.motorsEngaged = 0;
+            truckControlTimes.current = micros();
+        }
         setSteeringServoState();
-        truckControlTimes.current = millis();
+        truckControlTimes.current = micros();
+
+        if (truckControlTimes.current + truckControlTimes.servoEngaged > LONG_MAX + (unsigned long)1)
+        {
+            truckControlTimes.servoEngaged = 0;
+            truckControlTimes.current = micros();
+        }
         setMotorState();
     }
 }
@@ -102,20 +113,8 @@ void sendData(char data, char secondMovementChar)
 {
     Serial.print("Sending: ");
     Wire.beginTransmission(I2CAddress); // Transmit to device
-    if (sendMovementData)
-    {
-        Serial.println(data);
-        Serial.println(secondMovementChar);
-        Wire.write(TruckControlData.MovementData);
-        Wire.write(data);
-        Wire.write(secondMovementChar);
-        sendMovementData = false;
-    }
-    else
-    {
-        Serial.println(data);
-        Wire.write(data); // Send serial data
-    }
+    Serial.println(data);
+    Wire.write(data);       // Send serial data
     Wire.endTransmission(); // Stop transmitting
 }
 

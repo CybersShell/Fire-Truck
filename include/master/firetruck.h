@@ -3,6 +3,7 @@
 #include <usbhub.h>
 #include <SPI.h>
 #include <common.h>
+#include <limits.h>
 #include <PS4Parser.h> // Added this header to the file
 #include <PS4BT.h>
 
@@ -23,19 +24,13 @@ BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 /* You can create the instance of the PS4BT class in two ways */
 // This will start an inquiry and then pair with the PS4 controller - you only have to do this once
 // You will need to hold down the PS and Share button at the same time, the PS4 controller will then start to blink rapidly indicating that it is in pairing mode
-
 // create PS4 controller Bluetooth class, enter pairing mode
 PS4BT GameController(&Btd, PAIR);
 
-bool printAngle, printTouch;
-uint8_t oldL2Value, oldR2Value;
-
-#define LED_PIN 9
 
 const int I2CAddress = 8; // I2C bus address
 
 char dummyData = 'x';
-volatile bool sendMovementData = false;
 
 // Set the states of the left stick - ctm 
 enum leftStickStates {leftStickUp, leftStickDown, leftStickNeutral}; 
@@ -108,15 +103,13 @@ const int waterPumpPin = A3;
 bool waterPumpEnabled = false;
 
 // Variables for events
-unsigned long currentTime;
-unsigned long timeMotorsEngaged;
 boolean motorsMoving = false;
 
 
-// Servo turns every 20 ms
-unsigned long motorPeriod = 20;
-// Servo turns every 20 ms
-unsigned long servoPeriod = 20;
+// motor turns every 1500 us
+unsigned long motorPeriod = 1500;
+// Servo turns every 1500 us
+unsigned long servoPeriod = 1500;
 
 // increase the motor
 #define MotorForwardAngleCheck truckMovementAngles.motor <= 110
