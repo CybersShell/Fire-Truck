@@ -3,7 +3,7 @@ struct LeftStickState
 {
     leftStickStates newState;
     leftStickStates oldState;
-} leftStick;
+} truckMotorEscControlStick;
 enum rightStickStates {fireTruckForward, fireTruckBackward, fireTruckStill};
 struct RightStickState
 {
@@ -32,21 +32,21 @@ struct fireTruckState
 
 void getState()
 {
-    leftStick.newState = getStateOfLeftStick();
-    rightStick.newState = getStateOfRightStick();
+    truckMotorEscControlStick.newState = setServoState();
+    rightStick.newState = setSteeringServoState();
     combineStates(); // will control what gets sent to slave
     sendData();
 
-    leftStick.oldState = leftStick.newState;
+    truckMotorEscControlStick.oldState = truckMotorEscControlStick.newState;
     rightStick.oldState = rightStick.newState;
 }
 
 void combineStates()
 {
-    if (leftStick.newState != leftStick.oldState)
+    if (truckMotorEscControlStick.newState != truckMotorEscControlStick.oldState)
     {
-        // leftStick state is different
-        switch (leftStick.newState)
+        // truckMotorEscControlStick state is different
+        switch (truckMotorEscControlStick.newState)
         {
         case leftStickStates::fireTruckLeft:
             fireTruck.newState = fireTruckStates::left;
@@ -67,11 +67,11 @@ void combineStates()
             // check left stick state 
         case rightStickStates::fireTruckStill:
             // fire truck is still but the left stick is engaged
-            if (leftStick.newState != leftStickStates::fireTruckStraight)
+            if (truckMotorEscControlStick.newState != leftStickStates::fireTruckStraight)
             {
                 // left stick is still engaged
                 fireTruck.newState = fireTruckStates::right;
-                if (leftStick.newState == leftStickStates::fireTruckLeft)
+                if (truckMotorEscControlStick.newState == leftStickStates::fireTruckLeft)
                 {
                     fireTruck.newState = fireTruckStates::left;
                 }
@@ -89,24 +89,24 @@ void combineStates()
     
 }
 
-leftStickStates getStateOfLeftStick()
+leftStickStates setServoState()
 {
     bool isLeft = leftConditional;
     bool isRight = rightConditional;
     bool isNeutral = !isLeft && !isRight;
     if (isLeft && !isRight)
     {
-        leftStick.newState = leftStickStates::fireTruckLeft;
+        truckMotorEscControlStick.newState = leftStickStates::fireTruckLeft;
     } else if (isRight && !isLeft)
     {
-        leftStick.newState = leftStickStates::fireTruckRight;
+        truckMotorEscControlStick.newState = leftStickStates::fireTruckRight;
     } else {
-        leftStick.newState = leftStickStates::fireTruckStraight;
+        truckMotorEscControlStick.newState = leftStickStates::fireTruckStraight;
     }
     
     
     // state is different
-    if (leftStick.oldState != leftStick.newState)
+    if (truckMotorEscControlStick.oldState != truckMotorEscControlStick.newState)
     {
         if (isNeutral) // state is different
         {
@@ -118,10 +118,10 @@ leftStickStates getStateOfLeftStick()
         }
         return leftStickStates::fireTruckLeft;
     }
-    return leftStick.oldState;
+    return truckMotorEscControlStick.oldState;
 }
 
-rightStickStates getStateOfRightStick()
+rightStickStates setSteeringServoState()
 {
     bool isForward = forwardConditional;
     bool isBackward = backwardConditional;

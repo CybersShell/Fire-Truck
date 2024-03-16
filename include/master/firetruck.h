@@ -3,6 +3,7 @@
 #include <usbhub.h>
 #include <SPI.h>
 #include <common.h>
+#include <limits.h>
 #include <PS4Parser.h> // Added this header to the file
 #include <PS4BT.h>
 
@@ -23,19 +24,13 @@ BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 /* You can create the instance of the PS4BT class in two ways */
 // This will start an inquiry and then pair with the PS4 controller - you only have to do this once
 // You will need to hold down the PS and Share button at the same time, the PS4 controller will then start to blink rapidly indicating that it is in pairing mode
-
 // create PS4 controller Bluetooth class, enter pairing mode
 PS4BT GameController(&Btd, PAIR);
 
-bool printAngle, printTouch;
-uint8_t oldL2Value, oldR2Value;
-
-#define LED_PIN 9
 
 const int I2CAddress = 8; // I2C bus address
 
 char dummyData = 'x';
-volatile bool sendMovementData = false;
 
 // Set the states of the left stick - ctm 
 enum leftStickStates {leftStickUp, leftStickDown, leftStickNeutral}; 
@@ -45,16 +40,16 @@ struct LeftStickState
 {
     leftStickStates newState;
     leftStickStates oldState; 
-} leftStick;
+} truckMotorEscControlStick;
 
 // Set the states of the right stick - ctm 
-enum rightStickStates {rightStickRight, rightStickLeft, rightStickNeutral};
+enum servoControlStickStates {rightStickRight, rightStickLeft, rightStickNeutral};
 
 // Set the struct of the right stick state to have an old and new value - ctm 
 struct RightStickState {
-    rightStickStates newState; 
-    rightStickStates oldState; 
-} rightStick; 
+    servoControlStickStates newState; 
+    servoControlStickStates oldState; 
+} truckSteeringServoControlStick; 
 
 // Set the states of the firetruck - ctm 
 enum fireTruckStates
@@ -77,6 +72,78 @@ enum fireTruckStates
     left
 };
 
+#include <Servo.h>
+
+
+/*
+  Motor configuration
+*/
+
+// Speed controller pin
+const int speedControllerPin = 2;
+const int motorAngleChange = 2;
+const int steeringAngleChange = 2;
+
+// The Speed Controller PWMServo object that controls the Speed Controller
+Servo SpeedCon;
+
+/*
+  Servo configuration
+*/
+
+// The constants used for what pin and angle the Servo will be on
+const int servoPin = 3;
+int servoAngle;
+// Creates the "SteeringServo" object
+Servo SteeringServo;
+
+
+// Constant used for the water pump pin
+const int waterPumpPin = A3;
+bool waterPumpEnabled = false;
+
+// Variables for events
+boolean motorsMoving = false;
+
+
+// motor turns every 1500 us
+unsigned long motorPeriod = 1500;
+// Servo turns every 1500 us
+unsigned long servoPeriod = 1500;
+
+// increase the motor
+#define MotorForwardAngleCheck truckMovementAngles.motor <= 110
+// decrease the motor
+#define MotorBackwardAngleCheck truckMovementAngles.motor >= 60
+
+// Begin structs
+typedef struct
+{
+  unsigned long current;
+  // will be set in the motor control statements
+  unsigned long motorsEngaged;
+  // will be set in servo control statements
+  unsigned long servoEngaged;
+} timeVariables;
+
+// create instance of timeVariables struct
+timeVariables truckControlTimes;
+
+typedef struct {
+  int servo;
+  int motor;
+} movementAngles;
+
+movementAngles truckMovementAngles;
+
+// end structs
+
+// Function definitions
+
+void truckMovement();
+
+
+
 // Set the struct of the firetruck state to have an old and new value - ctm
 struct fireTruckState
 {
@@ -87,13 +154,11 @@ struct fireTruckState
 
 void sendData(char data, char secondMovementChar);
 
-void readFromSlave();
-
 void getState();
 
-leftStickStates getStateOfLeftStick();
+void setMotorState();
 
-rightStickStates getStateOfRightStick(); 
+void setSteeringServoState(); 
 
 void combineStates(); 
 
