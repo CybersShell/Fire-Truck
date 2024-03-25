@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <PS4Parser.h> // Added this header to the file
 #include <PS4BT.h>
+#include <Adafruit_PWMServoDriver.h>
 
 // These defined macros keep track of if the left stick moves - ctm 
 #define upConditional GameController.getAnalogHat(LeftHatY) < 70
@@ -72,7 +73,6 @@ enum fireTruckStates
     left
 };
 
-#include <Servo.h>
 
 
 /*
@@ -84,8 +84,6 @@ const int speedControllerPin = 2;
 const int motorAngleChange = 2;
 const int steeringAngleChange = 2;
 
-// The Speed Controller PWMServo object that controls the Speed Controller
-Servo SpeedCon;
 
 /*
   Servo configuration
@@ -94,8 +92,26 @@ Servo SpeedCon;
 // The constants used for what pin and angle the Servo will be on
 const int servoPin = 3;
 int servoAngle;
-// Creates the "SteeringServo" object
-Servo SteeringServo;
+
+// PWM Module configuration
+// TODO: set proper values for min and max of servo and speed controller - check data sheets!
+// called this way, it uses the default address 0x40
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+// you can also call it with a different address you want
+//Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x41);
+// you can also call it with a different address and I2C interface
+//Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40, Wire);
+
+// Depending on your servo make, the pulse width min and max may vary, you 
+// want these to be as small/large as possible without hitting the hard stop
+// for max range. You'll have to tweak them as necessary to match the servos you
+// have!
+#define SERVOMIN  150 // This is the 'minimum' pulse length count (out of 4096)
+#define SERVOMAX  600 // This is the 'maximum' pulse length count (out of 4096)
+#define USMIN  600 // This is the rounded 'minimum' microsecond length based on the minimum pulse of 150
+#define USMAX  2400 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
+#define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
+
 
 
 // Constant used for the water pump pin
@@ -162,4 +178,6 @@ void setSteeringServoState();
 
 void combineStates(); 
 
-void fireTruckControl(); 
+void fireTruckControl();
+
+void SetUpPWMModule();
