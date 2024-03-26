@@ -105,10 +105,9 @@ bool waterPumpEnabled = false;
 // Variables for events
 boolean motorsMoving = false;
 
-
-// motor turns every 1500 us
+// send signal to ESC every 1500 us
 unsigned long motorPeriod = 1500;
-// Servo turns every 1500 us
+// send signal to servo every 1500 us
 unsigned long servoPeriod = 1500;
 
 // increase the motor
@@ -119,9 +118,17 @@ unsigned long servoPeriod = 1500;
 // Begin structs
 typedef struct
 {
+  unsigned long engaged;
+  unsigned long stopped;
+} motorTimes;
+
+typedef struct
+{
   unsigned long current;
   // will be set in the motor control statements
   unsigned long motorsEngaged;
+  // will be set in the motor control statements
+  motorTimes motors;
   // will be set in servo control statements
   unsigned long servoEngaged;
 } timeVariables;
@@ -141,16 +148,6 @@ movementAngles truckMovementAngles;
 // Function definitions
 
 void truckMovement();
-
-
-
-// Set the struct of the firetruck state to have an old and new value - ctm
-struct fireTruckState
-{
-    fireTruckStates newState;
-    fireTruckStates oldState; 
-} firetruck; 
-
 
 void sendData(char data, char secondMovementChar);
 

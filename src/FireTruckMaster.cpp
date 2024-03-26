@@ -26,15 +26,6 @@ void setup()
 
     Serial.print(F("\r\nGameController Bluetooth Library Started"));
 
-    // Initialize the old state of the firetruck - ctm
-    firetruck.oldState = fireTruckStates::still;
-
-    // Initialize the old state of the left stick - ctm
-    truckMotorEscControlStick.oldState = leftStickStates::leftStickNeutral;
-
-    // Initialize the old state of the right stick - ctm
-    truckSteeringServoControlStick.oldState = servoControlStickStates::rightStickNeutral;
-
     // set the angles for the motor and servo
     truckMovementAngles.motor = 90;
     truckMovementAngles.servo = 90;
@@ -89,12 +80,12 @@ void loop()
 
         // call these functions to get and set the current state of the control sticks
         truckControlTimes.current = micros();
-        if (truckControlTimes.current + truckControlTimes.motorsEngaged > LONG_MAX + (unsigned long)1)
+        if (truckControlTimes.current + truckControlTimes.motors.engaged > LONG_MAX + (unsigned long)1)
         {
-            truckControlTimes.motorsEngaged = 0;
+            truckControlTimes.motors.engaged = 0;
             truckControlTimes.current = micros();
         }
-        setSteeringServoState();
+        setMotorState();
         truckControlTimes.current = micros();
 
         if (truckControlTimes.current + truckControlTimes.servoEngaged > LONG_MAX + (unsigned long)1)
@@ -102,7 +93,7 @@ void loop()
             truckControlTimes.servoEngaged = 0;
             truckControlTimes.current = micros();
         }
-        setMotorState();
+        setSteeringServoState();
     }
 }
 
@@ -125,7 +116,6 @@ void setMotorState()
 {
     // Set these bools equal to the macros defined at the beginning - ctm
     // check motor stick position and set flags aproproately
-    // Might have to add debouncing later
 
     bool isUp = upConditional;
 
@@ -135,7 +125,7 @@ void setMotorState()
     if (isUp && !isDown)
     {
         motorsMoving = true;
-        if (truckControlTimes.current - truckControlTimes.motorsEngaged >= motorPeriod)
+        if (truckControlTimes.current - truckControlTimes.motors.engaged >= motorPeriod)
         {
             if (MotorForwardAngleCheck)
             {

@@ -16,9 +16,9 @@
 void setup()
 {
   // Initialize the water pump pin
-  // Pump is enabled if LOW, disabled if HIGH
+  // Pump is enabled if HIGH, disabled if LOW
   pinMode(waterPumpPin, OUTPUT);
-  digitalWrite(waterPumpPin, HIGH);
+  digitalWrite(waterPumpPin, LOW);
 
   // Initialize Wave Shield
   initShield();
@@ -132,13 +132,13 @@ void waterPump()
   if (!waterPumpEnabled)
   {
     waterPumpEnabled = true;
-    digitalWrite(waterPumpPin, LOW);
-    delay(1000);
+    digitalWrite(waterPumpPin, HIGH);
+    delay(500);
   }
   else
   {
     waterPumpEnabled = false;
-    digitalWrite(waterPumpPin, HIGH);
+    digitalWrite(waterPumpPin, LOW);
   }
 }
 
