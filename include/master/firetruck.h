@@ -106,7 +106,7 @@ bool waterPumpEnabled = false;
 boolean motorsMoving = false;
 
 // send signal to ESC every 1500 us
-unsigned long motorPeriod = 2500;
+unsigned long motorPeriod = 4500;
 // send signal to servo every 1500 us
 unsigned long servoPeriod = 1500;
 
