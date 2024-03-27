@@ -79,19 +79,19 @@ void loop()
         }
 
         // call these functions to get and set the current state of the control sticks
-        truckControlTimes.current = micros();
-        if (truckControlTimes.current + truckControlTimes.motors.engaged > LONG_MAX + (unsigned long)1)
+        truckControlTimes.current = millis();
+        if (truckControlTimes.current + truckControlTimes.motors.engaged > ULONG_MAX + (unsigned long)1)
         {
             truckControlTimes.motors.engaged = 0;
-            truckControlTimes.current = micros();
+            truckControlTimes.current = millis();
         }
         setMotorState();
-        truckControlTimes.current = micros();
+        truckControlTimes.current = millis();
 
-        if (truckControlTimes.current + truckControlTimes.servoEngaged > LONG_MAX + (unsigned long)1)
+        if (truckControlTimes.current + truckControlTimes.servoEngaged > ULONG_MAX + (unsigned long)1)
         {
             truckControlTimes.servoEngaged = 0;
-            truckControlTimes.current = micros();
+            truckControlTimes.current = millis();
         }
         setSteeringServoState();
     }
@@ -117,21 +117,20 @@ void setMotorState()
     // Set these bools equal to the macros defined at the beginning - ctm
     // check motor stick position and set flags aproproately
 
-    bool isUp = upConditional;
+    bool isUp = forwardConditional;
 
-    bool isDown = downConditional;
+    bool isDown = backwardConditional;
 
     // If the left stick is up - ctm
     if (isUp && !isDown)
     {
         motorsMoving = true;
+
         if (truckControlTimes.current - truckControlTimes.motors.engaged >= motorPeriod)
         {
             if (MotorForwardAngleCheck)
             {
-                truckControlTimes.motorsEngaged = millis();
-                Serial.println("Forward");
-                Serial.println(truckMovementAngles.motor);
+                truckControlTimes.motorsEngaged = truckControlTimes.current;
                 SpeedCon.write(truckMovementAngles.motor);
                 truckMovementAngles.motor += motorAngleChange;
             }
@@ -140,36 +139,39 @@ void setMotorState()
     else if (!isUp && isDown)
     {
         motorsMoving = true;
-        if (MotorBackwardAngleCheck)
+        if (truckControlTimes.current - truckControlTimes.motors.engaged >= motorPeriod)
         {
-            truckControlTimes.motorsEngaged = millis();
-            Serial.println("Forward");
-            Serial.println(truckMovementAngles.motor);
-            SpeedCon.write(truckMovementAngles.motor);
-            truckMovementAngles.motor -= motorAngleChange;
+            if (MotorBackwardAngleCheck)
+            {
+                truckControlTimes.motorsEngaged = truckControlTimes.current;
+                SpeedCon.write(truckMovementAngles.motor);
+                truckMovementAngles.motor -= motorAngleChange;
+            }
         }
     } // If the left stick is neutral - ctm
     else
     {
-        if (motorsMoving && truckControlTimes.current - truckControlTimes.motorsEngaged >= motorPeriod)
+        if (motorsMoving && truckControlTimes.current - truckControlTimes.motors.engaged >= motorPeriod)
         {
-            if (truckMovementAngles.motor <= 90)
+            if (truckMovementAngles.motor < 90)
             {
-                Serial.println(truckMovementAngles.motor);
                 SpeedCon.write(truckMovementAngles.motor);
                 truckMovementAngles.motor += motorAngleChange;
-                truckControlTimes.motorsEngaged = truckControlTimes.current;
+                truckControlTimes.motors.engaged = truckControlTimes.current;
             }
-            else if (truckMovementAngles.motor >= 90)
+            else if (truckMovementAngles.motor > 90)
             {
-                Serial.print("angle = ");
-                Serial.println(truckMovementAngles.motor);
                 SpeedCon.write(truckMovementAngles.motor);
                 truckMovementAngles.motor -= motorAngleChange;
-                truckControlTimes.motorsEngaged = truckControlTimes.current;
+                truckControlTimes.motors.engaged = truckControlTimes.current;
             }
         }
     }
+    if (motorsMoving && (truckMovementAngles.motor >= 86 && truckMovementAngles.motor <= 94))
+    {
+        motorsMoving = false;
+    }
+    
 }
 
 /********************************************************************************************************************

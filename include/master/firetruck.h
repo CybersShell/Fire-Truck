@@ -8,8 +8,8 @@
 #include <PS4BT.h>
 
 // These defined macros keep track of if the left stick moves - ctm 
-#define upConditional GameController.getAnalogHat(LeftHatY) < 70
-#define downConditional GameController.getAnalogHat(LeftHatY) > 220
+#define forwardConditional GameController.getAnalogHat(LeftHatY) < 70
+#define backwardConditional GameController.getAnalogHat(LeftHatY) > 220
 #define leftNeutralConditional GameController.getAnalogHat(LeftHatY) > 70 && GameController.getAnalogHat(LeftHatY) < 220
 
 // These defined macros keep track of if the right stick moves - ctm 
@@ -106,7 +106,7 @@ bool waterPumpEnabled = false;
 boolean motorsMoving = false;
 
 // send signal to ESC every 1500 us
-unsigned long motorPeriod = 1500;
+unsigned long motorPeriod = 2500;
 // send signal to servo every 1500 us
 unsigned long servoPeriod = 1500;
 
@@ -131,6 +131,8 @@ typedef struct
   motorTimes motors;
   // will be set in servo control statements
   unsigned long servoEngaged;
+  // track the time the motor stick was engaged
+  unsigned long motorStickTime;
 } timeVariables;
 
 // create instance of timeVariables struct
