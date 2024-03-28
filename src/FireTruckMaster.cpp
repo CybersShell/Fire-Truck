@@ -80,6 +80,7 @@ void loop()
             truckControlTimes.servoEngaged = 0;
             truckMovementAngles.servo = 90;
             // Replace with PWM module code
+            pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
         }
 
         // call these functions to get and set the current state of the control sticks
@@ -138,6 +139,7 @@ void setMotorState()
                 Serial.println("Forward");
                 Serial.println(truckMovementAngles.motor);
                 // Replace with PWM module code
+                pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
                 truckMovementAngles.motor += motorAngleChange;
             }
         }
@@ -151,6 +153,7 @@ void setMotorState()
             Serial.println("Forward");
             Serial.println(truckMovementAngles.motor);
             // Replace with PWM module code
+            pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
             truckMovementAngles.motor -= motorAngleChange;
         }
     } // If the left stick is neutral - ctm
@@ -162,6 +165,7 @@ void setMotorState()
             {
                 Serial.println(truckMovementAngles.motor);
                 // Replace with PWM module code
+                pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
                 truckMovementAngles.motor += motorAngleChange;
                 truckControlTimes.motorsEngaged = truckControlTimes.current;
             }
@@ -170,6 +174,7 @@ void setMotorState()
                 Serial.print("angle = ");
                 Serial.println(truckMovementAngles.motor);
                 // Replace with PWM module code
+                pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
                 truckMovementAngles.motor -= motorAngleChange;
                 truckControlTimes.motorsEngaged = truckControlTimes.current;
             }
@@ -213,6 +218,9 @@ void setSteeringServoState()
                 Serial.println("Left");
                 Serial.println(truckMovementAngles.servo);
                 // Replace with PWM module code
+                pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
+
+                
             }
         }
     }
@@ -228,6 +236,7 @@ void setSteeringServoState()
                 Serial.println("Right");
                 Serial.println(truckMovementAngles.servo);
                 // Replace with PWM module code
+                pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
             }
         }
     }

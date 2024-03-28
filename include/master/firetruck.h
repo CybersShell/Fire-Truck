@@ -80,7 +80,6 @@ enum fireTruckStates
 */
 
 // Speed controller pin
-const int speedControllerPin = 2;
 const int motorAngleChange = 2;
 const int steeringAngleChange = 2;
 
@@ -90,7 +89,7 @@ const int steeringAngleChange = 2;
 */
 
 // The constants used for what pin and angle the Servo will be on
-const int servoPin = 3;
+const int servoPin = 8;
 int servoAngle;
 
 // PWM Module configuration
@@ -111,8 +110,7 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define USMIN  600 // This is the rounded 'minimum' microsecond length based on the minimum pulse of 150
 #define USMAX  2400 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
-
-
+const int speedControllerPin = 5;
 
 // Constant used for the water pump pin
 const int waterPumpPin = A3;
