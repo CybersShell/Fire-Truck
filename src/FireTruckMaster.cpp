@@ -40,6 +40,23 @@ void setup()
     truckMovementAngles.servo = 90;
 
     SetUpPWMModule();
+
+    delay(500);
+while (1)
+{
+    /* code */
+
+  // Drive each servo one at a time using writeMicroseconds(), it's not precise due to calculation rounding!
+  // The writeMicroseconds() function is used to mimic the Arduino Servo library writeMicroseconds() behavior. 
+  for (uint16_t microsec = USMIN; microsec < USMAX; microsec++) {
+    pwm.writeMicroseconds(servoPin, microsec);
+  }
+  // Drive each servo one at a time using writeMicroseconds(), it's not precise due to calculation rounding!
+  // The writeMicroseconds() function is used to mimic the Arduino Servo library writeMicroseconds() behavior. 
+  for (uint16_t microsec = 0; microsec < 2600; microsec++) {
+    pwm.writeMicroseconds(speedControllerPin, microsec);
+  }
+}
 }
 
 /********************************************************************************************************************/
@@ -108,10 +125,10 @@ void loop()
 void sendData(char data, char secondMovementChar)
 {
     Serial.print("Sending: ");
-    Wire.beginTransmission(I2CAddress); // Transmit to device
-    Serial.println(data);
-    Wire.write(data);       // Send serial data
-    Wire.endTransmission(); // Stop transmitting
+    // Wire.beginTransmission(I2CAddress); // Transmit to device
+    // Serial.println(data);
+    // Wire.write(data);       // Send serial data
+    // Wire.endTransmission(); // Stop transmitting
 }
 
 /********************************************************************************************************************/
