@@ -26,6 +26,7 @@ void setup()
 const int TurnDelay = 2000;
 void loop()
 {
+  Serial.println("test");
   // Tell the servo to go to a particular angle:
   /*SpeedConStop;
   delay(TurnDelay);
@@ -37,48 +38,48 @@ void loop()
   delay(TurnDelay); */
 
   // Sweep from 0 to 180 degrees:
-  // for (int angle = 0; angle <= 270; angle += 1) {
-  //   Serial.println(angle);
-  //   SteeringServo.write(angle);
+  for (int angle = 0; angle <= 270; angle += 1) {
+    Serial.println(angle);
+    SteeringServo.write(angle);
+    delay(20);
+  }
+  delay(TurnDelay);
+  // And back from 180 to 0 degrees:
+  for (int angle = 270; angle >= 0; angle -= 1) {
+    Serial.println(angle);
+    SteeringServo.write(angle);
+    delay(20);
+  }
+
+  // for(int i = 0; i < 90; i++)
+  // {
+  //   SteeringServo.write(i);
   //   delay(20);
   // }
-  // delay(TurnDelay);
-  // // And back from 180 to 0 degrees:
-  // for (int angle = 270; angle >= 0; angle -= 1) {
-  //   Serial.println(angle);
-  //   SteeringServo.write(angle);
+
+  // for(int i = 90; i > 0; i--)
+  // {
+  //   SteeringServo.write(i);
   //   delay(20);
   // }
 
-  for(int i = 0; i < 90; i++)
-  {
-    SteeringServo.write(i);
-    delay(20);
-  }
+  // delay(1000);
 
-  for(int i = 90; i > 0; i--)
-  {
-    SteeringServo.write(i);
-    delay(20);
-  }
+  // for(int i = 90; i < 180; i++)
+  // {
+  //   SteeringServo.write(i);
+  //   delay(20);
+  // }
 
-  delay(1000);
+  // delay(1000);
 
-  for(int i = 90; i < 180; i++)
-  {
-    SteeringServo.write(i);
-    delay(20);
-  }
+  // for(int i = 180; i > 90; i--)
+  // {
+  //   SteeringServo.write(i);
+  //   delay(20);
+  // }
 
-  delay(1000);
-
-  for(int i = 180; i > 90; i--)
-  {
-    SteeringServo.write(i);
-    delay(20);
-  }
-
-  delay(1000);
+  // delay(1000);
 
 
 
