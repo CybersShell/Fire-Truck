@@ -21,11 +21,11 @@
 #include <Adafruit_PWMServoDriver.h>
 
 // called this way, it uses the default address 0x40
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+// Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 // you can also call it with a different address you want
 //Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x41);
 // you can also call it with a different address and I2C interface
-// Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40, Wire);
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x41, Wire);
 
 // Depending on your servo make, the pulse width min and max may vary, you 
 // want these to be as small/large as possible without hitting the hard stop
@@ -45,7 +45,7 @@ void setup() {
   Serial.begin(9600);
   while(!Serial) {};
 
-  pwm.begin();
+  if(pwm.begin()) Serial.println("true");
   /*
    * In theory the internal oscillator (clock) is 25MHz but it really isn't
    * that precise. You can 'calibrate' this by tweaking this number until
@@ -113,5 +113,5 @@ void loop() {
   delay(500);
 
   servonum++;
-  if (servonum > 7) servonum = 0; // Testing the first 8 servo channels
+  if (servonum > 15) servonum = 0;
 }
