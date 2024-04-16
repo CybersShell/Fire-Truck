@@ -5,18 +5,7 @@ void setup()
 {
     Wire.begin();       // join i2c bus
     // Serial.begin(9600); // start serial for output
-    // block while waiting for character over serial
-    while (!Serial)
-    {
-    }
 
-    // Uncomment for Debug message - ctm
-    // Serial.println("Starting Fire Truck Master Test");
-
-#if !defined(__MIPSEL__)
-    while (!Serial)
-        ; // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
-#endif
     if (Usb.Init() == -1)
     {
         Serial.print(F("\r\nOSC did not start"));

@@ -120,6 +120,7 @@ void stopPlayback()
   wave.stop();
   file.close();
   root.rewind();
+  delay(20);
   data = ' ';
 }
 
