@@ -18,6 +18,7 @@
  ****************************************************/
 #include <Arduino.h>
 #include <Wire.h>
+#include <Servo.h>
 #include <Adafruit_PWMServoDriver.h>
 
 // called this way, it uses the default address 0x40
@@ -32,18 +33,19 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40, Wire);
 // for max range. You'll have to tweak them as necessary to match the servos you
 // have!
 #define SERVOMIN  90 // This is the 'minimum' pulse length count (out of 4096)
-#define SERVOMAX  270 // This is the 'maximum' pulse length count (out of 4096)
-#define USMIN  60   // This is the rounded 'minimum' microsecond length based on the minimum pulse of 150
-#define USMAX  120 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
+#define SERVOMAX  700 // This is the 'maximum' pulse length count (out of 4096)
+#define USMIN  1000   // This is the rounded 'minimum' microsecond length based on the minimum pulse of 150
+#define USMAX  2000 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
+Servo SteeringServo;
 // our servo # counter
 uint8_t servonum = 0;
 
 void setup() {
-  delay(4000);
   Serial.begin(9600);
   while(!Serial) {};
+  SteeringServo.attach(6); // attaches the servo on pin 3 to the servo object
 
   if(pwm.begin()) Serial.println("true");
   /*
@@ -88,27 +90,59 @@ void loop() {
   Serial.println("8 channel Servo test!");
   // Drive each servo one at a time using setPWM()
   // Serial.println(servonum);
-  for (uint16_t pulselen = SERVOMIN; pulselen < SERVOMAX; pulselen++) {
-    pwm.setPWM(11, 0, pulselen);
-  }
+  // for (uint16_t pulselen = SERVOMIN; pulselen < SERVOMAX; pulselen++) {
+  //   pwm.setPWM(11, 0, pulselen);
+  //   delay(250);
+  // }
 
-  delay(500);
-  for (uint16_t pulselen = SERVOMAX; pulselen > SERVOMIN; pulselen--) {
-    pwm.setPWM(11, 0, pulselen);
-  }
+  // delay(500);
+  // for (uint16_t pulselen = SERVOMAX; pulselen > SERVOMIN; pulselen--) {
+  //   pwm.setPWM(11, 0, pulselen);
+  //   delay(250);
+  // }
+    // pwm.setPWM(15, 0, 300);
+  // Serial.println(servonum);
+  // for (uint16_t pulselen = 0; pulselen < SERVOMAX; pulselen+=10) {
+  //   pwm.setPWM(10, 0, pulselen);
+  //   delay(2);
+  // }
 
+  // delay(500);
+  // for (uint16_t pulselen = 450; pulselen > SERVOMIN; pulselen-=10) {
+  //   pwm.setPWM(10, 0, pulselen);
+  //   delay(2);
+  // }
+
+  // Sweep from 0 to 180 degrees:
+  // for (int angle = 0; angle <= 270; angle += 1) {
+  //   Serial.println(angle);
+  //   SteeringServo.write(angle);
+  //   delay(20);
+  // }
+  // // delay(TurnDelay);
+  // // And back from 180 to 0 degrees:
+  // for (int angle = 270; angle >= 0; angle -= 1) {
+  //   Serial.println(angle);
+  //   SteeringServo.write(angle);
+  //   delay(20);
+  // }
   // delay(500);
 
   // Drive each servo one at a time using writeMicroseconds(), it's not precise due to calculation rounding!
   // The writeMicroseconds() function is used to mimic the Arduino Servo library writeMicroseconds() behavior. 
   // esc
-  for (uint16_t microsec = USMIN; microsec < USMAX; microsec++) {
-    pwm.writeMicroseconds(11, microsec);
+  // set servo to mid-point
+  // pwm.writeMicroseconds(10, 1500);
+  // pwm.writeMicroseconds(10, 600);
+  // pwm.writeMicroseconds(10, 500);
+  delay(1000);
+  for (uint16_t microsec = USMIN; microsec < USMAX; microsec+=50) {
+    pwm.writeMicroseconds(10, microsec);
   }
 
   delay(500);
-  for (uint16_t microsec = USMAX; microsec > USMIN; microsec--) {
-    pwm.writeMicroseconds(11, microsec);
+  for (uint16_t microsec = USMAX; microsec > USMIN; microsec-=50) {
+    pwm.writeMicroseconds(10, microsec);
   }
   // servo
   // for (uint16_t microsec = USMIN; microsec < USMAX; microsec++) {

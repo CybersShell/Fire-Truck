@@ -81,7 +81,7 @@ enum fireTruckStates
 
 // Speed controller pin
 const int motorAngleChange = 2;
-const int steeringAngleChange = 2;
+const int steeringAngleChange = 10;
 
 
 /*
@@ -89,7 +89,7 @@ const int steeringAngleChange = 2;
 */
 
 // The constants used for what pin and angle the Servo will be on
-const int servoPin = 8;
+const int servoPin = 10;
 int servoAngle;
 
 // PWM Module configuration
@@ -105,12 +105,10 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 // want these to be as small/large as possible without hitting the hard stop
 // for max range. You'll have to tweak them as necessary to match the servos you
 // have!
-#define SERVOMIN  150 // This is the 'minimum' pulse length count (out of 4096)
-#define SERVOMAX  600 // This is the 'maximum' pulse length count (out of 4096)
-#define USMIN  600 // This is the rounded 'minimum' microsecond length based on the minimum pulse of 150
-#define USMAX  2400 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
+#define SERVOMIN  1000 // This is the microseconds min
+#define SERVOMAX  2000 // This is the microseconds max
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
-const int speedControllerPin = 10;
+const int speedControllerPin = 8;
 
 // Constant used for the water pump pin
 const int waterPumpPin = A3;
@@ -126,9 +124,9 @@ unsigned long motorPeriod = 1500;
 unsigned long servoPeriod = 1500;
 
 // increase the motor
-#define MotorForwardAngleCheck truckMovementAngles.motor <= 110
+#define MotorForwardAngleCheck truckMovementAngles.motor <= 335
 // decrease the motor
-#define MotorBackwardAngleCheck truckMovementAngles.motor >= 60
+#define MotorBackwardAngleCheck truckMovementAngles.motor >= 265
 
 // Begin structs
 typedef struct

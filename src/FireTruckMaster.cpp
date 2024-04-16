@@ -4,7 +4,7 @@
 void setup()
 {
     Wire.begin();       // join i2c bus
-    Serial.begin(9600); // start serial for output
+    // Serial.begin(9600); // start serial for output
     // block while waiting for character over serial
     while (!Serial)
     {
@@ -36,27 +36,12 @@ void setup()
     truckSteeringServoControlStick.oldState = servoControlStickStates::rightStickNeutral;
 
     // set the angles for the motor and servo
-    truckMovementAngles.motor = 90;
-    truckMovementAngles.servo = 90;
+    truckMovementAngles.motor = 300;
+    truckMovementAngles.servo = 500;
 
     SetUpPWMModule();
 
     delay(500);
-while (1)
-{
-    /* code */
-
-  // Drive each servo one at a time using writeMicroseconds(), it's not precise due to calculation rounding!
-  // The writeMicroseconds() function is used to mimic the Arduino Servo library writeMicroseconds() behavior. 
-  for (uint16_t microsec = USMIN; microsec < USMAX; microsec++) {
-    pwm.writeMicroseconds(servoPin, microsec);
-  }
-  // Drive each servo one at a time using writeMicroseconds(), it's not precise due to calculation rounding!
-  // The writeMicroseconds() function is used to mimic the Arduino Servo library writeMicroseconds() behavior. 
-  for (uint16_t microsec = 0; microsec < 2600; microsec++) {
-    pwm.writeMicroseconds(speedControllerPin, microsec);
-  }
-}
 }
 
 /********************************************************************************************************************/
@@ -95,7 +80,7 @@ void loop()
         if (GameController.getButtonClick(R3))
         {
             truckControlTimes.servoEngaged = 0;
-            truckMovementAngles.servo = 90;
+            truckMovementAngles.servo = 1500;
             // Replace with PWM module code
             pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
         }
@@ -133,7 +118,7 @@ void sendData(char data, char secondMovementChar)
 
 /********************************************************************************************************************/
 
-// This function updates the new state of the left stick and returns the new state depending on if the old state is the same or not - ctm
+// This function checks
 void setMotorState()
 {
     // Set these bools equal to the macros defined at the beginning - ctm
@@ -153,10 +138,10 @@ void setMotorState()
             if (MotorForwardAngleCheck)
             {
                 truckControlTimes.motorsEngaged = millis();
-                Serial.println("Forward");
-                Serial.println(truckMovementAngles.motor);
+
                 // Replace with PWM module code
-                pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
+                pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
+                // pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
                 truckMovementAngles.motor += motorAngleChange;
             }
         }
@@ -167,10 +152,10 @@ void setMotorState()
         if (MotorBackwardAngleCheck)
         {
             truckControlTimes.motorsEngaged = millis();
-            Serial.println("Forward");
-            Serial.println(truckMovementAngles.motor);
-            // Replace with PWM module code
-            pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
+
+            pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
+            // Not needed - left here for posterity
+            // pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
             truckMovementAngles.motor -= motorAngleChange;
         }
     } // If the left stick is neutral - ctm
@@ -178,20 +163,20 @@ void setMotorState()
     {
         if (motorsMoving && truckControlTimes.current - truckControlTimes.motorsEngaged >= motorPeriod)
         {
-            if (truckMovementAngles.motor <= 90)
+            // motor is backward
+            if (truckMovementAngles.motor <= 300)
             {
-                Serial.println(truckMovementAngles.motor);
-                // Replace with PWM module code
-                pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
+                pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
+                // Not needed - left here for posterity
+                // pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
                 truckMovementAngles.motor += motorAngleChange;
                 truckControlTimes.motorsEngaged = truckControlTimes.current;
             }
-            else if (truckMovementAngles.motor >= 90)
+            // motor is backward
+            else if (truckMovementAngles.motor >= 305)
             {
-                Serial.print("angle = ");
-                Serial.println(truckMovementAngles.motor);
                 // Replace with PWM module code
-                pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
+                pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
                 truckMovementAngles.motor -= motorAngleChange;
                 truckControlTimes.motorsEngaged = truckControlTimes.current;
             }
@@ -228,16 +213,12 @@ void setSteeringServoState()
     {
         if (truckControlTimes.current - truckControlTimes.servoEngaged >= servoPeriod)
         {
-            if (truckMovementAngles.servo >= 60)
+            if (truckMovementAngles.servo >= 1000)
             {
                 truckControlTimes.servoEngaged = truckControlTimes.current;
                 truckMovementAngles.servo -= steeringAngleChange;
-                Serial.println("Left");
-                Serial.println(truckMovementAngles.servo);
                 // Replace with PWM module code
                 pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
-
-                
             }
         }
     }
@@ -246,12 +227,10 @@ void setSteeringServoState()
 
         if (truckControlTimes.current - truckControlTimes.servoEngaged >= servoPeriod)
         {
-            if (truckMovementAngles.servo <= 120)
+            if (truckMovementAngles.servo <= 2000)
             {
                 truckControlTimes.servoEngaged = truckControlTimes.current;
                 truckMovementAngles.servo += steeringAngleChange;
-                Serial.println("Right");
-                Serial.println(truckMovementAngles.servo);
                 // Replace with PWM module code
                 pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
             }
@@ -277,7 +256,7 @@ void SetUpPWMModule() {
    * affects the calculations for the PWM update frequency. 
    * Failure to correctly set the int.osc value will cause unexpected PWM results
    */
-  pwm.setOscillatorFrequency(27000000);
+  pwm.setOscillatorFrequency(26000000);
   pwm.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates
 
   delay(10);
