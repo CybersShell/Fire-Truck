@@ -21,7 +21,7 @@ void setup()
 #endif
 
     // set the angles for the motor and servo
-    truckMovementAngles.motor = 300;
+    truckMovementAngles.motor = MotorStopPoint;
     truckMovementAngles.servo = 1500;
 
     SetUpPWMModule();
@@ -42,25 +42,25 @@ void loop()
         // If the X button has been hit, play the second sound - ctm
         if (GameController.getButtonClick(CROSS))
         {
-            sendData(TruckControlData.SoundTwo, dummyData);
+            sendData(TruckControlData.SoundTwo);
         }
 
         // If the triangle button has been hit, play the first sound - ctm
         if (GameController.getButtonClick(TRIANGLE))
         {
-            sendData(TruckControlData.SoundOne, dummyData);
+            sendData(TruckControlData.SoundOne);
         }
 
         // If the circle button has been hit, stop the current sound from playing - ctm
         if (GameController.getButtonClick(CIRCLE))
         {
-            sendData(TruckControlData.SoundStop, dummyData);
+            sendData(TruckControlData.SoundStop);
         }
 
         // If the square button has been hit, toggle the water pump - ctm
         if (GameController.getButtonClick(SQUARE))
         {
-            sendData(TruckControlData.ToggleWaterPump, dummyData);
+            sendData(TruckControlData.ToggleWaterPump);
         }
         if (GameController.getButtonClick(R3))
         {
@@ -99,7 +99,7 @@ void loop()
 /********************************************************************************************************************/
 
 // send data over I2C interface to slave
-void sendData(char data, char secondMovementChar)
+void sendData(char data)
 {
     Wire.beginTransmission(I2CAddress); // Transmit to device
     Wire.write(data);       // Send serial data
@@ -115,12 +115,12 @@ void setMotorState()
     // check motor stick position and set flags aproproately
     // Might have to add debouncing later
 
-    bool isUp = upConditional;
+    bool isForward = motorStickForwardBoundCheck;
 
-    bool isDown = downConditional;
+    bool isBackward = motorStickBackwardBoundCheck;
 
     // If the left stick is up - ctm
-    if (isUp && !isDown)
+    if (isForward && !isBackward)
     {
         motorsMoving = true;
         if (truckControlTimes.current - truckControlTimes.motorsEngaged >= motorPeriod)
@@ -136,7 +136,7 @@ void setMotorState()
             }
         }
     }
-    else if (!isUp && isDown)
+    else if (!isForward && isBackward)
     {
         motorsMoving = true;
         if (MotorBackwardAngleCheck)

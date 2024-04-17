@@ -9,8 +9,8 @@
 #include <Adafruit_PWMServoDriver.h>
 
 // These defined macros keep track of if the left stick moves - ctm 
-#define upConditional GameController.getAnalogHat(LeftHatY) < 70
-#define downConditional GameController.getAnalogHat(LeftHatY) > 220
+#define motorStickForwardBoundCheck GameController.getAnalogHat(LeftHatY) < 70
+#define motorStickBackwardBoundCheck GameController.getAnalogHat(LeftHatY) > 220
 #define leftNeutralConditional GameController.getAnalogHat(LeftHatY) > 70 && GameController.getAnalogHat(LeftHatY) < 220
 
 // These defined macros keep track of if the right stick moves - ctm 
@@ -31,7 +31,6 @@ PS4BT GameController(&Btd, PAIR);
 
 const int I2CAddress = 8; // I2C bus address
 
-char dummyData = 'x';
 
 // Set the states of the left stick - ctm 
 enum leftStickStates {leftStickUp, leftStickDown, leftStickNeutral}; 
@@ -125,7 +124,7 @@ movementAngles truckMovementAngles;
 
 // Function definitions
 
-void sendData(char data, char secondMovementChar);
+void sendData(char data);
 
 void getState();
 
