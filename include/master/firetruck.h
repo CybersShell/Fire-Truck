@@ -44,10 +44,10 @@ const int steeringAngleChange = 5;
 int servoAngle;
 
 // PWM Module configuration
-// TODO: set proper values for min and max of servo and speed controller - check data sheets!
 // called this way, it uses the default address 0x40
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 // you can also call it with a different address you want
+// ! if you change the address on the servo board, use this
 //Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x41);
 // you can also call it with a different address and I2C interface
 //Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40, Wire);
