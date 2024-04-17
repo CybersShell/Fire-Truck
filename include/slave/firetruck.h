@@ -90,16 +90,7 @@ char *secondSound = "4.wav";
       when motor is backward, still the motor, and then move backward
       when motor is forward, still the motor, and then move forward
 */
-#define SpeedConForward \
-  motorsMoving = true;  \
-  truckControlTimes.motorsEngaged = millis(); \
-  motorForward = true
 
-#define SpeedConStop motorsMoving = false
-#define SpeedConBackward \
-  motorsMoving = true;   \
-  truckControlTimes.motorsEngaged = millis(); \
-  motorForward = false
 
 // increase the motor
 #define MotorForwardAngleCheck truckMovementAngles.motor < 110
