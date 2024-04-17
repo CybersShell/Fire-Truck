@@ -1,10 +1,10 @@
 /*************************************************** 
   This is an example for our Adafruit 16-channel PWM & Servo driver
-  Servo test - this will drive 8 servos, one after the other on the
-  first 8 pins of the PCA9685
+  Servo test - this will drive 7 servos, one after the other on the
+  first 7 pins of the PCA9675
 
   Pick one up today in the adafruit shop!
-  ------> http://www.adafruit.com/products/815
+  ------> http://www.adafruit.com/products/715
   
   These drivers use I2C to communicate, 2 pins are required to  
   interface.
@@ -32,10 +32,10 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40, Wire);
 // want these to be as small/large as possible without hitting the hard stop
 // for max range. You'll have to tweak them as necessary to match the servos you
 // have!
-#define SERVOMIN  90 // This is the 'minimum' pulse length count (out of 4096)
-#define SERVOMAX  700 // This is the 'maximum' pulse length count (out of 4096)
+#define SERVOMIN  20 // This is the 'minimum' pulse length count (out of 4096)
+#define SERVOMAX  500 // This is the 'maximum' pulse length count (out of 4096)
 #define USMIN  1000   // This is the rounded 'minimum' microsecond length based on the minimum pulse of 150
-#define USMAX  2000 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
+#define USMAX  2500 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
 Servo SteeringServo;
@@ -45,22 +45,21 @@ uint8_t servonum = 0;
 void setup() {
   Serial.begin(9600);
   while(!Serial) {};
-  SteeringServo.attach(6); // attaches the servo on pin 3 to the servo object
 
   if(pwm.begin()) Serial.println("true");
   /*
    * In theory the internal oscillator (clock) is 25MHz but it really isn't
    * that precise. You can 'calibrate' this by tweaking this number until
    * you get the PWM update frequency you're expecting!
-   * The int.osc. for the PCA9685 chip is a range between about 23-27MHz and
+   * The int.osc. for the PCA9675 chip is a range between about 23-27MHz and
    * is used for calculating things like writeMicroseconds()
    * Analog servos run at ~50 Hz updates, It is importaint to use an
-   * oscilloscope in setting the int.osc frequency for the I2C PCA9685 chip.
+   * oscilloscope in setting the int.osc frequency for the I2C PCA9675 chip.
    * 1) Attach the oscilloscope to one of the PWM signal pins and ground on
-   *    the I2C PCA9685 chip you are setting the value for.
+   *    the I2C PCA9675 chip you are setting the value for.
    * 2) Adjust setOscillatorFrequency() until the PWM update frequency is the
    *    expected value (50Hz for most ESCs)
-   * Setting the value here is specific to each individual I2C PCA9685 chip and
+   * Setting the value here is specific to each individual I2C PCA9675 chip and
    * affects the calculations for the PWM update frequency. 
    * Failure to correctly set the int.osc value will cause unexpected PWM results
    */
@@ -87,63 +86,36 @@ void setServoPulse(uint8_t n, double pulse) {
 }
 
 void loop() {
-  Serial.println("8 channel Servo test!");
+  Serial.println("7 channel Servo test!");
   // Drive each servo one at a time using setPWM()
-  // Serial.println(servonum);
-  // for (uint16_t pulselen = SERVOMIN; pulselen < SERVOMAX; pulselen++) {
-  //   pwm.setPWM(11, 0, pulselen);
-  //   delay(250);
-  // }
-
-  // delay(500);
-  // for (uint16_t pulselen = SERVOMAX; pulselen > SERVOMIN; pulselen--) {
-  //   pwm.setPWM(11, 0, pulselen);
-  //   delay(250);
-  // }
-    // pwm.setPWM(15, 0, 300);
-  // Serial.println(servonum);
-  // for (uint16_t pulselen = 0; pulselen < SERVOMAX; pulselen+=10) {
-  //   pwm.setPWM(10, 0, pulselen);
-  //   delay(2);
-  // }
-
-  // delay(500);
-  // for (uint16_t pulselen = 450; pulselen > SERVOMIN; pulselen-=10) {
-  //   pwm.setPWM(10, 0, pulselen);
-  //   delay(2);
-  // }
-
-  // Sweep from 0 to 180 degrees:
-  // for (int angle = 0; angle <= 270; angle += 1) {
-  //   Serial.println(angle);
-  //   SteeringServo.write(angle);
-  //   delay(20);
-  // }
-  // // delay(TurnDelay);
-  // // And back from 180 to 0 degrees:
-  // for (int angle = 270; angle >= 0; angle -= 1) {
-  //   Serial.println(angle);
-  //   SteeringServo.write(angle);
-  //   delay(20);
-  // }
-  // delay(500);
-
-  // Drive each servo one at a time using writeMicroseconds(), it's not precise due to calculation rounding!
-  // The writeMicroseconds() function is used to mimic the Arduino Servo library writeMicroseconds() behavior. 
-  // esc
-  // set servo to mid-point
-  // pwm.writeMicroseconds(10, 1500);
-  // pwm.writeMicroseconds(10, 600);
-  // pwm.writeMicroseconds(10, 500);
-  delay(1000);
-  for (uint16_t microsec = USMIN; microsec < USMAX; microsec+=50) {
-    pwm.writeMicroseconds(10, microsec);
+  // pwm.setPWMFreq(1000);
+    // pwm.setPWM(7, 0, 2000);
+    // delay(1000);
+    // pwm.setPWM(7, 0, 1300);
+    // delay(1000);
+    // pwm.setPWM(7, 0, 1000);
+    // delay(1000);
+  for (uint16_t pulselen = SERVOMIN; pulselen < SERVOMAX; pulselen+=5) {
+    pwm.setPWM(7, 0, pulselen);
+    delay(750);
   }
 
   delay(500);
-  for (uint16_t microsec = USMAX; microsec > USMIN; microsec-=50) {
-    pwm.writeMicroseconds(10, microsec);
+  for (uint16_t pulselen = SERVOMAX; pulselen > SERVOMIN; pulselen-=5) {
+    pwm.setPWM(7, 0, pulselen);
+    delay(750);
   }
+
+  // for (uint16_t microsec = USMIN; microsec < USMAX; microsec+=10) {
+  //   pwm.writeMicroseconds(7, microsec);
+  //   delay(750);
+  // }
+
+  // delay(500);
+  // for (uint16_t microsec = USMAX; microsec > USMIN; microsec-=10) {
+  //   pwm.writeMicroseconds(7, microsec);
+  //   delay(750);
+  // }
   // servo
   // for (uint16_t microsec = USMIN; microsec < USMAX; microsec++) {
   //   pwm.writeMicroseconds(7, microsec);
@@ -155,6 +127,6 @@ void loop() {
   // }
 
   delay(500);
-  // servonum++;
-  // if (servonum > 15) servonum = 0;
+  servonum++;
+  if (servonum > 15) servonum = 0;
 }

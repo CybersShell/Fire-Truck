@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// This program is what will be used to communicate to the Arduino board which will operate and control the other parts of
+// This program is used with the Arduino board which will operate and control the other parts of
 // the firetruck including the speed controller, water pump, and AdaFruit Wave Shield.
-// Connect the Arduino over I2C as shown here: https://archive.is/iZrCx#selection-1403.0-1412.8.
+// Connect the other Arduino over I2C as shown here: https://archive.is/iZrCx#selection-1403.0-1412.8.
 // Programmed by Colby McClure and Andrew Woodlee at SMAP.
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

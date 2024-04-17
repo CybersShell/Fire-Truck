@@ -4,29 +4,25 @@
 void setup()
 {
     Wire.begin();       // join i2c bus
-    // Serial.begin(9600); // start serial for output
-
+#ifdef DEBUG_FT
+    Serial.begin(9600); // start serial for output
+#endif
     if (Usb.Init() == -1)
     {
+#ifdef DEBUG_FT
         Serial.print(F("\r\nOSC did not start"));
+#endif
         while (1)
             ; // Halt
     }
 
+#ifdef DEBUG_FT
     Serial.print(F("\r\nGameController Bluetooth Library Started"));
-
-    // Initialize the old state of the firetruck - ctm
-    firetruck.oldState = fireTruckStates::still;
-
-    // Initialize the old state of the left stick - ctm
-    truckMotorEscControlStick.oldState = leftStickStates::leftStickNeutral;
-
-    // Initialize the old state of the right stick - ctm
-    truckSteeringServoControlStick.oldState = servoControlStickStates::rightStickNeutral;
+#endif
 
     // set the angles for the motor and servo
     truckMovementAngles.motor = 300;
-    truckMovementAngles.servo = 500;
+    truckMovementAngles.servo = 1500;
 
     SetUpPWMModule();
 
@@ -70,7 +66,6 @@ void loop()
         {
             truckControlTimes.servoEngaged = 0;
             truckMovementAngles.servo = 1500;
-            // Replace with PWM module code
             pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
         }
 
@@ -90,6 +85,14 @@ void loop()
             truckControlTimes.current = micros();
         }
         setMotorState();
+    } 
+
+    if (!GameController.connected())
+    {
+        truckMovementAngles.motor = MotorStopPoint;
+        pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
+        truckMovementAngles.servo = 1500;
+        pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
     }
 }
 
@@ -98,11 +101,9 @@ void loop()
 // send data over I2C interface to slave
 void sendData(char data, char secondMovementChar)
 {
-    Serial.print("Sending: ");
-    // Wire.beginTransmission(I2CAddress); // Transmit to device
-    // Serial.println(data);
-    // Wire.write(data);       // Send serial data
-    // Wire.endTransmission(); // Stop transmitting
+    Wire.beginTransmission(I2CAddress); // Transmit to device
+    Wire.write(data);       // Send serial data
+    Wire.endTransmission(); // Stop transmitting
 }
 
 /********************************************************************************************************************/
@@ -153,7 +154,7 @@ void setMotorState()
         if (motorsMoving && truckControlTimes.current - truckControlTimes.motorsEngaged >= motorPeriod)
         {
             // motor is backward
-            if (truckMovementAngles.motor <= 300)
+            if (truckMovementAngles.motor <= MotorStopPoint)
             {
                 pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
                 // Not needed - left here for posterity
@@ -162,7 +163,7 @@ void setMotorState()
                 truckControlTimes.motorsEngaged = truckControlTimes.current;
             }
             // motor is backward
-            else if (truckMovementAngles.motor >= 305)
+            else if (truckMovementAngles.motor >= MotorStopPoint)
             {
                 // Replace with PWM module code
                 pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);

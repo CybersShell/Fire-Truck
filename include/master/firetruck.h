@@ -52,44 +52,16 @@ struct RightStickState {
     servoControlStickStates oldState; 
 } truckSteeringServoControlStick; 
 
-// Set the states of the firetruck - ctm 
-enum fireTruckStates
-{
-    still,
-    stillToForward,
-    stillToBackward,
-    forwardToStill,
-    backwardToStill,
-    forward,
-    backward,
-    forwardToRight,
-    forwardToLeft,
-    forwardToBackward,
-    backwardToRight,
-    backwardToLeft,
-    backwardToForward,
-    straight, 
-    right,
-    left
-};
+
+// Pins for the ESC and Servo
+// NOTE: These pins correspond to the AdaFruit PWM servo control shield
+const int speedControllerPin = 7;
+const int servoPin = 9;
 
 
-
-/*
-  Motor configuration
-*/
-
-// Speed controller pin
-const int motorAngleChange = 2;
-const int steeringAngleChange = 10;
-
-
-/*
-  Servo configuration
-*/
-
-// The constants used for what pin and angle the Servo will be on
-const int servoPin = 10;
+// The angle degree change rate for both the servo and the ESC
+const int motorAngleChange = 5;
+const int steeringAngleChange = 5;
 int servoAngle;
 
 // PWM Module configuration
@@ -108,7 +80,6 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define SERVOMIN  1000 // This is the microseconds min
 #define SERVOMAX  2000 // This is the microseconds max
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
-const int speedControllerPin = 8;
 
 // Constant used for the water pump pin
 const int waterPumpPin = A3;
@@ -126,7 +97,9 @@ unsigned long servoPeriod = 1500;
 // increase the motor
 #define MotorForwardAngleCheck truckMovementAngles.motor <= 335
 // decrease the motor
-#define MotorBackwardAngleCheck truckMovementAngles.motor >= 265
+#define MotorBackwardAngleCheck truckMovementAngles.motor >= 235
+// motor stopping point
+#define MotorStopPoint 265
 
 // Begin structs
 typedef struct
@@ -152,18 +125,6 @@ movementAngles truckMovementAngles;
 
 // Function definitions
 
-void truckMovement();
-
-
-
-// Set the struct of the firetruck state to have an old and new value - ctm
-struct fireTruckState
-{
-    fireTruckStates newState;
-    fireTruckStates oldState; 
-} firetruck; 
-
-
 void sendData(char data, char secondMovementChar);
 
 void getState();
@@ -172,8 +133,6 @@ void setMotorState();
 
 void setSteeringServoState(); 
 
-void combineStates(); 
-
-void fireTruckControl();
+void combineStates();
 
 void SetUpPWMModule();
