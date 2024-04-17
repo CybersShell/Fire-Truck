@@ -107,6 +107,7 @@ boolean motorsMoving = false;
 
 // send signal to ESC every 1500 us
 unsigned long motorPeriod = 4500;
+unsigned long motorStopPeriod = 10000;
 // send signal to servo every 1500 us
 unsigned long servoPeriod = 1500;
 

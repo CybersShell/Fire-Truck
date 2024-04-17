@@ -151,7 +151,7 @@ void setMotorState()
     } // If the left stick is neutral - ctm
     else
     {
-        if (motorsMoving && truckControlTimes.current - truckControlTimes.motors.engaged >= motorPeriod)
+        if (motorsMoving && truckControlTimes.current - truckControlTimes.motors.engaged >= motorStopPeriod)
         {
             if (truckMovementAngles.motor < 90)
             {
