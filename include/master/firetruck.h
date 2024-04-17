@@ -32,26 +32,6 @@ PS4BT GameController(&Btd, PAIR);
 const int I2CAddress = 8; // I2C bus address
 
 
-// Set the states of the left stick - ctm 
-enum leftStickStates {leftStickUp, leftStickDown, leftStickNeutral}; 
-
-// Set the struct of the left stick state to have an old and new value - ctm 
-struct LeftStickState 
-{
-    leftStickStates newState;
-    leftStickStates oldState; 
-} truckMotorEscControlStick;
-
-// Set the states of the right stick - ctm 
-enum servoControlStickStates {rightStickRight, rightStickLeft, rightStickNeutral};
-
-// Set the struct of the right stick state to have an old and new value - ctm 
-struct RightStickState {
-    servoControlStickStates newState; 
-    servoControlStickStates oldState; 
-} truckSteeringServoControlStick; 
-
-
 // Pins for the ESC and Servo
 // NOTE: These pins correspond to the AdaFruit PWM servo control shield
 const int speedControllerPin = 7;
