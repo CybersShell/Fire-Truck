@@ -74,7 +74,7 @@ unsigned long motorStopPeriod = 10000;
 unsigned long servoPeriod = 1500;
 
 // increase the motor
-#define MotorForwardAngleCheck truckMovementAngles.motor <= 335
+#define MotorForwardAngleCheck truckMovementAngles.motor <= 325
 // decrease the motor
 #define MotorBackwardAngleCheck truckMovementAngles.motor >= 235
 // motor stopping point
