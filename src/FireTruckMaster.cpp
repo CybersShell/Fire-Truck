@@ -4,38 +4,29 @@
 void setup()
 {
     Wire.begin();       // join i2c bus
+#ifdef DEBUG_FT
     Serial.begin(9600); // start serial for output
-    // block while waiting for character over serial
-    while (!Serial)
-    {
-    }
-
-    // Uncomment for Debug message - ctm
-    // Serial.println("Starting Fire Truck Master Test");
-
-#if !defined(__MIPSEL__)
-    while (!Serial)
-        ; // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
 #endif
     if (Usb.Init() == -1)
     {
+#ifdef DEBUG_FT
         Serial.print(F("\r\nOSC did not start"));
+#endif
         while (1)
             ; // Halt
     }
 
+#ifdef DEBUG_FT
     Serial.print(F("\r\nGameController Bluetooth Library Started"));
+#endif
 
     // set the angles for the motor and servo
-    truckMovementAngles.motor = 90;
-    truckMovementAngles.servo = 90;
+    truckMovementAngles.motor = MotorStopPoint;
+    truckMovementAngles.servo = 1500;
 
-    SpeedCon.attach(speedControllerPin); // attaches the speed controller on pin 10
-    SpeedCon.write(truckMovementAngles.motor);
-    delay(600);
-    SteeringServo.attach(servoPin); // attaches the speed controller on pin 10
-    SteeringServo.write(truckMovementAngles.servo);
-    delay(600);
+    SetUpPWMModule();
+
+    delay(500);
 }
 
 /********************************************************************************************************************/
@@ -51,31 +42,31 @@ void loop()
         // If the X button has been hit, play the second sound - ctm
         if (GameController.getButtonClick(CROSS))
         {
-            sendData(TruckControlData.SoundTwo, dummyData);
+            sendData(TruckControlData.SoundTwo);
         }
 
         // If the triangle button has been hit, play the first sound - ctm
         if (GameController.getButtonClick(TRIANGLE))
         {
-            sendData(TruckControlData.SoundOne, dummyData);
+            sendData(TruckControlData.SoundOne);
         }
 
         // If the circle button has been hit, stop the current sound from playing - ctm
         if (GameController.getButtonClick(CIRCLE))
         {
-            sendData(TruckControlData.SoundStop, dummyData);
+            sendData(TruckControlData.SoundStop);
         }
 
         // If the square button has been hit, toggle the water pump - ctm
         if (GameController.getButtonClick(SQUARE))
         {
-            sendData(TruckControlData.ToggleWaterPump, dummyData);
+            sendData(TruckControlData.ToggleWaterPump);
         }
         if (GameController.getButtonClick(R3))
         {
             truckControlTimes.servoEngaged = 0;
-            truckMovementAngles.servo = 90;
-            SteeringServo.write(truckMovementAngles.servo);
+            truckMovementAngles.servo = 1500;
+            pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
         }
 
         // call these functions to get and set the current state of the control sticks
@@ -86,43 +77,41 @@ void loop()
             truckControlTimes.current = millis();
         }
         setMotorState();
-        truckControlTimes.current = millis();
+    } 
 
-        if (truckControlTimes.current + truckControlTimes.servoEngaged > ULONG_MAX + (unsigned long)1)
-        {
-            truckControlTimes.servoEngaged = 0;
-            truckControlTimes.current = millis();
-        }
-        setSteeringServoState();
+    if (!GameController.connected())
+    {
+        truckMovementAngles.motor = MotorStopPoint;
+        pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
+        truckMovementAngles.servo = 1500;
+        pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
     }
 }
 
 /********************************************************************************************************************/
 
 // send data over I2C interface to slave
-void sendData(char data, char secondMovementChar)
+void sendData(char data)
 {
-    Serial.print("Sending: ");
     Wire.beginTransmission(I2CAddress); // Transmit to device
-    Serial.println(data);
     Wire.write(data);       // Send serial data
     Wire.endTransmission(); // Stop transmitting
 }
 
 /********************************************************************************************************************/
 
-// This function updates the new state of the left stick and returns the new state depending on if the old state is the same or not - ctm
+// This function checks
 void setMotorState()
 {
     // Set these bools equal to the macros defined at the beginning - ctm
     // check motor stick position and set flags aproproately
 
-    bool isUp = forwardConditional;
+    bool isForward = motorStickForwardBoundCheck;
 
-    bool isDown = backwardConditional;
+    bool isBackward = motorStickBackwardBoundCheck;
 
     // If the left stick is up - ctm
-    if (isUp && !isDown)
+    if (isForward && !isBackward)
     {
         motorsMoving = true;
 
@@ -130,38 +119,46 @@ void setMotorState()
         {
             if (MotorForwardAngleCheck)
             {
-                truckControlTimes.motorsEngaged = truckControlTimes.current;
-                SpeedCon.write(truckMovementAngles.motor);
+                truckControlTimes.motorsEngaged = millis();
+
+                // Replace with PWM module code
+                pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
+                // pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
                 truckMovementAngles.motor += motorAngleChange;
             }
         }
     }
-    else if (!isUp && isDown)
+    else if (!isForward && isBackward)
     {
         motorsMoving = true;
         if (truckControlTimes.current - truckControlTimes.motors.engaged >= motorPeriod)
         {
-            if (MotorBackwardAngleCheck)
-            {
-                truckControlTimes.motorsEngaged = truckControlTimes.current;
-                SpeedCon.write(truckMovementAngles.motor);
-                truckMovementAngles.motor -= motorAngleChange;
-            }
+            truckControlTimes.motorsEngaged = millis();
+
+            pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
+            // Not needed - left here for posterity
+            // pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
+            truckMovementAngles.motor -= motorAngleChange;
         }
     } // If the left stick is neutral - ctm
     else
     {
         if (motorsMoving && truckControlTimes.current - truckControlTimes.motors.engaged >= motorStopPeriod)
         {
-            if (truckMovementAngles.motor < 90)
+            // motor is backward
+            if (truckMovementAngles.motor <= MotorStopPoint)
             {
-                SpeedCon.write(truckMovementAngles.motor);
+                pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
+                // Not needed - left here for posterity
+                // pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
                 truckMovementAngles.motor += motorAngleChange;
                 truckControlTimes.motors.engaged = truckControlTimes.current;
             }
-            else if (truckMovementAngles.motor > 90)
+            // motor is forward
+            else if (truckMovementAngles.motor >= MotorStopPoint)
             {
-                SpeedCon.write(truckMovementAngles.motor);
+                // Replace with PWM module code
+                pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
                 truckMovementAngles.motor -= motorAngleChange;
                 truckControlTimes.motors.engaged = truckControlTimes.current;
             }
@@ -190,12 +187,10 @@ void setSteeringServoState()
 {
 
     // Set these bools equal to the macros defined at the beginning - ctm
-    // delay(500);
-    // delayMicroseconds(2000);
-    bool isLeft = leftConditional;
-    // delayMicroseconds(2000);
-    // delay(500);
-    bool isRight = rightConditional;
+    // Check the servo stick state
+    bool isLeft = servoStickLeftBoundCheck;
+
+    bool isRight = servoStickRightBoundCheck;
 
     // truckMovementAngles.servo = SteeringServo.read();
     // If the right stick is to the left - ctm
@@ -203,13 +198,12 @@ void setSteeringServoState()
     {
         if (truckControlTimes.current - truckControlTimes.servoEngaged >= servoPeriod)
         {
-            if (truckMovementAngles.servo >= 60)
+            if (truckMovementAngles.servo >= 1000)
             {
                 truckControlTimes.servoEngaged = truckControlTimes.current;
                 truckMovementAngles.servo -= steeringAngleChange;
-                Serial.println("Left");
-                Serial.println(truckMovementAngles.servo);
-                SteeringServo.write(truckMovementAngles.servo);
+                // Replace with PWM module code
+                pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
             }
         }
     }
@@ -218,14 +212,37 @@ void setSteeringServoState()
 
         if (truckControlTimes.current - truckControlTimes.servoEngaged >= servoPeriod)
         {
-            if (truckMovementAngles.servo <= 120)
+            if (truckMovementAngles.servo <= 2000)
             {
                 truckControlTimes.servoEngaged = truckControlTimes.current;
                 truckMovementAngles.servo += steeringAngleChange;
-                Serial.println("Right");
-                Serial.println(truckMovementAngles.servo);
-                SteeringServo.write(truckMovementAngles.servo);
+                // Replace with PWM module code
+                pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
             }
         }
     }
+}
+
+void SetUpPWMModule() {
+     pwm.begin();
+  /*
+   * In theory the internal oscillator (clock) is 25MHz but it really isn't
+   * that precise. You can 'calibrate' this by tweaking this number until
+   * you get the PWM update frequency you're expecting!
+   * The int.osc. for the PCA9685 chip is a range between about 23-27MHz and
+   * is used for calculating things like writeMicroseconds()
+   * Analog servos run at ~50 Hz updates, It is importaint to use an
+   * oscilloscope in setting the int.osc frequency for the I2C PCA9685 chip.
+   * 1) Attach the oscilloscope to one of the PWM signal pins and ground on
+   *    the I2C PCA9685 chip you are setting the value for.
+   * 2) Adjust setOscillatorFrequency() until the PWM update frequency is the
+   *    expected value (50Hz for most ESCs)
+   * Setting the value here is specific to each individual I2C PCA9685 chip and
+   * affects the calculations for the PWM update frequency. 
+   * Failure to correctly set the int.osc value will cause unexpected PWM results
+   */
+  pwm.setOscillatorFrequency(26000000);
+  pwm.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates
+
+  delay(10);
 }

@@ -91,8 +91,8 @@ void combineStates()
 
 leftStickStates setServoState()
 {
-    bool isLeft = leftConditional;
-    bool isRight = rightConditional;
+    bool isLeft = servoStickLeftBoundCheck;
+    bool isRight = servoStickLeftBoundCheck;
     bool isNeutral = !isLeft && !isRight;
     if (isLeft && !isRight)
     {

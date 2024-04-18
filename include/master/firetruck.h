@@ -6,15 +6,16 @@
 #include <limits.h>
 #include <PS4Parser.h> // Added this header to the file
 #include <PS4BT.h>
+#include <Adafruit_PWMServoDriver.h>
 
 // These defined macros keep track of if the left stick moves - ctm 
-#define forwardConditional GameController.getAnalogHat(LeftHatY) < 70
-#define backwardConditional GameController.getAnalogHat(LeftHatY) > 220
+#define motorStickForwardBoundCheck GameController.getAnalogHat(LeftHatY) < 70
+#define motorStickBackwardBoundCheck GameController.getAnalogHat(LeftHatY) > 220
 #define leftNeutralConditional GameController.getAnalogHat(LeftHatY) > 70 && GameController.getAnalogHat(LeftHatY) < 220
 
 // These defined macros keep track of if the right stick moves - ctm 
-#define leftConditional GameController.getAnalogHat(RightHatX) < 70
-#define rightConditional GameController.getAnalogHat(RightHatX) > 220
+#define servoStickLeftBoundCheck GameController.getAnalogHat(RightHatX) < 70
+#define servoStickRightBoundCheck GameController.getAnalogHat(RightHatX) > 220
 #define rightNeutralConditional GameController.getAnalogHat(RightHatX) > 70 && GameController.getAnalogHat(RightHatX) < 220
 
 
@@ -30,73 +31,34 @@ PS4BT GameController(&Btd, PAIR);
 
 const int I2CAddress = 8; // I2C bus address
 
-char dummyData = 'x';
 
-// Set the states of the left stick - ctm 
-enum leftStickStates {leftStickUp, leftStickDown, leftStickNeutral}; 
-
-// Set the struct of the left stick state to have an old and new value - ctm 
-struct LeftStickState 
-{
-    leftStickStates newState;
-    leftStickStates oldState; 
-} truckMotorEscControlStick;
-
-// Set the states of the right stick - ctm 
-enum servoControlStickStates {rightStickRight, rightStickLeft, rightStickNeutral};
-
-// Set the struct of the right stick state to have an old and new value - ctm 
-struct RightStickState {
-    servoControlStickStates newState; 
-    servoControlStickStates oldState; 
-} truckSteeringServoControlStick; 
-
-// Set the states of the firetruck - ctm 
-enum fireTruckStates
-{
-    still,
-    stillToForward,
-    stillToBackward,
-    forwardToStill,
-    backwardToStill,
-    forward,
-    backward,
-    forwardToRight,
-    forwardToLeft,
-    forwardToBackward,
-    backwardToRight,
-    backwardToLeft,
-    backwardToForward,
-    straight, 
-    right,
-    left
-};
-
-#include <Servo.h>
+// Pins for the ESC and Servo
+// NOTE: These pins correspond to the AdaFruit PWM servo control shield
+const int speedControllerPin = 7;
+const int servoPin = 9;
 
 
-/*
-  Motor configuration
-*/
-
-// Speed controller pin
-const int speedControllerPin = 2;
-const int motorAngleChange = 2;
-const int steeringAngleChange = 2;
-
-// The Speed Controller PWMServo object that controls the Speed Controller
-Servo SpeedCon;
-
-/*
-  Servo configuration
-*/
-
-// The constants used for what pin and angle the Servo will be on
-const int servoPin = 3;
+// The angle degree change rate for both the servo and the ESC
+const int motorAngleChange = 5;
+const int steeringAngleChange = 5;
 int servoAngle;
-// Creates the "SteeringServo" object
-Servo SteeringServo;
 
+// PWM Module configuration
+// called this way, it uses the default address 0x40
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+// you can also call it with a different address you want
+// ! if you change the address on the servo board, use this
+//Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x41);
+// you can also call it with a different address and I2C interface
+//Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40, Wire);
+
+// Depending on your servo make, the pulse width min and max may vary, you 
+// want these to be as small/large as possible without hitting the hard stop
+// for max range. You'll have to tweak them as necessary to match the servos you
+// have!
+#define SERVOMIN  1000 // This is the microseconds min
+#define SERVOMAX  2000 // This is the microseconds max
+#define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
 // Constant used for the water pump pin
 const int waterPumpPin = A3;
@@ -112,9 +74,11 @@ unsigned long motorStopPeriod = 10000;
 unsigned long servoPeriod = 1500;
 
 // increase the motor
-#define MotorForwardAngleCheck truckMovementAngles.motor <= 110
+#define MotorForwardAngleCheck truckMovementAngles.motor <= 335
 // decrease the motor
-#define MotorBackwardAngleCheck truckMovementAngles.motor >= 60
+#define MotorBackwardAngleCheck truckMovementAngles.motor >= 235
+// motor stopping point
+#define MotorStopPoint 265
 
 // Begin structs
 typedef struct
@@ -150,9 +114,7 @@ movementAngles truckMovementAngles;
 
 // Function definitions
 
-void truckMovement();
-
-void sendData(char data, char secondMovementChar);
+void sendData(char data);
 
 void getState();
 
@@ -160,6 +122,6 @@ void setMotorState();
 
 void setSteeringServoState(); 
 
-void combineStates(); 
+void combineStates();
 
-void fireTruckControl(); 
+void SetUpPWMModule();
