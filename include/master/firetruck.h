@@ -60,15 +60,11 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define SERVOMAX  2000 // This is the microseconds max
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
-// Constant used for the water pump pin
-const int waterPumpPin = A3;
-bool waterPumpEnabled = false;
-
 // Variables for events
 boolean motorsMoving = false;
 
 // send signal to ESC every 1500 us
-unsigned long motorPeriod = 4500;
+unsigned long motorPeriod = 1500;
 unsigned long motorStopPeriod = 10000;
 // send signal to servo every 1500 us
 unsigned long servoPeriod = 1500;
