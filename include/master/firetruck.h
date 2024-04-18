@@ -96,7 +96,7 @@ typedef struct
   unsigned long servoEngaged;
 } timeVariables;
 
-// create instance of timeVariables struct
+// create instance of timeVariables struct to track times
 timeVariables truckControlTimes;
 
 typedef struct {
