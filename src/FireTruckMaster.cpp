@@ -119,11 +119,8 @@ void setMotorState()
         {
             if (MotorForwardAngleCheck)
             {
-                truckControlTimes.motorsEngaged = millis();
-
-                // Replace with PWM module code
+                truckControlTimes.motors.engaged = millis();
                 pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
-                // pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
                 truckMovementAngles.motor += motorAngleChange;
             }
         }
@@ -133,11 +130,8 @@ void setMotorState()
         motorsMoving = true;
         if (truckControlTimes.current - truckControlTimes.motors.engaged >= motorPeriod)
         {
-            truckControlTimes.motorsEngaged = millis();
-
+            truckControlTimes.motors.engaged = millis();
             pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
-            // Not needed - left here for posterity
-            // pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
             truckMovementAngles.motor -= motorAngleChange;
         }
     } // If the left stick is neutral - ctm

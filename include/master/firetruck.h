@@ -91,13 +91,9 @@ typedef struct
 {
   unsigned long current;
   // will be set in the motor control statements
-  unsigned long motorsEngaged;
-  // will be set in the motor control statements
   motorTimes motors;
   // will be set in servo control statements
   unsigned long servoEngaged;
-  // track the time the motor stick was engaged
-  unsigned long motorStickTime;
 } timeVariables;
 
 // create instance of timeVariables struct
