@@ -3,7 +3,7 @@
 // Setup function that only runs once when the Arduino is powered on - ctm
 void setup()
 {
-    Wire.begin();       // join i2c bus
+    Wire.begin(); // join i2c bus
 #ifdef DEBUG_FT
     Serial.begin(9600); // start serial for output
 #endif
@@ -68,16 +68,15 @@ void loop()
             truckMovementAngles.servo = 1500;
             pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
         }
+        truckControlTimes.current = millis();
 
+        overFlowedULongToZero(&truckControlTimes.motors.engaged);
+        setSteeringServoState();
         // call these functions to get and set the current state of the control sticks
         truckControlTimes.current = millis();
-        if (truckControlTimes.current + truckControlTimes.motors.engaged > ULONG_MAX + (unsigned long)1)
-        {
-            truckControlTimes.motors.engaged = 0;
-            truckControlTimes.current = millis();
-        }
+        overFlowedULongToZero(&truckControlTimes.servoEngaged);
         setMotorState();
-    } 
+    }
 
     if (!GameController.connected())
     {
@@ -85,7 +84,9 @@ void loop()
         pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
         truckMovementAngles.servo = 1500;
         pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
+        // delay(1500);
     }
+    delayMicroseconds(40);
 }
 
 /********************************************************************************************************************/
@@ -94,8 +95,8 @@ void loop()
 void sendData(char data)
 {
     Wire.beginTransmission(I2CAddress); // Transmit to device
-    Wire.write(data);       // Send serial data
-    Wire.endTransmission(); // Stop transmitting
+    Wire.write(data);                   // Send serial data
+    Wire.endTransmission();             // Stop transmitting
 }
 
 /********************************************************************************************************************/
@@ -120,8 +121,8 @@ void setMotorState()
             if (MotorForwardAngleCheck)
             {
                 truckControlTimes.motors.engaged = millis();
-                pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
                 truckMovementAngles.motor += motorAngleChange;
+                pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
             }
         }
     }
@@ -130,9 +131,12 @@ void setMotorState()
         motorsMoving = true;
         if (truckControlTimes.current - truckControlTimes.motors.engaged >= motorPeriod)
         {
-            truckControlTimes.motors.engaged = millis();
-            pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
-            truckMovementAngles.motor -= motorAngleChange;
+            if (MotorBackwardAngleCheck)
+            {
+                truckControlTimes.motors.engaged = millis();
+                truckMovementAngles.motor -= motorAngleChange;
+                pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
+            }
         }
     } // If the left stick is neutral - ctm
     else
@@ -140,29 +144,24 @@ void setMotorState()
         if (motorsMoving && truckControlTimes.current - truckControlTimes.motors.engaged >= motorStopPeriod)
         {
             // motor is backward
-            if (truckMovementAngles.motor <= MotorStopPoint)
+            if (truckMovementAngles.motor < MotorStopPoint)
             {
                 pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
-                // Not needed - left here for posterity
-                // pwm.writeMicroseconds(speedControllerPin, truckMovementAngles.motor);
                 truckMovementAngles.motor += motorAngleChange;
                 truckControlTimes.motors.engaged = truckControlTimes.current;
+                motorsMoving = false;
             }
             // motor is forward
-            else if (truckMovementAngles.motor >= MotorStopPoint)
+            else if (truckMovementAngles.motor > MotorStopPoint)
             {
                 // Replace with PWM module code
                 pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
                 truckMovementAngles.motor -= motorAngleChange;
                 truckControlTimes.motors.engaged = truckControlTimes.current;
+                motorsMoving = false;
             }
         }
     }
-    if (motorsMoving && (truckMovementAngles.motor >= 86 && truckMovementAngles.motor <= 94))
-    {
-        motorsMoving = false;
-    }
-    
 }
 
 /********************************************************************************************************************
@@ -217,26 +216,37 @@ void setSteeringServoState()
     }
 }
 
-void SetUpPWMModule() {
-     pwm.begin();
-  /*
-   * In theory the internal oscillator (clock) is 25MHz but it really isn't
-   * that precise. You can 'calibrate' this by tweaking this number until
-   * you get the PWM update frequency you're expecting!
-   * The int.osc. for the PCA9685 chip is a range between about 23-27MHz and
-   * is used for calculating things like writeMicroseconds()
-   * Analog servos run at ~50 Hz updates, It is importaint to use an
-   * oscilloscope in setting the int.osc frequency for the I2C PCA9685 chip.
-   * 1) Attach the oscilloscope to one of the PWM signal pins and ground on
-   *    the I2C PCA9685 chip you are setting the value for.
-   * 2) Adjust setOscillatorFrequency() until the PWM update frequency is the
-   *    expected value (50Hz for most ESCs)
-   * Setting the value here is specific to each individual I2C PCA9685 chip and
-   * affects the calculations for the PWM update frequency. 
-   * Failure to correctly set the int.osc value will cause unexpected PWM results
-   */
-  pwm.setOscillatorFrequency(26000000);
-  pwm.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates
+void SetUpPWMModule()
+{
+    pwm.begin();
+    /*
+     * In theory the internal oscillator (clock) is 25MHz but it really isn't
+     * that precise. You can 'calibrate' this by tweaking this number until
+     * you get the PWM update frequency you're expecting!
+     * The int.osc. for the PCA9685 chip is a range between about 23-27MHz and
+     * is used for calculating things like writeMicroseconds()
+     * Analog servos run at ~50 Hz updates, It is importaint to use an
+     * oscilloscope in setting the int.osc frequency for the I2C PCA9685 chip.
+     * 1) Attach the oscilloscope to one of the PWM signal pins and ground on
+     *    the I2C PCA9685 chip you are setting the value for.
+     * 2) Adjust setOscillatorFrequency() until the PWM update frequency is the
+     *    expected value (50Hz for most ESCs)
+     * Setting the value here is specific to each individual I2C PCA9685 chip and
+     * affects the calculations for the PWM update frequency.
+     * Failure to correctly set the int.osc value will cause unexpected PWM results
+     */
+    pwm.setOscillatorFrequency(26000000);
+    pwm.setPWMFreq(SERVO_FREQ); // Analog servos run at ~50 Hz updates
 
-  delay(10);
+    delay(10);
+}
+
+// changes time to zero if unsigned long is overflowed with the current truck control time
+void overFlowedULongToZero(unsigned long *timeToCheck)
+{
+    if (truckControlTimes.current + *timeToCheck > ULONG_MAX + (unsigned long)1)
+    {
+        *timeToCheck = 0;
+        truckControlTimes.current = millis();
+    }
 }

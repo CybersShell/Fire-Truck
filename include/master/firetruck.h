@@ -29,8 +29,6 @@ BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 PS4BT GameController(&Btd, PAIR);
 
 
-const int I2CAddress = 8; // I2C bus address
-
 
 // Pins for the ESC and Servo
 // NOTE: These pins correspond to the AdaFruit PWM servo control shield
@@ -70,9 +68,9 @@ unsigned long motorStopPeriod = 10000;
 unsigned long servoPeriod = 1500;
 
 // increase the motor
-#define MotorForwardAngleCheck truckMovementAngles.motor <= 325
+#define MotorForwardAngleCheck truckMovementAngles.motor <= 320
 // decrease the motor
-#define MotorBackwardAngleCheck truckMovementAngles.motor >= 235
+#define MotorBackwardAngleCheck truckMovementAngles.motor >= 240
 // motor stopping point
 #define MotorStopPoint 265
 
@@ -117,3 +115,5 @@ void setSteeringServoState();
 void combineStates();
 
 void SetUpPWMModule();
+
+void overFlowedULongToZero(unsigned long *timeToCheck);
