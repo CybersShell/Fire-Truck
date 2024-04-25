@@ -38,7 +38,7 @@ const int servoPin = 9;
 
 // The angle degree change rate for both the servo and the ESC
 const int motorAngleChange = 5;
-const int steeringAngleChange = 5;
+const int steeringAngleChange = 10;
 int servoAngle;
 
 // PWM Module configuration
@@ -63,14 +63,14 @@ boolean motorsMoving = false;
 
 // send signal to ESC every 1500 us
 unsigned long motorPeriod = 1500;
-unsigned long motorStopPeriod = 10000;
+unsigned long motorStopPeriod = 2000;
 // send signal to servo every 1500 us
 unsigned long servoPeriod = 1500;
 
 // increase the motor
-#define MotorForwardAngleCheck truckMovementAngles.motor <= 320
+#define MotorForwardAngleCheck truckMovementAngles.motor < 305
 // decrease the motor
-#define MotorBackwardAngleCheck truckMovementAngles.motor >= 240
+#define MotorBackwardAngleCheck truckMovementAngles.motor > 245
 // motor stopping point
 #define MotorStopPoint 265
 

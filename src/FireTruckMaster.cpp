@@ -84,7 +84,6 @@ void loop()
         pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
         truckMovementAngles.servo = 1500;
         pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
-        // delay(1500);
     }
     delayMicroseconds(40);
 }
@@ -149,7 +148,6 @@ void setMotorState()
                 pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
                 truckMovementAngles.motor += motorAngleChange;
                 truckControlTimes.motors.engaged = truckControlTimes.current;
-                motorsMoving = false;
             }
             // motor is forward
             else if (truckMovementAngles.motor > MotorStopPoint)
@@ -158,10 +156,14 @@ void setMotorState()
                 pwm.setPWM(speedControllerPin, 0, truckMovementAngles.motor);
                 truckMovementAngles.motor -= motorAngleChange;
                 truckControlTimes.motors.engaged = truckControlTimes.current;
-                motorsMoving = false;
             }
         }
     }
+    if (truckMovementAngles.motor == MotorStopPoint)
+    {
+        motorsMoving = false;
+    }
+    
 }
 
 /********************************************************************************************************************
@@ -191,11 +193,10 @@ void setSteeringServoState()
     {
         if (truckControlTimes.current - truckControlTimes.servoEngaged >= servoPeriod)
         {
-            if (truckMovementAngles.servo >= 1000)
+            if (truckMovementAngles.servo > 1000)
             {
-                truckControlTimes.servoEngaged = truckControlTimes.current;
                 truckMovementAngles.servo -= steeringAngleChange;
-                // Replace with PWM module code
+                truckControlTimes.servoEngaged = truckControlTimes.current;
                 pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
             }
         }
@@ -205,11 +206,10 @@ void setSteeringServoState()
 
         if (truckControlTimes.current - truckControlTimes.servoEngaged >= servoPeriod)
         {
-            if (truckMovementAngles.servo <= 2000)
+            if (truckMovementAngles.servo < 2000)
             {
-                truckControlTimes.servoEngaged = truckControlTimes.current;
                 truckMovementAngles.servo += steeringAngleChange;
-                // Replace with PWM module code
+                truckControlTimes.servoEngaged = truckControlTimes.current;
                 pwm.writeMicroseconds(servoPin, truckMovementAngles.servo);
             }
         }
