@@ -42,6 +42,9 @@ Servo SteeringServo;
 // our servo # counter
 uint8_t servonum = 0;
 
+#define ESC_MAX 305
+#define ESC_MIN 245
+
 void setup() {
   Serial.begin(9600);
   while(!Serial) {};
@@ -88,43 +91,29 @@ void setServoPulse(uint8_t n, double pulse) {
 void loop() {
   Serial.println("7 channel Servo test!");
   // Drive each servo one at a time using setPWM()
-  // pwm.setPWMFreq(1000);
-    // pwm.setPWM(7, 0, 2000);
-    // delay(1000);
-    // pwm.setPWM(7, 0, 1300);
-    // delay(1000);
-    // pwm.setPWM(7, 0, 1000);
-    // delay(1000);
-  for (uint16_t pulselen = SERVOMIN; pulselen < SERVOMAX; pulselen+=5) {
+
+
+  // drive 
+  for (uint16_t pulselen = ESC_MIN; pulselen < ESC_MAX; pulselen+=5) {
     pwm.setPWM(7, 0, pulselen);
     delay(750);
   }
 
   delay(500);
-  for (uint16_t pulselen = SERVOMAX; pulselen > SERVOMIN; pulselen-=5) {
+  for (uint16_t pulselen = ESC_MAX; pulselen > ESC_MIN; pulselen-=5) {
     pwm.setPWM(7, 0, pulselen);
     delay(750);
   }
 
-  // for (uint16_t microsec = USMIN; microsec < USMAX; microsec+=10) {
-  //   pwm.writeMicroseconds(7, microsec);
-  //   delay(750);
-  // }
-
-  // delay(500);
-  // for (uint16_t microsec = USMAX; microsec > USMIN; microsec-=10) {
-  //   pwm.writeMicroseconds(7, microsec);
-  //   delay(750);
-  // }
   // servo
-  // for (uint16_t microsec = USMIN; microsec < USMAX; microsec++) {
-  //   pwm.writeMicroseconds(7, microsec);
-  // }
+  for (uint16_t microsec = USMIN; microsec < USMAX; microsec++) {
+    pwm.writeMicroseconds(9, microsec);
+  }
 
-  // delay(500);
-  // for (uint16_t microsec = USMAX; microsec > USMIN; microsec--) {
-  //   pwm.writeMicroseconds(7, microsec);
-  // }
+  delay(500);
+  for (uint16_t microsec = USMAX; microsec > USMIN; microsec--) {
+    pwm.writeMicroseconds(9, microsec);
+  }
 
   delay(500);
   servonum++;
