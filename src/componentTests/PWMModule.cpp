@@ -93,7 +93,7 @@ void loop() {
   // Drive each servo one at a time using setPWM()
 
 
-  // drive 
+  // drive ESC
   for (uint16_t pulselen = ESC_MIN; pulselen < ESC_MAX; pulselen+=5) {
     pwm.setPWM(7, 0, pulselen);
     delay(750);
