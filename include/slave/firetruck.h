@@ -5,42 +5,13 @@
 #include <WaveUtil.h>
 #include <WaveHC.h>
 
-// Library used to control the servo
-#include <PWMServo.h>
-
 // Library for I2C interface
 #include <Wire.h>
 
 // common headers shared between master and slave
 #include <common.h>
 
-/*
-  Motor configuration
-*/
 
-// Speed controller pin
-const int speedControllerPin = 10;
-const int motorAngleChange = 2;
-const int steeringAngleChange = 2;
-
-// The Speed Controller PWMServo object that controls the Speed Controller
-PWMServo SpeedCon;
-
-/*
-  Servo configuration
-*/
-
-// The constants used for what pin and angle the Servo will be on
-const int servoPin = 9;
-int servoAngle;
-// Creates the "SteeringServo" object
-PWMServo SteeringServo;
-
-volatile char movementChar;
-int escValue = 90;
-volatile bool movement = false;
-volatile bool engageMotor = false;
-volatile bool motorForward = false;
 // Constant used for baud rate
 const int baud = 9600;
 
@@ -50,17 +21,11 @@ bool waterPumpEnabled = false;
 
 // Variables for events
 unsigned long currentTime;
-unsigned long timeMotorsEngaged;
+unsigned long timeToStopPlayingSound;
+unsigned long timeSoundStarted;
 boolean motorsMoving = false;
 
 
-// Servo turns every 20 ms
-unsigned long motorPeriod = 20;
-// Servo turns every 20 ms
-unsigned long servoPeriod = 20;
-
-unsigned long timeToStopPlayingSound;
-unsigned long timeSoundStarted;
 
 // SD card and sound objects
 
@@ -85,25 +50,6 @@ char *secondSound = "4.wav";
   Wire.begin(8); \
   Wire.onReceive(I2C_RxHandler);
 
-/*  Begin movement macros
-    The following steps prevent damaging the motors due to polarity reversal:
-      when motor is backward, still the motor, and then move backward
-      when motor is forward, still the motor, and then move forward
-*/
-
-
-// increase the motor
-#define MotorForwardAngleCheck truckMovementAngles.motor < 110
-// decrease the motor
-#define MotorBackwardAngleCheck truckMovementAngles.motor > 60
-
-
-
-#define ftTurnLeft SteeringServo.write(0)
-#define ftTurnRight SteeringServo.write(180)
-#define ftStraight SteeringServo.write(90)
-
-// End movement macros
 
 // Begin structs
 typedef struct
@@ -130,13 +76,4 @@ void stopPlayback();
 
 void waterPump();
 
-void initSC();
-
 void initShield();
-
-bool checkData(char c);
-
-bool isDataMovementChar(char controlData);
-
-void truckMovement();
-
