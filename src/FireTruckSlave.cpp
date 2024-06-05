@@ -108,8 +108,6 @@ void I2C_RxHandler(int numBytes)
     return;
   }
 
-  Serial.print("FreeRam in I2C handler = ");
-  Serial.println(FreeRam());
   delay(50);
 }
 
